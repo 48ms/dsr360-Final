@@ -444,6 +444,18 @@ CREATE TRIGGER trigger_set_customer_code
 -- 4. ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
 
+-- Helper: Check if user is SPV, Manager, or Admin
+CREATE OR REPLACE FUNCTION public.is_manager_or_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid()
+    AND role IN ('SPV', 'MANAGER', 'ADMIN')
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.customer_contacts ENABLE ROW LEVEL SECURITY;
@@ -457,22 +469,247 @@ ALTER TABLE public.visit_photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.opportunities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follow_ups ENABLE ROW LEVEL SECURITY;
 
--- Permissive authenticated policies for collaborative DSR sales team
-CREATE POLICY "profiles_select" ON public.profiles FOR SELECT TO authenticated USING (true);
-CREATE POLICY "profiles_update" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
+-- 1. Profiles
+CREATE POLICY "profiles_select" ON public.profiles
+  FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY "customers_all" ON public.customers FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "contacts_all" ON public.customer_contacts FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "equipment_all" ON public.customer_equipment FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "cust_prod_all" ON public.customer_products FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "products_select" ON public.products FOR SELECT TO authenticated USING (true);
-CREATE POLICY "competitors_select" ON public.competitors FOR SELECT TO authenticated USING (true);
+CREATE POLICY "profiles_update" ON public.profiles
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = id OR public.is_manager_or_admin());
 
-CREATE POLICY "visits_all" ON public.visits FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "popsas_all" ON public.visit_popsas FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "photos_all" ON public.visit_photos FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "opps_all" ON public.opportunities FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "followups_all" ON public.follow_ups FOR ALL TO authenticated USING (true) WITH CHECK (true);
+-- 2. Customers
+CREATE POLICY "customers_select" ON public.customers
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "customers_insert" ON public.customers
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = created_by OR auth.uid() = owner_id OR public.is_manager_or_admin());
+
+CREATE POLICY "customers_update" ON public.customers
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = owner_id OR auth.uid() = created_by OR public.is_manager_or_admin())
+  WITH CHECK (auth.uid() = owner_id OR auth.uid() = created_by OR public.is_manager_or_admin());
+
+CREATE POLICY "customers_delete" ON public.customers
+  FOR DELETE TO authenticated
+  USING (public.is_manager_or_admin());
+
+-- 3. Customer Contacts, Equipment, Products
+CREATE POLICY "contacts_select" ON public.customer_contacts
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "contacts_write" ON public.customer_contacts
+  FOR ALL TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_contacts.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  )
+  WITH CHECK (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_contacts.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
+
+CREATE POLICY "equipment_select" ON public.customer_equipment
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "equipment_write" ON public.customer_equipment
+  FOR ALL TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_equipment.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  )
+  WITH CHECK (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_equipment.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
+
+CREATE POLICY "cust_prod_select" ON public.customer_products
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "cust_prod_write" ON public.customer_products
+  FOR ALL TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_products.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  )
+  WITH CHECK (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_products.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
+
+-- 4. Products & Competitors (Master Catalog)
+CREATE POLICY "products_select" ON public.products
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "products_write" ON public.products
+  FOR ALL TO authenticated
+  USING (public.is_manager_or_admin())
+  WITH CHECK (public.is_manager_or_admin());
+
+CREATE POLICY "competitors_select" ON public.competitors
+  FOR SELECT TO authenticated USING (true);
+
+CREATE POLICY "competitors_write" ON public.competitors
+  FOR ALL TO authenticated
+  USING (public.is_manager_or_admin())
+  WITH CHECK (public.is_manager_or_admin());
+
+-- 5. Visits
+CREATE POLICY "visits_select" ON public.visits
+  FOR SELECT TO authenticated
+  USING (
+    user_id = auth.uid() OR
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = visits.customer_id
+      AND customers.owner_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "visits_insert" ON public.visits
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id OR public.is_manager_or_admin());
+
+CREATE POLICY "visits_update" ON public.visits
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id OR public.is_manager_or_admin())
+  WITH CHECK (auth.uid() = user_id OR public.is_manager_or_admin());
+
+CREATE POLICY "visits_delete" ON public.visits
+  FOR DELETE TO authenticated
+  USING (public.is_manager_or_admin());
+
+-- 6. Visit POPSAs & Photos
+CREATE POLICY "popsas_select" ON public.visit_popsas
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_popsas.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  );
+
+CREATE POLICY "popsas_write" ON public.visit_popsas
+  FOR ALL TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_popsas.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_popsas.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  );
+
+CREATE POLICY "photos_select" ON public.visit_photos
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_photos.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  );
+
+CREATE POLICY "photos_write" ON public.visit_photos
+  FOR ALL TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_photos.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.visits
+      WHERE visits.id = visit_photos.visit_id
+      AND (visits.user_id = auth.uid() OR public.is_manager_or_admin())
+    )
+  );
+
+-- 7. Opportunities (Pipeline)
+CREATE POLICY "opps_select" ON public.opportunities
+  FOR SELECT TO authenticated
+  USING (
+    created_by = auth.uid() OR
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = opportunities.customer_id
+      AND customers.owner_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "opps_insert" ON public.opportunities
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = created_by OR public.is_manager_or_admin());
+
+CREATE POLICY "opps_update" ON public.opportunities
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = created_by OR public.is_manager_or_admin())
+  WITH CHECK (auth.uid() = created_by OR public.is_manager_or_admin());
+
+CREATE POLICY "opps_delete" ON public.opportunities
+  FOR DELETE TO authenticated
+  USING (public.is_manager_or_admin());
+
+-- 8. Follow Ups (Task Engine)
+CREATE POLICY "followups_select" ON public.follow_ups
+  FOR SELECT TO authenticated
+  USING (
+    user_id = auth.uid() OR
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = follow_ups.customer_id
+      AND customers.owner_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "followups_insert" ON public.follow_ups
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id OR public.is_manager_or_admin());
+
+CREATE POLICY "followups_update" ON public.follow_ups
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id OR public.is_manager_or_admin())
+  WITH CHECK (auth.uid() = user_id OR public.is_manager_or_admin());
+
+CREATE POLICY "followups_delete" ON public.follow_ups
+  FOR DELETE TO authenticated
+  USING (auth.uid() = user_id OR public.is_manager_or_admin());
 
 -- ==============================================================================
 -- 5. SEED MASTER DATA (Shell Products & Competitors)
