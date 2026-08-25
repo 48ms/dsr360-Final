@@ -39,8 +39,9 @@ types/                       → type per entity + database.ts (generated Supaba
 
 1. Copy `.env.example` ke `.env.local`, isi dengan kredensial Supabase.
    **Pakai project Supabase terpisah untuk development dan production.**
-2. `npm install`
-3. `npm run dev`
+2. Eksekusi `supabase-schema.sql` di **Supabase SQL Editor** (Single Source of Truth untuk Tabel, RLS, Indexes, Master Seed, dan Trigger).
+3. `npm install`
+4. `npm run dev`
 
 ## Roadmap
 
