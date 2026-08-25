@@ -131,8 +131,11 @@ export function QuickVisitForm({
         discussion,
         opportunity_found: hasOpportunity,
         product_id: hasOpportunity && productId ? productId : undefined,
-        potential_volume:
-          hasOpportunity && potentialVolume ? parseFloat(potentialVolume) * 209 : undefined, // in liters
+        potential_volume: (() => {
+          if (!hasOpportunity || !potentialVolume) return undefined;
+          const parsed = parseFloat(potentialVolume);
+          return !isNaN(parsed) ? parsed * 209 : undefined;
+        })(),
         next_action_type: nextActionType,
         next_action_description: nextActionDescription,
         next_action_due_date: nextActionDueDate,

@@ -126,6 +126,9 @@ END $$;
 -- 2. TABLES
 -- ==============================================================================
 
+-- Drop legacy orphan tables if exist from previous prototypes
+DROP TABLE IF EXISTS public.popsa_entries CASCADE;
+
 -- 1. Profiles (Linked to auth.users)
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,

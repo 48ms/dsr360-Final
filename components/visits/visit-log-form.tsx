@@ -156,7 +156,11 @@ export function VisitLogForm({
         opportunity_name: opportunityName || (hasOpportunity ? `Peluang ${visit.customer?.customer_name}` : undefined),
         product_id: hasOpportunity && productId ? productId : undefined,
         potential_volume: calculatedVolumeLiters,
-        potential_value: hasOpportunity && potentialValue ? parseFloat(potentialValue) : undefined,
+        potential_value: (() => {
+          if (!hasOpportunity || !potentialValue) return undefined;
+          const parsed = parseFloat(potentialValue);
+          return !isNaN(parsed) ? parsed : undefined;
+        })(),
         opportunity_stage: hasOpportunity ? opportunityStage : undefined,
 
         has_next_action: hasNextAction,

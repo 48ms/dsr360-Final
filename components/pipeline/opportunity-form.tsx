@@ -79,13 +79,15 @@ export function OpportunityForm({
         }
       }
 
+      const parsedVal = potentialValue ? parseFloat(potentialValue) : null;
+
       const res = await createOpportunity({
         customer_id: customerId,
         opportunity_name: opportunityName.trim(),
         product_id: productId || null,
         stage,
         potential_volume: calculatedVolumeLiters,
-        potential_value: potentialValue ? parseFloat(potentialValue) : null,
+        potential_value: parsedVal !== null && !isNaN(parsedVal) ? parsedVal : null,
         probability,
         expected_close_date: expectedCloseDate || undefined,
         competitor_id: competitorId || null,
