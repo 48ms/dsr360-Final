@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="dsrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="512" height="512" rx="110" fill="#171717" />
+  
+  <!-- Outer Ring / Orbit (360) -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#dsrGrad)" stroke-width="20" stroke-dasharray="800 200" stroke-linecap="round" filter="url(#shadow)" />
+  
+  <!-- Oil Drop / Fuel Shield Center -->
+  <path d="M256 120 C256 120, 160 250, 160 320 C160 373.02, 202.98 416, 256 416 C309.02 416, 352 373.02, 352 320 C352 250, 256 120, 256 120 Z" fill="url(#dsrGrad)" filter="url(#shadow)" />
+  
+  <!-- DSR360 Monogram Typography -->
+  <text x="256" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2">DSR</text>
+  <text x="256" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#FEF3C7" text-anchor="middle" letter-spacing="4">360</text>
+</svg>

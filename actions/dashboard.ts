@@ -1,0 +1,243 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
+
+export type PriorityAlert = {
+  id: string;
+  type: "OVERDUE" | "DORMANT" | "TRIAL_CLOSING" | "PRIORITY_A";
+  title: string;
+  subtitle: string;
+  badge: string;
+  badgeColor: string;
+  href: string;
+};
+
+export type DashboardData = {
+  profile: {
+    full_name: string;
+    role: string;
+    sales_area: string | null;
+  } | null;
+  todayVisitsCount: number;
+  todayFollowUpsCount: number;
+  overdueCount: number;
+  priorityAlerts: PriorityAlert[];
+  pipelineTotalValue: number;
+  pipelineStageBreakdown: Array<{ stage: string; value: number; count: number }>;
+  monthlyVisitsCompleted: number;
+  monthlyDealsWon: number;
+};
+
+export async function getDashboardData(): Promise<DashboardData> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      profile: null,
+      todayVisitsCount: 0,
+      todayFollowUpsCount: 0,
+      overdueCount: 0,
+      priorityAlerts: [],
+      pipelineTotalValue: 0,
+      pipelineStageBreakdown: [],
+      monthlyVisitsCompleted: 0,
+      monthlyDealsWon: 0,
+    };
+  }
+
+  const todayStr = getTodayWIB();
+  const startOfMonth = getStartOfMonthWIB();
+
+  // Parallel fetches for speed
+  const [
+    { data: profile },
+    { data: todayVisits },
+    { data: followUps },
+    { data: opportunities },
+    { data: customers },
+    { data: monthlyVisits },
+  ] = await Promise.all([
+    supabase.from("profiles").select("full_name, role, sales_area").eq("id", user.id).single(),
+    supabase
+      .from("visits")
+      .select("id, visit_status")
+      .or(`visit_date.eq.${todayStr},visit_status.eq.IN_PROGRESS`),
+    supabase
+      .from("follow_ups")
+      .select(
+        `
+        id,
+        activity_type,
+        description,
+        due_date,
+        priority,
+        status,
+        customer:customers (id, customer_name, city, priority)
+      `
+      )
+      .eq("status", "PENDING")
+      .order("due_date", { ascending: true }),
+    supabase
+      .from("opportunities")
+      .select(
+        `
+        id,
+        opportunity_name,
+        stage,
+        status,
+        potential_value,
+        potential_volume,
+        updated_at,
+        customer:customers (id, customer_name, priority)
+      `
+      ),
+    supabase
+      .from("customers")
+      .select(
+        `
+        id,
+        customer_name,
+        customer_code,
+        city,
+        status,
+        priority,
+        potential_monthly_volume,
+        visits:visits (visit_date)
+      `
+      )
+      .order("priority", { ascending: true })
+      .limit(30),
+    supabase
+      .from("visits")
+      .select("id")
+      .eq("visit_status", "COMPLETED")
+      .gte("visit_date", startOfMonth),
+  ]);
+
+  // 1. Counters
+  const todayVisitsCount = todayVisits?.length ?? 0;
+  const pendingFollowUps = followUps ?? [];
+  const todayFollowUpsCount = pendingFollowUps.filter((f) => f.due_date === todayStr).length;
+  const overdueFollowUps = pendingFollowUps.filter((f) => f.due_date < todayStr);
+  const overdueCount = overdueFollowUps.length;
+
+  // 2. Priority Alerts ("What Should I Do Today?")
+  const priorityAlerts: PriorityAlert[] = [];
+
+  // Overdue follow-up alerts
+  for (const f of overdueFollowUps.slice(0, 3)) {
+    const overdueDays = Math.max(1, daysSince(f.due_date));
+    priorityAlerts.push({
+      id: f.id,
+      type: "OVERDUE",
+      title: f.customer?.customer_name ?? "Customer",
+      subtitle: `${f.description || f.activity_type} · ${overdueDays} hari overdue`,
+      badge: `🔴 ${overdueDays}d OVERDUE`,
+      badgeColor: "bg-red-100 text-red-800 border-red-200",
+      href: `/follow-ups`,
+    });
+  }
+
+  // Priority A customers not visited in > 14 days
+  for (const c of customers ?? []) {
+    if (c.priority === "A") {
+      const sortedVisits = (c.visits ?? []).sort((a, b) =>
+        b.visit_date.localeCompare(a.visit_date)
+      );
+      const lastVisit = sortedVisits[0]?.visit_date;
+      const days = lastVisit ? daysSince(lastVisit) : 999;
+
+      if (days >= 14) {
+        priorityAlerts.push({
+          id: c.id,
+          type: "PRIORITY_A",
+          title: c.customer_name,
+          subtitle: `Priority A · ${lastVisit ? `${days} hari belum dikunjungi` : "Belum pernah dikunjungi"}`,
+          badge: "🔥 PRIORITY A",
+          badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+          href: `/customers/${c.id}`,
+        });
+      }
+    }
+  }
+
+  // High-value deals in Trial or Quotation stage
+  for (const opp of opportunities ?? []) {
+    if (
+      (opp.stage === "TRIAL" || opp.stage === "QUOTATION") &&
+      (opp.potential_value ?? 0) >= 50_000_000
+    ) {
+      if (priorityAlerts.length < 6) {
+        priorityAlerts.push({
+          id: opp.id,
+          type: "TRIAL_CLOSING",
+          title: opp.customer?.customer_name ?? "Deal Besar",
+          subtitle: `${opp.opportunity_name} · Stage ${opp.stage}`,
+          badge: opp.stage === "TRIAL" ? "🟢 TRIAL" : "⚡ QUOTATION",
+          badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+          href: `/pipeline`,
+        });
+      }
+    }
+  }
+
+  // 3. Pipeline Value Calculation
+  let pipelineTotalValue = 0;
+  const stageMap: Record<string, { value: number; count: number }> = {
+    PROSPECT: { value: 0, count: 0 },
+    QUALIFIED: { value: 0, count: 0 },
+    PRESENTATION: { value: 0, count: 0 },
+    TRIAL: { value: 0, count: 0 },
+    QUOTATION: { value: 0, count: 0 },
+    NEGOTIATION: { value: 0, count: 0 },
+  };
+
+  let monthlyDealsWon = 0;
+
+  for (const opp of opportunities ?? []) {
+    const val = opp.potential_value ?? 0;
+    if (opp.stage !== "LOST" && opp.stage !== "WON") {
+      pipelineTotalValue += val;
+      if (stageMap[opp.stage]) {
+        stageMap[opp.stage].value += val;
+        stageMap[opp.stage].count += 1;
+      }
+    }
+    if (opp.stage === "WON") {
+      if (!opp.updated_at || opp.updated_at >= startOfMonth) {
+        monthlyDealsWon += 1;
+      }
+    }
+  }
+
+  const pipelineStageBreakdown = Object.entries(stageMap)
+    .filter(([, data]) => data.count > 0 || data.value > 0)
+    .map(([stage, data]) => ({
+      stage,
+      value: data.value,
+      count: data.count,
+    }));
+
+  return {
+    profile: profile
+      ? {
+          full_name: profile.full_name,
+          role: profile.role,
+          sales_area: profile.sales_area,
+        }
+      : null,
+    todayVisitsCount,
+    todayFollowUpsCount,
+    overdueCount,
+    priorityAlerts,
+    pipelineTotalValue,
+    pipelineStageBreakdown,
+    monthlyVisitsCompleted: monthlyVisits?.length ?? 0,
+    monthlyDealsWon,
+  };
+}
