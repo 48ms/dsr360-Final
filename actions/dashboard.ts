@@ -95,7 +95,9 @@ export async function getDashboardData(): Promise<DashboardData> {
         updated_at,
         customer:customers (id, customer_name, priority)
       `
-      ),
+      )
+      .neq("stage", "LOST")
+      .limit(300),
     supabase
       .from("customers")
       .select(
@@ -110,7 +112,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         visits:visits (visit_date)
       `
       )
-      .order("priority", { ascending: true })
+      .eq("priority", "A")
       .limit(30),
     supabase
       .from("visits")

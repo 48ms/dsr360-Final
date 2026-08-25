@@ -85,7 +85,8 @@ export async function listCustomers(filters: CustomerListFilters = {}) {
     .order("customer_name", { ascending: true });
 
   if (filters.search) {
-    query = query.ilike("customer_name", `%${filters.search}%`);
+    const escaped = filters.search.replace(/[%_\\]/g, "\\$&");
+    query = query.ilike("customer_name", `%${escaped}%`);
   }
   if (filters.priority) {
     query = query.eq("priority", filters.priority);

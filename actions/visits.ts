@@ -248,7 +248,30 @@ export async function startVisit(input: StartVisitInput) {
   }
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Sesi login berakhir, silakan login ulang." };
+  }
+
   const { visit_id, latitude, longitude, start_time } = parsed.data;
+
+  // 1. Validate existing visit and status transition
+  const { data: existingVisit } = await supabase
+    .from("visits")
+    .select("user_id, visit_status")
+    .eq("id", visit_id)
+    .single();
+
+  if (!existingVisit) {
+    return { error: "Data visit tidak ditemukan." };
+  }
+
+  if (existingVisit.visit_status !== "PLANNED") {
+    return { error: `Visit tidak dapat dimulai karena status saat ini: ${existingVisit.visit_status}` };
+  }
 
   const now = start_time || new Date().toISOString();
 
@@ -261,7 +284,8 @@ export async function startVisit(input: StartVisitInput) {
       longitude: longitude ?? null,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", visit_id);
+    .eq("id", visit_id)
+    .eq("visit_status", "PLANNED");
 
   if (error) {
     console.error("startVisit error:", error.message);
@@ -309,15 +333,28 @@ export async function submitVisitLog(input: VisitLogInput) {
     duration_minutes,
   } = parsed.data;
 
-  // 1. Fetch current visit to get customer_id
+  // 1. Fetch current visit to get customer_id & verify ownership
   const { data: existingVisit } = await supabase
     .from("visits")
-    .select("customer_id, start_time")
+    .select("customer_id, start_time, user_id, visit_status")
     .eq("id", visit_id)
     .single();
 
   if (!existingVisit) {
     return { error: "Data visit tidak ditemukan." };
+  }
+
+  // Ownership guard (allow admin/manager override)
+  if (existingVisit.user_id !== user.id) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || (profile.role !== "ADMIN" && profile.role !== "MANAGER")) {
+      return { error: "Anda tidak memiliki akses untuk mengisi log visit ini." };
+    }
   }
 
   const nowIso = end_time || new Date().toISOString();

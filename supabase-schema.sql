@@ -384,26 +384,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Access helper functions for RLS
-CREATE OR REPLACE FUNCTION public.can_access_customer(customer_uuid UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.customers
-    WHERE id = customer_uuid
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION public.can_access_visit(visit_uuid UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.visits
-    WHERE id = visit_uuid
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- (Legacy broken can_access_customer/can_access_visit stubs removed.
+--  The proper role-aware can_access_customer(cust_id) is defined below.)
 
 -- Trigger to auto-create profile on auth.users insert
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -469,7 +451,6 @@ RETURNS BOOLEAN AS $$
 DECLARE
   v_role public.user_role;
   v_user_area TEXT;
-  v_cust_area TEXT;
   v_owner_id UUID;
   v_created_by UUID;
 BEGIN
@@ -481,15 +462,16 @@ BEGIN
     RETURN TRUE;
   END IF;
 
-  SELECT sales_area, owner_id, created_by
-  INTO v_cust_area, v_owner_id, v_created_by
+  SELECT owner_id, created_by
+  INTO v_owner_id, v_created_by
   FROM public.customers
   WHERE id = cust_id;
 
   IF v_role = 'SPV' THEN
-    RETURN (v_cust_area = v_user_area) OR EXISTS (
+    RETURN EXISTS (
       SELECT 1 FROM public.profiles
-      WHERE id = v_owner_id AND sales_area = v_user_area
+      WHERE (id = v_owner_id OR id = v_created_by)
+      AND sales_area = v_user_area
     );
   END IF;
 
@@ -527,14 +509,6 @@ CREATE POLICY "customers_insert" ON public.customers
   FOR INSERT TO authenticated
   WITH CHECK (
     public.is_admin_or_manager()
-    OR (
-      EXISTS (
-        SELECT 1 FROM public.profiles
-        WHERE id = auth.uid()
-        AND role = 'SPV'
-        AND sales_area = customers.sales_area
-      )
-    )
     OR (auth.uid() = created_by OR auth.uid() = owner_id)
   );
 

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { formatCurrency, formatVolume, formatDate } from "@/lib/utils/format";
 import { updateOpportunityStage } from "@/actions/opportunities";
-import { type OpportunityStage, type Priority } from "@/constants/enums";
+import { type OpportunityStage } from "@/constants/enums";
 import { PriorityBadge } from "@/components/customers/status-badge";
 import {
   ArrowLeft,
@@ -19,68 +19,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
-export type OpportunityDetailData = {
-  opportunity: {
-    id: string;
-    opportunity_name: string;
-    stage: OpportunityStage;
-    status: string;
-    potential_volume: number | null;
-    potential_value: number | null;
-    probability: number | null;
-    expected_close_date: string | null;
-    customer_need: string | null;
-    objection: string | null;
-    next_action: string | null;
-    next_action_date: string | null;
-    created_at: string;
-    updated_at: string;
-  };
-  customer: {
-    id: string;
-    customer_name: string;
-    customer_code: string;
-    segment: string;
-    priority: Priority;
-    city: string | null;
-    address: string | null;
-    contacts?: Array<{
-      id: string;
-      name: string;
-      position: string | null;
-      phone: string | null;
-      is_primary: boolean;
-    }> | null;
-  } | null;
-  product: {
-    id: string;
-    brand: string;
-    product_name: string;
-    category: string | null;
-    viscosity: string | null;
-  } | null;
-  competitor: {
-    id: string;
-    brand: string;
-    product_name: string | null;
-  } | null;
-  visit: {
-    id: string;
-    visit_date: string;
-    visit_type: string;
-    purpose: string | null;
-  } | null;
-  followUps: Array<{
-    id: string;
-    activity_type: string;
-    description: string;
-    due_date: string;
-    priority: string;
-    status: string;
-    completed_at: string | null;
-    result: string | null;
-  }>;
-};
+import type { getOpportunityDetail } from "@/actions/opportunities";
+
+export type OpportunityDetailData = NonNullable<Awaited<ReturnType<typeof getOpportunityDetail>>>;
 
 const STAGE_ORDER: OpportunityStage[] = [
   "PROSPECT",

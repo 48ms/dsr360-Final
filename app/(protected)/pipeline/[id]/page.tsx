@@ -1,5 +1,5 @@
 import { getOpportunityDetail } from "@/actions/opportunities";
-import { OpportunityDetailClient, type OpportunityDetailData } from "@/components/pipeline/opportunity-detail-client";
+import { OpportunityDetailClient } from "@/components/pipeline/opportunity-detail-client";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -16,5 +16,5 @@ export default async function OpportunityDetailPage({
     notFound();
   }
 
-  return <OpportunityDetailClient data={detail as unknown as OpportunityDetailData} />;
+  return <OpportunityDetailClient data={detail} />;
 }

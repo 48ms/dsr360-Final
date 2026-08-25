@@ -35,10 +35,13 @@ export type FollowUpItem = {
   } | null;
 };
 
-export async function listFollowUps() {
+export async function listFollowUps(filters?: {
+  status?: "PENDING" | "COMPLETED" | "CANCELLED";
+  limit?: number;
+}) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("follow_ups")
     .select(
       `
@@ -69,7 +72,14 @@ export async function listFollowUps() {
       )
     `
     )
-    .order("due_date", { ascending: true });
+    .order("due_date", { ascending: true })
+    .limit(filters?.limit ?? 300);
+
+  if (filters?.status) {
+    query = query.eq("status", filters.status);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("listFollowUps error:", error.message);
