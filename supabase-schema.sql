@@ -482,7 +482,8 @@ CREATE POLICY "profiles_update" ON public.profiles
 
 -- 2. Customers
 CREATE POLICY "customers_select" ON public.customers
-  FOR SELECT TO authenticated USING (true);
+  FOR SELECT TO authenticated
+  USING (auth.uid() = owner_id OR auth.uid() = created_by OR public.is_manager_or_admin());
 
 CREATE POLICY "customers_insert" ON public.customers
   FOR INSERT TO authenticated
@@ -499,7 +500,15 @@ CREATE POLICY "customers_delete" ON public.customers
 
 -- 3. Customer Contacts, Equipment, Products
 CREATE POLICY "contacts_select" ON public.customer_contacts
-  FOR SELECT TO authenticated USING (true);
+  FOR SELECT TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_contacts.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
 
 CREATE POLICY "contacts_write" ON public.customer_contacts
   FOR ALL TO authenticated
@@ -521,7 +530,15 @@ CREATE POLICY "contacts_write" ON public.customer_contacts
   );
 
 CREATE POLICY "equipment_select" ON public.customer_equipment
-  FOR SELECT TO authenticated USING (true);
+  FOR SELECT TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_equipment.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
 
 CREATE POLICY "equipment_write" ON public.customer_equipment
   FOR ALL TO authenticated
@@ -543,7 +560,15 @@ CREATE POLICY "equipment_write" ON public.customer_equipment
   );
 
 CREATE POLICY "cust_prod_select" ON public.customer_products
-  FOR SELECT TO authenticated USING (true);
+  FOR SELECT TO authenticated
+  USING (
+    public.is_manager_or_admin() OR
+    EXISTS (
+      SELECT 1 FROM public.customers
+      WHERE customers.id = customer_products.customer_id
+      AND (customers.owner_id = auth.uid() OR customers.created_by = auth.uid())
+    )
+  );
 
 CREATE POLICY "cust_prod_write" ON public.customer_products
   FOR ALL TO authenticated
