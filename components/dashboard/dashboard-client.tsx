@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { logout } from "@/actions/auth";
 import { formatCurrency } from "@/lib/utils/format";
 import type { DashboardData } from "@/actions/dashboard";
+import { ProductTechnicalSheetModal, type MasterProductItem } from "@/components/products/product-technical-sheet-modal";
 import {
   Calendar,
   ChevronRight,
@@ -12,10 +14,23 @@ import {
   LogOut,
   Target,
   Zap,
+  Sparkles,
+  Bot,
+  TrendingUp,
+  Award,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
-export function DashboardClient({ data }: { data: DashboardData }) {
+export function DashboardClient({
+  data,
+  products = [],
+}: {
+  data: DashboardData;
+  products?: MasterProductItem[];
+}) {
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+
   const todayFormatted = new Intl.DateTimeFormat("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -24,8 +39,18 @@ export function DashboardClient({ data }: { data: DashboardData }) {
     timeZone: "Asia/Jakarta",
   }).format(new Date());
 
+  const volumeProgress = Math.min(
+    100,
+    Math.round(((data.monthlyWonVolume || 0) / (data.monthlyVolumeTarget || 20000)) * 100)
+  );
+
+  const valueProgress = Math.min(
+    100,
+    Math.round(((data.monthlyWonValue || 0) / (data.monthlyValueTarget || 200000000)) * 100)
+  );
+
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6 pb-24">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-5 pb-24">
       {/* 1. Header: Greeting & Role */}
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -49,7 +74,62 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </form>
       </div>
 
-      {/* 2. TODAY COUNTERS */}
+      {/* 2. ☀️ BANG RADIT MORNING BRIEFING CARD */}
+      <div className="rounded-3xl border border-amber-300 bg-gradient-to-br from-amber-500/15 via-amber-50/50 to-white p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white shadow-2xs">
+              <Bot className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-xs sm:text-sm font-extrabold text-neutral-900 flex items-center gap-1.5">
+                <span>{data.morningBriefing?.greeting || "Briefing Taktis Pagi Ini"}</span>
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-900 border border-amber-500/30">
+                  <Sparkles className="h-2.5 w-2.5 text-amber-600" /> 13 Pilar Grounded
+                </span>
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1.5 text-xs text-neutral-800">
+          <p className="font-semibold text-neutral-900 leading-relaxed">
+            {data.morningBriefing?.focusText}
+          </p>
+          <div className="rounded-xl bg-white/90 p-2.5 border border-amber-200/80 text-[11px] text-neutral-700 font-medium leading-relaxed italic">
+            💡 <strong>Taktik Bang Radit:</strong> {data.morningBriefing?.tacticalTip}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-amber-200/60 text-xs flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/follow-ups"
+              className="text-[11px] font-bold text-amber-900 hover:text-amber-700 flex items-center gap-1"
+            >
+              <span>AI Follow-Up Radar</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/pipeline"
+              className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1"
+            >
+              <span>Pipeline Deal</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsCatalogOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-950 border border-amber-500/40 hover:bg-amber-500/30 transition cursor-pointer"
+          >
+            <BookOpen className="h-3 w-3 text-amber-700" />
+            <span>Contekan Spek Shell</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. TODAY COUNTERS */}
       <div>
         <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 block mb-2">
           Aktivitas Hari Ini
@@ -111,7 +191,54 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </div>
       </div>
 
-      {/* 3. 🔥 PRIORITY TODAY ("What Should I Do Today?") */}
+      {/* 4. 🎯 SALES TARGET & QUOTA PROGRESS METER */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3.5">
+        <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+          <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
+            <Award className="h-4 w-4 text-amber-500" />
+            <span>Target Penjualan Bulan Ini</span>
+          </span>
+          <span className="text-[10px] font-extrabold uppercase bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
+            Shell B2B Quota
+          </span>
+        </div>
+
+        {/* Volume Progress Bar */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-neutral-700">Pencapaian Volume (Liter):</span>
+            <span className="text-neutral-900 font-bold">
+              {data.monthlyWonVolume.toLocaleString("id-ID")} / {data.monthlyVolumeTarget.toLocaleString("id-ID")} L
+              <span className="ml-1.5 text-amber-600">({volumeProgress}%)</span>
+            </span>
+          </div>
+          <div className="w-full h-2.5 rounded-full bg-neutral-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
+              style={{ width: `${volumeProgress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Value Progress Bar */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-neutral-700">Pencapaian Nilai (IDR):</span>
+            <span className="text-emerald-700 font-extrabold">
+              {formatCurrency(data.monthlyWonValue)} / {formatCurrency(data.monthlyValueTarget)}
+              <span className="ml-1.5 text-emerald-600">({valueProgress}%)</span>
+            </span>
+          </div>
+          <div className="w-full h-2.5 rounded-full bg-neutral-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
+              style={{ width: `${valueProgress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 5. 🔥 PRIORITY TODAY ("What Should I Do Today?") */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
           <div className="flex items-center gap-1.5">
@@ -162,7 +289,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         )}
       </div>
 
-      {/* 4. PIPELINE SUMMARY */}
+      {/* 6. PIPELINE SUMMARY */}
       <div className="rounded-2xl bg-neutral-900 p-5 text-white shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
@@ -202,7 +329,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         )}
       </div>
 
-      {/* 5. MONTHLY PERFORMANCE KPI */}
+      {/* 7. MONTHLY PERFORMANCE KPI */}
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
         <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 block">
           Pencapaian Bulan Ini
@@ -223,16 +350,23 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </div>
       </div>
 
-      {/* 6. PROMINENT CTA: QUICK VISIT */}
+      {/* 8. PROMINENT CTA: QUICK VISIT */}
       <div className="pt-2">
         <Link
           href="/visits/quick"
-          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-amber-500 to-amber-600 py-3.5 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 transition"
+          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 transition cursor-pointer"
         >
           <Zap className="h-4 w-4 fill-current" />
           <span>⚡ + QUICK VISIT LAPANGAN (1 MENIT)</span>
         </Link>
       </div>
+
+      {/* 9. Technical Sheet Modal */}
+      <ProductTechnicalSheetModal
+        isOpen={isCatalogOpen}
+        onClose={() => setIsCatalogOpen(false)}
+        products={products}
+      />
     </div>
   );
 }

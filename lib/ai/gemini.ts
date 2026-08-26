@@ -184,7 +184,7 @@ export async function fetchCustomerDossier(customerId: string): Promise<Customer
 /**
  * Resilient Gemini API Caller with Automatic Model Fallback Cascade
  */
-async function callGemini(
+export async function callGemini(
   systemPrompt: string,
   userPrompt: string,
   temperature: number = 0.4

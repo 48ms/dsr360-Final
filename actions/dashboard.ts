@@ -27,6 +27,15 @@ export type DashboardData = {
   pipelineStageBreakdown: Array<{ stage: string; value: number; count: number }>;
   monthlyVisitsCompleted: number;
   monthlyDealsWon: number;
+  monthlyWonVolume: number;
+  monthlyWonValue: number;
+  monthlyVolumeTarget: number;
+  monthlyValueTarget: number;
+  morningBriefing: {
+    greeting: string;
+    focusText: string;
+    tacticalTip: string;
+  };
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -47,6 +56,15 @@ export async function getDashboardData(): Promise<DashboardData> {
       pipelineStageBreakdown: [],
       monthlyVisitsCompleted: 0,
       monthlyDealsWon: 0,
+      monthlyWonVolume: 0,
+      monthlyWonValue: 0,
+      monthlyVolumeTarget: 20000,
+      monthlyValueTarget: 200000000,
+      morningBriefing: {
+        greeting: "Semangat Pagi, Sales Champion! ☀️",
+        focusText: "Pantau pipeline dan jadwal visit kamu hari ini.",
+        tacticalTip: "Terapkan 13 Pilar Sales Masterpiece di setiap interaksi customer.",
+      },
     };
   }
 
@@ -200,9 +218,13 @@ export async function getDashboardData(): Promise<DashboardData> {
   };
 
   let monthlyDealsWon = 0;
+  let monthlyWonVolume = 0;
+  let monthlyWonValue = 0;
 
   for (const opp of opportunities ?? []) {
     const val = opp.potential_value ?? 0;
+    const vol = opp.potential_volume ?? 0;
+
     if (opp.stage !== "LOST" && opp.stage !== "WON") {
       pipelineTotalValue += val;
       if (stageMap[opp.stage]) {
@@ -213,6 +235,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (opp.stage === "WON") {
       if (!opp.updated_at || opp.updated_at >= startOfMonth) {
         monthlyDealsWon += 1;
+        monthlyWonVolume += vol;
+        monthlyWonValue += val;
       }
     }
   }
@@ -224,6 +248,22 @@ export async function getDashboardData(): Promise<DashboardData> {
       value: data.value,
       count: data.count,
     }));
+
+  const firstName = profile?.full_name?.split(" ")[0] || "Sales Rep";
+  let greeting = `Semangat pagi, ${firstName}! ☀️`;
+  let focusText = "";
+  let tacticalTip = "";
+
+  if (overdueCount > 0) {
+    focusText = `Ada ${overdueCount} tugas follow-up tertunda yang perlu diamankan hari ini agar deal tidak lepas ke kompetitor.`;
+    tacticalTip = "Buka menu Follow-Up dan gunakan fitur '🤖 Bales Chat Customer' untuk menyapa PIC dengan penawaran solutif.";
+  } else if (todayVisitsCount > 0) {
+    focusText = `Kamu memiliki ${todayVisitsCount} agenda kunjungan lapangan terjadwal hari ini. Pastikan strategi POPSA sudah kamu review.`;
+    tacticalTip = "Saat di pabrik, tawarkan program audit LubeCheck & uji lab LubeAnalyst gratis sebagai pintu masuk bernilai tambah.";
+  } else {
+    focusText = `Pipeline aktif saat ini bernilai Rp ${Math.round(pipelineTotalValue).toLocaleString("id-ID")}. Momen bagus untuk prospecting akun prioritas baru.`;
+    tacticalTip = "Kunci komitmen mikro bertahap (sample test / penawaran resmi) untuk mempercepat pergerakan deal ke tahap Won.";
+  }
 
   return {
     profile: profile
@@ -241,5 +281,14 @@ export async function getDashboardData(): Promise<DashboardData> {
     pipelineStageBreakdown,
     monthlyVisitsCompleted: monthlyVisits?.length ?? 0,
     monthlyDealsWon,
+    monthlyWonVolume,
+    monthlyWonValue,
+    monthlyVolumeTarget: 20000,
+    monthlyValueTarget: 200000000,
+    morningBriefing: {
+      greeting,
+      focusText,
+      tacticalTip,
+    },
   };
 }

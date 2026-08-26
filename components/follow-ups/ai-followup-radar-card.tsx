@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   getDailyFollowUpRadarAction,
+  runHermesNightlyDispatcherAction,
   type DailyRadarItem,
 } from "@/actions/ai";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
+import { useToast } from "@/components/ui/toast-context";
 import {
   Sparkles,
   Loader2,
@@ -20,12 +22,15 @@ import {
   Clock,
   Target,
   Bot,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export function AIFollowUpRadarCard() {
+  const { success, error } = useToast();
   const [radarItems, setRadarItems] = useState<DailyRadarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHermesRunning, setIsHermesRunning] = useState(false);
 
   // WhatsApp Action Modal State
   const [selectedItemForWA, setSelectedItemForWA] = useState<DailyRadarItem | null>(null);
@@ -39,6 +44,24 @@ export function AIFollowUpRadarCard() {
       console.error("Failed to load AI daily radar:", err);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleRunHermes() {
+    setIsHermesRunning(true);
+    try {
+      const result = await runHermesNightlyDispatcherAction();
+      if (result.success) {
+        success(result.summaryMessage || "Audit forensik Hermes berhasil dijalankan!");
+        await loadRadar();
+      } else {
+        error("Gagal menjalankan audit Hermes.");
+      }
+    } catch (err) {
+      console.error("Hermes run error:", err);
+      error("Terjadi kendala saat menjalankan Hermes Dispatcher.");
+    } finally {
+      setIsHermesRunning(false);
     }
   }
 
@@ -67,15 +90,34 @@ export function AIFollowUpRadarCard() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={loadRadar}
-          disabled={isLoading}
-          title="Refresh Radar AI"
-          className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100 transition cursor-pointer shadow-2xs disabled:opacity-50"
-        >
-          <RefreshCw className={cn("h-4 w-4", isLoading ? "animate-spin text-amber-600" : "")} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRunHermes}
+            disabled={isHermesRunning || isLoading}
+            title="Jalankan Audit Forensik Hermes Sekarang"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-950 hover:bg-amber-500/20 transition cursor-pointer shadow-2xs disabled:opacity-50"
+          >
+            {isHermesRunning ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-700" />
+            ) : (
+              <Moon className="h-3.5 w-3.5 text-amber-700" />
+            )}
+            <span className="hidden sm:inline">
+              {isHermesRunning ? "Menganalisis..." : "Audit Forensik Hermes"}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={loadRadar}
+            disabled={isLoading || isHermesRunning}
+            title="Refresh Radar AI"
+            className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100 transition cursor-pointer shadow-2xs disabled:opacity-50"
+          >
+            <RefreshCw className={cn("h-4 w-4", isLoading ? "animate-spin text-amber-600" : "")} />
+          </button>
+        </div>
       </div>
 
       {/* Loading Skeleton */}

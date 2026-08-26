@@ -247,3 +247,14 @@ export async function logWhatsAppFollowUpAction(options: {
   }
 }
 
+/**
+ * Server action to run autonomous forensic audit and populate daily radar (Hermes Engine)
+ */
+export async function runHermesNightlyDispatcherAction() {
+  const { runAutonomousNightlyDispatcher } = await import("@/lib/ai/hermes");
+  const result = await runAutonomousNightlyDispatcher();
+  revalidatePath("/follow-ups");
+  revalidatePath("/dashboard");
+  return result;
+}
+
