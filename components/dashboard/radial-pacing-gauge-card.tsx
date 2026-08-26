@@ -22,6 +22,8 @@ export interface RadialPacingGaugeProps {
   wonValueIdr: number;
   targetValueIdr: number;
   pipelineVolumeLiter: number;
+  annualWonVolume?: number;
+  annualVolumeTarget?: number;
 }
 
 /**
@@ -68,10 +70,12 @@ function getWorkingDaysAnalysis() {
 
 export function RadialPacingGaugeCard({
   wonVolumeLiter = 0,
-  targetVolumeLiter = 8360, // Default 40 Drum = 8,360 L
+  targetVolumeLiter = 4521, // Target Bulan Agustus Bima: 4.521 L (~21.6 Drum)
   wonValueIdr = 0,
-  targetValueIdr = 350000000,
+  targetValueIdr = 226050000,
   pipelineVolumeLiter = 0,
+  annualWonVolume = 0,
+  annualVolumeTarget = 50000, // Target 1 Tahun Bima: 50.000 L (~239.2 Drum)
 }: RadialPacingGaugeProps) {
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -83,6 +87,7 @@ export function RadialPacingGaugeCard({
   const remainingDrums = Math.max(0, Math.round((targetDrums - wonDrums) * 10) / 10);
 
   const pct = Math.min(100, Math.round((wonVolumeLiter / (targetVolumeLiter || 1)) * 100));
+  const annualPct = Math.min(100, Math.round(((annualWonVolume || wonVolumeLiter) / (annualVolumeTarget || 50000)) * 1000) / 10);
 
   const workdays = useMemo(() => getWorkingDaysAnalysis(), []);
 
@@ -101,7 +106,7 @@ export function RadialPacingGaugeCard({
   const pacingStatus = useMemo(() => {
     if (pct >= 100) {
       return {
-        label: "TARGET QUOTA TERCAPAI 🏆",
+        label: "TARGET KUOTA TERCAPAI",
         color: "text-emerald-400",
         bg: "bg-emerald-500/20 border-emerald-500/40",
         badge: "SURPLUS",
@@ -110,7 +115,7 @@ export function RadialPacingGaugeCard({
     }
     if (pct >= expectedPacingPct) {
       return {
-        label: "ON-TRACK PACING ✓",
+        label: "ON-TRACK PACING",
         color: "text-emerald-400",
         bg: "bg-emerald-500/10 border-emerald-500/30",
         badge: "ON PACE",
@@ -119,7 +124,7 @@ export function RadialPacingGaugeCard({
     }
     if (expectedPacingPct - pct <= 20) {
       return {
-        label: "SLIGHTLY BEHIND PACE ⚠️",
+        label: "PERLU KEJAR PACING",
         color: "text-amber-400",
         bg: "bg-amber-500/10 border-amber-500/30",
         badge: "KEJAR TARGET",
@@ -127,7 +132,7 @@ export function RadialPacingGaugeCard({
       };
     }
     return {
-      label: "CRITICAL DEFICIT 🔴",
+      label: "DEFISIT KUOTA BULANAN",
       color: "text-red-400",
       bg: "bg-red-500/10 border-red-500/30",
       badge: "SEGERA CLOSING",
@@ -322,17 +327,31 @@ export function RadialPacingGaugeCard({
           </div>
 
           {/* Tactical Directive Box */}
-          <div className={cn("rounded-2xl p-3 border text-xs space-y-1 leading-relaxed", pacingStatus.bg)}>
+          <div className={cn("rounded-2xl p-3 border text-xs space-y-1.5 leading-relaxed", pacingStatus.bg)}>
             <div className="flex items-center justify-between gap-1">
               <span className={cn("font-extrabold flex items-center gap-1 text-[11px]", pacingStatus.color)}>
                 <Zap className="h-3.5 w-3.5" />
                 <span>{pacingStatus.label}</span>
               </span>
               <span className="text-[10px] font-mono font-bold text-neutral-300">
-                {wonVolumeLiter.toLocaleString("id-ID")} Liter Won
+                {wonVolumeLiter.toLocaleString("id-ID")} / {targetVolumeLiter.toLocaleString("id-ID")} L ({wonDrums}/{targetDrums} Drum)
               </span>
             </div>
             <p className="text-[11px] text-neutral-300 font-medium">{pacingStatus.desc}</p>
+            
+            {/* Annual Quota Progress Sub-Bar */}
+            <div className="pt-1.5 border-t border-white/10 space-y-1">
+              <div className="flex items-center justify-between text-[10px] text-neutral-400 font-mono">
+                <span>Target Tahunan (1 Tahun): <strong>50.000 L</strong> ({Math.round(50000/209*10)/10} Drum)</span>
+                <span className="text-amber-300 font-bold">{annualPct}%</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-neutral-950/80 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-700"
+                  style={{ width: `${Math.max(2, annualPct)}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

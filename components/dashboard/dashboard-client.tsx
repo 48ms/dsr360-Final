@@ -192,13 +192,15 @@ export function DashboardClient({
         </div>
       </div>
 
-      {/* 4. 🎯 CINEMATIC INDUSTRIAL RADIAL PACING GAUGE (OVERDRIVE) */}
+      {/* 4. CINEMATIC INDUSTRIAL RADIAL PACING GAUGE */}
       <RadialPacingGaugeCard
         wonVolumeLiter={data.monthlyWonVolume || 0}
-        targetVolumeLiter={data.monthlyVolumeTarget || 8360}
+        targetVolumeLiter={data.monthlyVolumeTarget || 4521}
         wonValueIdr={data.monthlyWonValue || 0}
-        targetValueIdr={data.monthlyValueTarget || 350000000}
-        pipelineVolumeLiter={data.pipelineTotalValue ? Math.round(data.pipelineTotalValue / 50000) : 0}
+        targetValueIdr={data.monthlyValueTarget || 226050000}
+        pipelineVolumeLiter={data.pipelineVolumeLiter || 0}
+        annualWonVolume={data.annualWonVolume || 0}
+        annualVolumeTarget={data.annualVolumeTarget || 50000}
       />
 
       {/* 5. 🔥 PRIORITY TODAY ("What Should I Do Today?") */}

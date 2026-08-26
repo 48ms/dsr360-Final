@@ -199,7 +199,6 @@ export async function updateOpportunityStage(input: UpdateStageInput) {
     .from("opportunities")
     .update({
       stage,
-      status: stage === "WON" ? "WON" : stage === "LOST" ? "LOST" : "IN_PROGRESS",
       objection: notes ? notes : undefined,
       updated_at: new Date().toISOString(),
     })
@@ -269,7 +268,6 @@ export async function updateOpportunity(id: string, input: OpportunityInput) {
     .from("opportunities")
     .update({
       ...parsed.data,
-      status: parsed.data.stage === "WON" ? "WON" : parsed.data.stage === "LOST" ? "LOST" : "IN_PROGRESS",
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

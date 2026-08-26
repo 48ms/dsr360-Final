@@ -24,6 +24,7 @@ export type DashboardData = {
   overdueCount: number;
   priorityAlerts: PriorityAlert[];
   pipelineTotalValue: number;
+  pipelineVolumeLiter: number;
   pipelineStageBreakdown: Array<{ stage: string; value: number; count: number }>;
   monthlyVisitsCompleted: number;
   monthlyDealsWon: number;
@@ -31,6 +32,8 @@ export type DashboardData = {
   monthlyWonValue: number;
   monthlyVolumeTarget: number;
   monthlyValueTarget: number;
+  annualWonVolume: number;
+  annualVolumeTarget: number;
   morningBriefing: {
     greeting: string;
     focusText: string;
@@ -53,15 +56,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       overdueCount: 0,
       priorityAlerts: [],
       pipelineTotalValue: 0,
+      pipelineVolumeLiter: 0,
       pipelineStageBreakdown: [],
       monthlyVisitsCompleted: 0,
       monthlyDealsWon: 0,
       monthlyWonVolume: 0,
       monthlyWonValue: 0,
-      monthlyVolumeTarget: 20000,
-      monthlyValueTarget: 200000000,
+      monthlyVolumeTarget: 4521, // Target Bulan Agustus: 4.521 Liter (~21.6 Drum)
+      monthlyValueTarget: 226050000, // Target Nominal Bulan Ini: ~Rp 226 Juta
+      annualWonVolume: 0,
+      annualVolumeTarget: 50000, // Target 1 Tahun: 50.000 Liter (~239.2 Drum)
       morningBriefing: {
-        greeting: "Semangat Pagi, Sales Champion! ☀️",
+        greeting: "Semangat Pagi, Sales Champion!",
         focusText: "Pantau pipeline dan jadwal visit kamu hari ini.",
         tacticalTip: "Terapkan 13 Pilar Sales Masterpiece di setiap interaksi customer.",
       },
@@ -206,8 +212,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     }
   }
 
-  // 3. Pipeline Value Calculation
+  // 3. Pipeline Value & Volume Calculation
   let pipelineTotalValue = 0;
+  let pipelineVolumeLiter = 0;
   const stageMap: Record<string, { value: number; count: number }> = {
     PROSPECT: { value: 0, count: 0 },
     QUALIFIED: { value: 0, count: 0 },
@@ -220,6 +227,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   let monthlyDealsWon = 0;
   let monthlyWonVolume = 0;
   let monthlyWonValue = 0;
+  let annualWonVolume = 0;
+  const currentYearStr = String(new Date().getFullYear());
 
   for (const opp of opportunities ?? []) {
     const val = opp.potential_value ?? 0;
@@ -227,12 +236,18 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     if (opp.stage !== "LOST" && opp.stage !== "WON") {
       pipelineTotalValue += val;
+      pipelineVolumeLiter += vol;
       if (stageMap[opp.stage]) {
         stageMap[opp.stage].value += val;
         stageMap[opp.stage].count += 1;
       }
     }
     if (opp.stage === "WON") {
+      // Annual calculation
+      if (!opp.updated_at || opp.updated_at.startsWith(currentYearStr)) {
+        annualWonVolume += vol;
+      }
+      // Monthly calculation
       if (!opp.updated_at || opp.updated_at >= startOfMonth) {
         monthlyDealsWon += 1;
         monthlyWonVolume += vol;
@@ -250,16 +265,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     }));
 
   const firstName = profile?.full_name?.split(" ")[0] || "Sales Rep";
-  let greeting = `Semangat pagi, ${firstName}! ☀️`;
+  let greeting = `Semangat pagi, ${firstName}!`;
   let focusText = "";
   let tacticalTip = "";
 
   if (overdueCount > 0) {
     focusText = `Ada ${overdueCount} tugas follow-up tertunda yang perlu diamankan hari ini agar deal tidak lepas ke kompetitor.`;
-    tacticalTip = "Buka menu Follow-Up dan gunakan fitur '🤖 Bales Chat Customer' untuk menyapa PIC dengan penawaran solutif.";
+    tacticalTip = "Buka menu Follow-Up dan gunakan fitur 'Bales Chat Customer' untuk menyapa PIC dengan penawaran solutif.";
   } else if (todayVisitsCount > 0) {
     focusText = `Kamu memiliki ${todayVisitsCount} agenda kunjungan lapangan terjadwal hari ini. Pastikan strategi POPSA sudah kamu review.`;
-    tacticalTip = "Saat di pabrik, tawarkan program audit LubeCheck & uji lab LubeAnalyst gratis sebagai pintu masuk bernilai tambah.";
+    tacticalTip = "Saat di pabrik, tawarkan program audit LubeCheck dan uji lab LubeAnalyst gratis sebagai pintu masuk bernilai tambah.";
   } else {
     focusText = `Pipeline aktif saat ini bernilai Rp ${Math.round(pipelineTotalValue).toLocaleString("id-ID")}. Momen bagus untuk prospecting akun prioritas baru.`;
     tacticalTip = "Kunci komitmen mikro bertahap (sample test / penawaran resmi) untuk mempercepat pergerakan deal ke tahap Won.";
@@ -278,13 +293,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     overdueCount,
     priorityAlerts,
     pipelineTotalValue,
+    pipelineVolumeLiter,
     pipelineStageBreakdown,
     monthlyVisitsCompleted: monthlyVisits?.length ?? 0,
     monthlyDealsWon,
     monthlyWonVolume,
     monthlyWonValue,
-    monthlyVolumeTarget: 20000,
-    monthlyValueTarget: 200000000,
+    monthlyVolumeTarget: 4521, // Target Bulan Agustus Bima: 4.521 Liter (~21.6 Drum)
+    monthlyValueTarget: 226050000, // Target Nominal Bulan Ini: ~Rp 226 Juta
+    annualWonVolume,
+    annualVolumeTarget: 50000, // Target 1 Tahun Bima: 50.000 Liter (~239.2 Drum)
     morningBriefing: {
       greeting,
       focusText,

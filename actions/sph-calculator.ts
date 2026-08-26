@@ -134,7 +134,6 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
           customer_id: input.customerId,
           opportunity_name: oppName,
           stage: "QUOTATION",
-          status: "IN_PROGRESS",
           potential_value: totalValue,
           potential_volume: totalVolume,
           probability: 70,
