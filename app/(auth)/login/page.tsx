@@ -7,17 +7,13 @@ export default function LoginPage() {
       <div className="mx-auto w-full max-w-sm">
         {/* Brand Card Header */}
         <div className="mb-6 text-center space-y-3">
-          {/* Logo Mark */}
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#0F172A] border-2 border-amber-500/80 shadow-md shadow-amber-950/10 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-radial from-amber-500/20 to-transparent opacity-60 pointer-events-none" />
-            <div className="flex flex-col items-center justify-center leading-none">
-              <span className="font-mono font-black text-2xl tracking-tighter bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">
-                24/7
-              </span>
-              <span className="text-[9px] font-black tracking-widest text-amber-300/80 mt-0.5">
-                NYALES
-              </span>
-            </div>
+          {/* Official Concept 4 Logo Mark */}
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#09090B] border-2 border-amber-500/80 shadow-md shadow-amber-950/20 relative overflow-hidden group">
+            <img
+              src="/icons/nyales247-mark.svg"
+              alt="Nyales24/7 Official Logo"
+              className="h-14 w-14 object-contain drop-shadow-sm group-hover:scale-105 transition duration-300"
+            />
           </div>
 
           <div className="space-y-1">

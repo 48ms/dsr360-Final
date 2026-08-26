@@ -1,28 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="favNyalesDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stopColor="#1E293B" />
-      <stop offset="100%" stopColor="#0F172A" />
-    </linearGradient>
-    <linearGradient id="favNyalesGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stopColor="#FDE68A" />
-      <stop offset="50%" stopColor="#F59E0B" />
-      <stop offset="100%" stopColor="#D97706" />
+    <linearGradient id="favBrutalistAmber" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
     </linearGradient>
   </defs>
 
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#favNyalesDark)" stroke="#F59E0B" stroke-width="2" />
+  <rect width="100" height="100" rx="28" fill="#09090B" />
 
-  <text
-    x="32"
-    y="40"
-    font-family="'Inter', -apple-system, system-ui, sans-serif"
-    font-size="22"
-    font-weight="900"
-    letter-spacing="-1"
-    text-anchor="middle"
-    fill="url(#favNyalesGold)"
-  >24/7</text>
+  <!-- Left Pillar -->
+  <rect x="22" y="22" width="14" height="56" rx="5" fill="#FFFFFF" />
 
-  <circle cx="32" cy="49" r="2.5" fill="#10B981" />
+  <!-- Right Pillar -->
+  <rect x="64" y="22" width="14" height="56" rx="5" fill="#FFFFFF" />
+
+  <!-- Diagonal Dynamic Flow Bridge -->
+  <path
+    d="M26 26 L74 74"
+    stroke="url(#favBrutalistAmber)"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <!-- Subtle 24/7 Slash Laser Line -->
+  <path
+    d="M48 20 L52 80"
+    stroke="#FBBF24"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-dasharray="6 4"
+  />
 </svg>

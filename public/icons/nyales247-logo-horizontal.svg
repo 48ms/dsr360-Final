@@ -1,91 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 140" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 140" fill="none">
   <defs>
-    <linearGradient id="nyalesDarkBgH" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stopColor="#1E293B" />
-      <stop offset="100%" stopColor="#020617" />
-    </linearGradient>
-
-    <linearGradient id="nyalesGoldGradH" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stopColor="#FDE68A" />
-      <stop offset="30%" stopColor="#F59E0B" />
-      <stop offset="100%" stopColor="#D97706" />
+    <linearGradient id="hzBrutalistAmber" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
     </linearGradient>
   </defs>
 
-  <!-- Left Icon Mark -->
+  <!-- Logo Mark Squircle on Left -->
   <g transform="translate(10, 10)">
-    <rect
-      x="0"
-      y="0"
-      width="120"
-      height="120"
-      rx="30"
-      fill="url(#nyalesDarkBgH)"
-      stroke="#F59E0B"
-      stroke-width="3"
+    <rect width="120" height="120" rx="34" fill="#09090B" />
+    
+    <!-- Left Pillar -->
+    <rect x="26" y="26" width="16" height="68" rx="6" fill="#FFFFFF" />
+    
+    <!-- Right Pillar -->
+    <rect x="78" y="26" width="16" height="68" rx="6" fill="#FFFFFF" />
+    
+    <!-- Diagonal Dynamic Flow Bridge -->
+    <path
+      d="M32 32 L88 88"
+      stroke="url(#hzBrutalistAmber)"
+      stroke-width="14"
+      stroke-linecap="round"
     />
-    <text
-      x="60"
-      y="75"
-      font-family="'Inter', -apple-system, system-ui, sans-serif"
-      font-size="44"
-      font-weight="900"
-      letter-spacing="-2"
-      text-anchor="middle"
-      fill="url(#nyalesGoldGradH)"
-    >24/7</text>
-    <text
-      x="60"
-      y="98"
-      font-family="'Inter', -apple-system, system-ui, sans-serif"
-      font-size="11"
-      font-weight="900"
-      letter-spacing="3"
-      text-anchor="middle"
-      fill="#94A3B8"
-    >OS</text>
+    
+    <!-- Subtle 24/7 Laser Dash -->
+    <path
+      d="M58 24 L62 96"
+      stroke="#FBBF24"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-dasharray="7 5"
+    />
   </g>
 
-  <!-- Right Typography Wordmark -->
-  <g transform="translate(150, 0)">
-    <!-- Brand Name -->
-    <text
-      x="0"
-      y="62"
-      font-family="'Inter', -apple-system, system-ui, sans-serif"
-      font-size="48"
-      font-weight="900"
-      letter-spacing="-1.5"
-      fill="#0F172A"
-    >
-      Nyales<tspan fill="url(#nyalesGoldGradH)">24/7</tspan>
+  <!-- Typography Wordmark -->
+  <g transform="translate(150, 20)">
+    <!-- Primary Wordmark -->
+    <text x="0" y="55" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="900" font-size="46" letter-spacing="-1.5" fill="#09090B">
+      Nyales<tspan fill="#D97706">24/7</tspan>
     </text>
 
-    <!-- Subtitle Badge / Tagline -->
-    <rect x="0" y="80" width="310" height="26" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5" />
-    <text
-      x="12"
-      y="98"
-      font-family="'Inter', -apple-system, system-ui, sans-serif"
-      font-size="12"
-      font-weight="800"
-      letter-spacing="1"
-      fill="#475569"
-    >
-      BY BIMA MAULANA SAPUTRA
+    <!-- Subtitle Lockup -->
+    <text x="2" y="85" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="12" letter-spacing="2.5" fill="#71717A">
+      ENGINEERED BY BIMA MAULANA SAPUTRA
     </text>
 
-    <circle cx="340" cy="93" r="4" fill="#10B981" />
-    <text
-      x="352"
-      y="98"
-      font-family="'Inter', -apple-system, system-ui, sans-serif"
-      font-size="12"
-      font-weight="700"
-      letter-spacing="0.5"
-      fill="#059669"
-    >
-      AI SALES OS
+    <!-- Tagline Badge -->
+    <rect x="2" y="96" width="230" height="18" rx="6" fill="#FEF3C7" />
+    <text x="8" y="109" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="800" font-size="9" letter-spacing="0.5" fill="#92400E">
+      B2B INDUSTRIAL SALES INTELLIGENCE OS
     </text>
   </g>
 </svg>

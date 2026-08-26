@@ -43,8 +43,8 @@ export function DesktopNav({
         {/* Left: Brand & Distributor Badge */}
         <div className="flex items-center gap-4 xl:gap-6 shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white font-black text-[11px] font-mono shadow-xs group-hover:scale-105 transition">
-              24/7
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#09090B] border border-amber-500/60 shadow-xs group-hover:scale-105 transition overflow-hidden">
+              <img src="/icons/nyales247-mark.svg" alt="Nyales24/7" className="h-7 w-7 object-contain" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">

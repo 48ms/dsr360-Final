@@ -8,6 +8,13 @@ tagline: "The 24/7 AI-Powered Sales Operating System for B2B Industrial Champion
 mission: "Empowering B2B sales representatives to close deals faster, optimize territory routes, calculate profit margins with mathematical precision, and dominate industrial accounts 24/7 without manual spreadsheet friction."
 vision: "To become the undisputed gold-standard field sales intelligence platform across industrial Southeast Asia."
 
+logo:
+  official_concept: "04 - Brutalist Monogram 'N'"
+  mark_svg: "/icons/nyales247-mark.svg"
+  horizontal_lockup_svg: "/icons/nyales247-logo-horizontal.svg"
+  favicon_svg: "/favicon.svg"
+  geometry: "Constructivist 'N' featuring dual vertical oil drum pillars, thick dynamic amber shear bridge, and laser continuity dash"
+
 pillars:
   - name: "Battle-Tested Field Intelligence"
     description: "Built directly from the industrial factory floor by Bima Maulana Saputra, not disconnected corporate boardroom theory."
