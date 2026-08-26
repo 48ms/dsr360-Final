@@ -10,6 +10,10 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat("id-ID").format(value);
+}
+
 export function formatVolume(liters: number): string {
   return `${new Intl.NumberFormat("id-ID").format(liters)} L`;
 }
