@@ -11,6 +11,7 @@ import {
   generateSmartChatReply as generateSmartChatReplyWithGemini,
   generateDailyFollowUpRadar as generateDailyRadarWithGemini,
   generateCompetitorBattlecard as generateBattlecardWithGemini,
+  analyzeProductTDSWithGemini,
   type RichPreVisitBrief,
   type ParsedVisitNote,
   type ChatMessage,
@@ -22,6 +23,7 @@ import {
   type SmartChatReplyResult,
   type DailyRadarItem,
   type CompetitorBattlecardResult,
+  type ProductTDSAnalysisResult,
 } from "@/lib/ai/gemini";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -38,6 +40,7 @@ export type {
   SmartChatReplyResult,
   DailyRadarItem,
   CompetitorBattlecardResult,
+  ProductTDSAnalysisResult,
 };
 
 // Legacy alias for PreVisitBrief
@@ -245,6 +248,16 @@ export async function logWhatsAppFollowUpAction(options: {
     console.error("Failed to log WhatsApp follow-up:", err);
     return { success: false };
   }
+}
+
+/**
+ * Server action to get deep technical analysis on any Shell product (Gemini LubeExpert)
+ */
+export async function getDeepProductTDSAnalysisAction(
+  productName: string,
+  question: string
+): Promise<ProductTDSAnalysisResult> {
+  return analyzeProductTDSWithGemini(productName, question);
 }
 
 /**
