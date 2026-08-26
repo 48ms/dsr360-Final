@@ -1,0 +1,7 @@
+interface:
+  display_name: "UNBOUNDX Design"
+  short_description: "Create on-brand UNBOUNDX posters, covers, badges, and visual layouts"
+  icon_small: "./assets/logos/svg/unboundx-favicon.svg"
+  icon_large: "./assets/materials/png/unboundx-key-visual.png"
+  default_prompt: "Use the bundled UNBOUNDX brand system and assets to create an on-brand visual deliverable."
+

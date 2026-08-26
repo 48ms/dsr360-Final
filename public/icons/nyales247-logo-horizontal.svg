@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 140" width="100%" height="100%">
+  <defs>
+    <linearGradient id="nyalesDarkBgH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#1E293B" />
+      <stop offset="100%" stopColor="#020617" />
+    </linearGradient>
+
+    <linearGradient id="nyalesGoldGradH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#FDE68A" />
+      <stop offset="30%" stopColor="#F59E0B" />
+      <stop offset="100%" stopColor="#D97706" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left Icon Mark -->
+  <g transform="translate(10, 10)">
+    <rect
+      x="0"
+      y="0"
+      width="120"
+      height="120"
+      rx="30"
+      fill="url(#nyalesDarkBgH)"
+      stroke="#F59E0B"
+      stroke-width="3"
+    />
+    <text
+      x="60"
+      y="75"
+      font-family="'Inter', -apple-system, system-ui, sans-serif"
+      font-size="44"
+      font-weight="900"
+      letter-spacing="-2"
+      text-anchor="middle"
+      fill="url(#nyalesGoldGradH)"
+    >24/7</text>
+    <text
+      x="60"
+      y="98"
+      font-family="'Inter', -apple-system, system-ui, sans-serif"
+      font-size="11"
+      font-weight="900"
+      letter-spacing="3"
+      text-anchor="middle"
+      fill="#94A3B8"
+    >OS</text>
+  </g>
+
+  <!-- Right Typography Wordmark -->
+  <g transform="translate(150, 0)">
+    <!-- Brand Name -->
+    <text
+      x="0"
+      y="62"
+      font-family="'Inter', -apple-system, system-ui, sans-serif"
+      font-size="48"
+      font-weight="900"
+      letter-spacing="-1.5"
+      fill="#0F172A"
+    >
+      Nyales<tspan fill="url(#nyalesGoldGradH)">24/7</tspan>
+    </text>
+
+    <!-- Subtitle Badge / Tagline -->
+    <rect x="0" y="80" width="310" height="26" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5" />
+    <text
+      x="12"
+      y="98"
+      font-family="'Inter', -apple-system, system-ui, sans-serif"
+      font-size="12"
+      font-weight="800"
+      letter-spacing="1"
+      fill="#475569"
+    >
+      BY BIMA MAULANA SAPUTRA
+    </text>
+
+    <circle cx="340" cy="93" r="4" fill="#10B981" />
+    <text
+      x="352"
+      y="98"
+      font-family="'Inter', -apple-system, system-ui, sans-serif"
+      font-size="12"
+      font-weight="700"
+      letter-spacing="0.5"
+      fill="#059669"
+    >
+      AI SALES OS
+    </text>
+  </g>
+</svg>

@@ -168,6 +168,12 @@
       "sourceType": "github",
       "skillPath": "skills/target-audience/SKILL.md",
       "computedHash": "627e8f1ac4062f1007150223d3c17913e0cc169c23e2180228b28e8aa598f64e"
+    },
+    "unboundx-design": {
+      "source": "makerjackie/unboundx-logo",
+      "sourceType": "github",
+      "skillPath": "skills/unboundx-design/SKILL.md",
+      "computedHash": "c7898da52b8575df5ed0c11d5669120e5faa4ead3d5d1b8e72abe522e7484a06"
     }
   }
 }

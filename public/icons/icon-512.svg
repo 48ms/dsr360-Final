@@ -1,24 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <linearGradient id="dsrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#D97706" />
+    <linearGradient id="nyalesDark512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#1E293B" />
+      <stop offset="50%" stopColor="#0F172A" />
+      <stop offset="100%" stopColor="#020617" />
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.25"/>
-    </filter>
+    <linearGradient id="nyalesGold512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#FDE68A" />
+      <stop offset="25%" stopColor="#F59E0B" />
+      <stop offset="70%" stopColor="#D97706" />
+      <stop offset="100%" stopColor="#B45309" />
+    </linearGradient>
   </defs>
 
-  <!-- Background Canvas -->
-  <rect width="512" height="512" rx="110" fill="#171717" />
-  
-  <!-- Outer Ring / Orbit (360) -->
-  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#dsrGrad)" stroke-width="20" stroke-dasharray="800 200" stroke-linecap="round" filter="url(#shadow)" />
-  
-  <!-- Oil Drop / Fuel Shield Center -->
-  <path d="M256 120 C256 120, 160 250, 160 320 C160 373.02, 202.98 416, 256 416 C309.02 416, 352 373.02, 352 320 C352 250, 256 120, 256 120 Z" fill="url(#dsrGrad)" filter="url(#shadow)" />
-  
-  <!-- DSR360 Monogram Typography -->
-  <text x="256" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2">DSR</text>
-  <text x="256" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#FEF3C7" text-anchor="middle" letter-spacing="4">360</text>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#nyalesDark512)" stroke="#F59E0B" stroke-width="6" />
+
+  <text
+    x="170"
+    y="275"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="160"
+    font-weight="900"
+    letter-spacing="-8"
+    text-anchor="middle"
+    fill="#FFFFFF"
+  >2</text>
+
+  <text
+    x="268"
+    y="275"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="160"
+    font-weight="900"
+    letter-spacing="-8"
+    text-anchor="middle"
+    fill="url(#nyalesGold512)"
+  >4</text>
+
+  <path d="M 335 155 L 305 325" stroke="url(#nyalesGold512)" stroke-width="14" stroke-linecap="round" />
+
+  <text
+    x="385"
+    y="275"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="150"
+    font-weight="900"
+    letter-spacing="-8"
+    text-anchor="middle"
+    fill="#FFFFFF"
+  >7</text>
+
+  <rect x="120" y="345" width="272" height="42" rx="21" fill="#0F172A" stroke="#F59E0B" stroke-width="2" />
+  <text
+    x="256"
+    y="372"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="20"
+    font-weight="900"
+    letter-spacing="6"
+    text-anchor="middle"
+    fill="url(#nyalesGold512)"
+  >NYALES 24/7</text>
 </svg>

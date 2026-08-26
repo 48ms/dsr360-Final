@@ -1,81 +1,54 @@
 import { LoginForm } from "@/components/auth/login-form";
+import Image from "next/image";
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-12 sm:px-6">
+    <div className="flex min-h-full flex-1 flex-col justify-center px-4 py-10 sm:px-6 bg-[#FDFBF7]">
       <div className="mx-auto w-full max-w-sm">
         {/* Brand Card Header */}
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 shadow-md ring-1 ring-neutral-800">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 192 192"
-              className="h-12 w-12"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="dsrGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#F59E0B" />
-                  <stop offset="100%" stopColor="#D97706" />
-                </linearGradient>
-              </defs>
-              <circle
-                cx="96"
-                cy="96"
-                r="68"
-                fill="none"
-                stroke="url(#dsrGradLogin)"
-                strokeWidth="8"
-                strokeDasharray="300 70"
-                strokeLinecap="round"
-              />
-              <path
-                d="M96 45 C96 45, 60 95, 60 120 C60 140, 76 156, 96 156 C116 156, 132 140, 132 120 C132 95, 96 45, 96 45 Z"
-                fill="url(#dsrGradLogin)"
-              />
-              <text
-                x="96"
-                y="126"
-                fontFamily="system-ui, -apple-system, sans-serif"
-                fontSize="22"
-                fontWeight="900"
-                fill="#FFFFFF"
-                textAnchor="middle"
-              >
-                DSR
-              </text>
-              <text
-                x="96"
-                y="140"
-                fontFamily="system-ui, -apple-system, sans-serif"
-                fontSize="11"
-                fontWeight="800"
-                fill="#FEF3C7"
-                textAnchor="middle"
-                letterSpacing="1"
-              >
-                360
-              </text>
-            </svg>
+        <div className="mb-6 text-center space-y-3">
+          {/* Logo Mark */}
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#0F172A] border-2 border-amber-500/80 shadow-md shadow-amber-950/10 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-radial from-amber-500/20 to-transparent opacity-60 pointer-events-none" />
+            <div className="flex flex-col items-center justify-center leading-none">
+              <span className="font-mono font-black text-2xl tracking-tighter bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">
+                24/7
+              </span>
+              <span className="text-[9px] font-black tracking-widest text-amber-300/80 mt-0.5">
+                NYALES
+              </span>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-neutral-900 tracking-tight">DSR360</h1>
-          <p className="mt-1 text-xs font-medium text-neutral-500">
-            Sales Visit & Pipeline Management
-          </p>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl font-black text-neutral-900 tracking-tight">
+                Nyales<span className="text-amber-600">24/7</span>
+              </h1>
+            </div>
+            
+            <div className="inline-flex items-center rounded-full bg-amber-100/70 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-950 border border-amber-300/60 tracking-tight">
+              by Bima Maulana Saputra
+            </div>
+
+            <p className="text-xs text-neutral-500 font-medium max-w-xs mx-auto pt-1">
+              24/7 AI-Powered B2B Sales Operating System &amp; Field Intelligence Engine
+            </p>
+          </div>
         </div>
 
         {/* Card Form */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-6 sm:p-7 shadow-xs">
           <LoginForm />
         </div>
 
         {/* Brand Footer */}
         <div className="mt-8 text-center space-y-1">
-          <p className="text-xs font-semibold text-neutral-600">
-            PT Harapan Utama Motor
+          <p className="text-[11px] font-semibold text-neutral-600">
+            Engineered &amp; Crafted by <span className="text-neutral-900 font-bold">Bima Maulana Saputra</span>
           </p>
-          <p className="text-[11px] text-neutral-400">
-            Distributor Resmi Shell Lubricants &bull; v1.0
+          <p className="text-[10px] text-neutral-400">
+            Sovereign B2B Sales Engine &bull; v1.0.0
           </p>
         </div>
       </div>

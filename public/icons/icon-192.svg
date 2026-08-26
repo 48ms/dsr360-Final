@@ -1,14 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="100%" height="100%">
   <defs>
-    <linearGradient id="dsrGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#D97706" />
+    <linearGradient id="nyalesDark192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#1E293B" />
+      <stop offset="50%" stopColor="#0F172A" />
+      <stop offset="100%" stopColor="#020617" />
+    </linearGradient>
+    <linearGradient id="nyalesGold192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#FDE68A" />
+      <stop offset="30%" stopColor="#F59E0B" />
+      <stop offset="100%" stopColor="#D97706" />
     </linearGradient>
   </defs>
 
-  <rect width="192" height="192" rx="40" fill="#171717" />
-  <circle cx="96" cy="96" r="68" fill="none" stroke="url(#dsrGrad192)" stroke-width="8" stroke-dasharray="300 70" stroke-linecap="round" />
-  <path d="M96 45 C96 45, 60 95, 60 120 C60 140, 76 156, 96 156 C116 156, 132 140, 132 120 C132 95, 96 45, 96 45 Z" fill="url(#dsrGrad192)" />
-  <text x="96" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" text-anchor="middle">DSR</text>
-  <text x="96" y="142" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="800" fill="#FEF3C7" text-anchor="middle" letter-spacing="1">360</text>
+  <rect x="12" y="12" width="168" height="168" rx="42" fill="url(#nyalesDark192)" stroke="#F59E0B" stroke-width="3" />
+
+  <text
+    x="62"
+    y="105"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="62"
+    font-weight="900"
+    letter-spacing="-3"
+    text-anchor="middle"
+    fill="#FFFFFF"
+  >2</text>
+
+  <text
+    x="98"
+    y="105"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="62"
+    font-weight="900"
+    letter-spacing="-3"
+    text-anchor="middle"
+    fill="url(#nyalesGold192)"
+  >4</text>
+
+  <path d="M 124 58 L 112 120" stroke="url(#nyalesGold192)" stroke-width="5" stroke-linecap="round" />
+
+  <text
+    x="142"
+    y="105"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="56"
+    font-weight="900"
+    letter-spacing="-3"
+    text-anchor="middle"
+    fill="#FFFFFF"
+  >7</text>
+
+  <rect x="44" y="132" width="104" height="18" rx="9" fill="#0F172A" stroke="#F59E0B" stroke-width="1" />
+  <text
+    x="96"
+    y="145"
+    font-family="'Inter', -apple-system, system-ui, sans-serif"
+    font-size="9"
+    font-weight="900"
+    letter-spacing="2"
+    text-anchor="middle"
+    fill="url(#nyalesGold192)"
+  >NYALES 24/7</text>
 </svg>
