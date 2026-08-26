@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { MessageSquare } from "lucide-react";
@@ -7,6 +7,7 @@ import type { WhatsAppContact } from "@/lib/utils/whatsapp";
 
 export function VisitWhatsAppShareButton({
   customerName,
+  customerId,
   defaultPhone,
   contacts = [],
   visitDate,
@@ -15,6 +16,7 @@ export function VisitWhatsAppShareButton({
   nextAction,
 }: {
   customerName: string;
+  customerId?: string;
   defaultPhone?: string | null;
   contacts?: WhatsAppContact[];
   visitDate?: string;
@@ -39,6 +41,7 @@ export function VisitWhatsAppShareButton({
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         customerName={customerName}
+        customerId={customerId}
         defaultPhone={defaultPhone}
         contacts={contacts}
         defaultTemplate="POST_VISIT_SUMMARY"

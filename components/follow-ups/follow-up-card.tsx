@@ -6,6 +6,8 @@ import { formatDate, getTodayWIB } from "@/lib/utils/format";
 import type { FollowUpItem } from "@/actions/follow-ups";
 import { CompleteTaskModal } from "@/components/follow-ups/complete-task-modal";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
+import { PreVisitBriefModal } from "@/components/ai/pre-visit-brief-modal";
+import { CustomerAISparringDrawer } from "@/components/ai/customer-ai-sparring-drawer";
 import {
   Phone,
   MessageCircle,
@@ -18,6 +20,9 @@ import {
   Flame,
   Clock,
   AlertCircle,
+  Sparkles,
+  Bot,
+  Lightbulb,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -44,6 +49,8 @@ export function FollowUpCard({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
+  const [showBriefModal, setShowBriefModal] = useState(false);
+  const [showSparringDrawer, setShowSparringDrawer] = useState(false);
 
   const isCompleted = item.status === "COMPLETED";
   const todayStr = getTodayWIB();
@@ -163,13 +170,44 @@ export function FollowUpCard({
           </div>
         )}
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         {!isCompleted && (
-          <div className="flex justify-end pt-1">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {item.customer?.id && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowWaModal(true)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer"
+                  >
+                    <Sparkles className="h-3 w-3 text-emerald-600" />
+                    <span>Draf WA AI</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowBriefModal(true)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 border border-amber-200 transition cursor-pointer"
+                  >
+                    <Lightbulb className="h-3 w-3 text-amber-600" />
+                    <span>Briefing AI</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowSparringDrawer(true)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] font-bold text-neutral-700 hover:bg-neutral-200 border border-neutral-200 transition cursor-pointer"
+                  >
+                    <Bot className="h-3 w-3 text-neutral-600" />
+                    <span>Sparring AI</span>
+                  </button>
+                </>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-neutral-800 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-neutral-800 transition cursor-pointer ml-auto"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               <span>Tandai Selesai</span>
@@ -195,6 +233,7 @@ export function FollowUpCard({
         isOpen={showWaModal}
         onClose={() => setShowWaModal(false)}
         customerName={item.customer?.customer_name ?? "Customer"}
+        customerId={item.customer?.id}
         defaultPhone={item.customer?.primary_phone}
         contacts={
           item.customer?.primary_phone
@@ -213,6 +252,27 @@ export function FollowUpCard({
           nextAction: item.description || undefined,
         }}
       />
+
+      {item.customer?.id && (
+        <>
+          <PreVisitBriefModal
+            isOpen={showBriefModal}
+            customerId={item.customer.id}
+            onClose={() => setShowBriefModal(false)}
+            onOpenSparring={() => {
+              setShowBriefModal(false);
+              setShowSparringDrawer(true);
+            }}
+          />
+
+          <CustomerAISparringDrawer
+            isOpen={showSparringDrawer}
+            customerId={item.customer.id}
+            customerName={item.customer.customer_name}
+            onClose={() => setShowSparringDrawer(false)}
+          />
+        </>
+      )}
     </>
   );
 }

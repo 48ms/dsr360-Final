@@ -6,6 +6,11 @@ import { FollowUpCard } from "@/components/follow-ups/follow-up-card";
 import type { FollowUpItem } from "@/actions/follow-ups";
 import { createFollowUp } from "@/actions/follow-ups";
 import {
+  generateFollowUpRecommendationAction,
+  type FollowUpRecommendation,
+} from "@/actions/ai";
+import { AIFollowUpRadarCard } from "@/components/follow-ups/ai-followup-radar-card";
+import {
   FOLLOW_UP_ACTIVITY_TYPES,
   FOLLOW_UP_PRIORITIES,
   type FollowUpActivityType,
@@ -16,7 +21,13 @@ import {
   Loader2,
   Plus,
   ShieldAlert,
+  Sparkles,
+  Copy,
+  Check,
   X,
+  Bot,
+  MessageSquareQuote,
+  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getTodayWIB } from "@/lib/utils/format";
@@ -49,6 +60,11 @@ export function FollowUpListClient({
   const [newDesc, setNewDesc] = useState<string>("");
   const [newDate, setNewDate] = useState<string>(getTodayWIB());
   const [newPriority, setNewPriority] = useState<FollowUpPriority>("HIGH");
+
+  // AI Recommendation State
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiRec, setAiRec] = useState<FollowUpRecommendation | null>(null);
+  const [copiedScript, setCopiedScript] = useState(false);
 
   const todayStr = getTodayWIB();
 
@@ -85,6 +101,41 @@ export function FollowUpListClient({
     return true;
   });
 
+  async function handleGenerateAIFollowUp() {
+    if (!newCustId) {
+      setAddError("Pilih customer terlebih dahulu.");
+      return;
+    }
+    setAddError(null);
+    setIsGeneratingAI(true);
+    try {
+      const res = await generateFollowUpRecommendationAction(newCustId);
+      setAiRec(res);
+      setNewType(res.activity_type);
+      setNewPriority(res.priority);
+      setNewDesc(res.description);
+
+      // Compute target date: today + due_days
+      const target = new Date();
+      target.setDate(target.getDate() + (res.due_days || 2));
+      const yyyy = target.getFullYear();
+      const mm = String(target.getMonth() + 1).padStart(2, "0");
+      const dd = String(target.getDate()).padStart(2, "0");
+      setNewDate(`${yyyy}-${mm}-${dd}`);
+    } catch (err) {
+      console.error("AI Follow up generation failed:", err);
+      setAddError("Gagal generate rekomendasi AI. Coba lagi.");
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  }
+
+  function handleCopyScript(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedScript(true);
+    setTimeout(() => setCopiedScript(false), 2500);
+  }
+
   function handleCreateTask(e: React.FormEvent) {
     e.preventDefault();
     if (!newCustId) {
@@ -111,6 +162,7 @@ export function FollowUpListClient({
       } else {
         setShowAddModal(false);
         setNewDesc("");
+        setAiRec(null);
         router.refresh();
       }
     });
@@ -127,13 +179,19 @@ export function FollowUpListClient({
 
         <button
           type="button"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setAiRec(null);
+            setShowAddModal(true);
+          }}
           className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-neutral-800 transition cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Tambah Task</span>
         </button>
       </div>
+
+      {/* AI Daily Follow-Up Radar & Cockpit */}
+      <AIFollowUpRadarCard />
 
       {/* Triage Tabs */}
       <div className="flex gap-1.5 rounded-xl bg-neutral-100 p-1 overflow-x-auto">
@@ -246,17 +304,17 @@ export function FollowUpListClient({
       {/* Modal Add Task */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-5 sm:p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-base font-bold text-neutral-900">Tambah Tugas Follow-Up</h2>
-                <p className="text-xs text-neutral-500">Catat komitmen aksi untuk customer</p>
+                <p className="text-xs text-neutral-500">Catat komitmen aksi lapangan dengan rekomendasi cerdas AI</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
                 aria-label="Tutup modal"
-                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
+                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 focus-visible:ring-2 focus-visible:ring-amber-500 outline-none cursor-pointer"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -269,15 +327,39 @@ export function FollowUpListClient({
               </div>
             )}
 
-            <form onSubmit={handleCreateTask} className="space-y-3.5">
+            <form onSubmit={handleCreateTask} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 mb-1">
-                  Pilih Customer *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-neutral-700">
+                    Pilih Customer *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateAIFollowUp}
+                    disabled={isGeneratingAI || !newCustId}
+                    className="inline-flex items-center gap-1 rounded-lg bg-linear-to-r from-amber-500 to-amber-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:from-amber-600 hover:to-amber-700 transition disabled:opacity-50 cursor-pointer"
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <span>Menganalisis Akun...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3" />
+                        <span>{aiRec ? "Regenerate AI" : "✨ Saran Follow-Up AI"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 <select
                   value={newCustId}
-                  onChange={(e) => setNewCustId(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 shadow-xs"
+                  onChange={(e) => {
+                    setNewCustId(e.target.value);
+                    setAiRec(null);
+                  }}
+                  className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-900 shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
                 >
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -286,6 +368,56 @@ export function FollowUpListClient({
                   ))}
                 </select>
               </div>
+
+              {/* AI Progress & Context Box */}
+              {aiRec && (
+                <div className="rounded-xl bg-amber-50/60 p-3.5 border border-amber-200/80 space-y-2.5 text-xs animate-fade-in-up">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-950 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                      <Bot className="h-3.5 w-3.5 text-amber-600" />
+                      Analisis Progress Akun (Bang Radit AI)
+                    </span>
+                    <span className="rounded-full bg-amber-200/70 px-2 py-0.5 text-[10px] font-extrabold text-amber-900">
+                      Grounded CRM
+                    </span>
+                  </div>
+
+                  <p className="text-neutral-800 leading-relaxed text-[11px]">
+                    {aiRec.progress_summary}
+                  </p>
+
+                  {aiRec.recommended_script && (
+                    <div className="rounded-lg bg-white p-2.5 border border-amber-200/60 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-neutral-700 flex items-center gap-1 text-[10px]">
+                          <MessageSquareQuote className="h-3 w-3 text-amber-500" />
+                          Draf Skrip Pembuka DSR:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyScript(aiRec.recommended_script)}
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 hover:text-amber-900 cursor-pointer"
+                        >
+                          {copiedScript ? (
+                            <>
+                              <Check className="h-2.5 w-2.5 text-emerald-600" />
+                              <span className="text-emerald-600">Tersalin!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-2.5 w-2.5" />
+                              <span>Salin Skrip</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-neutral-600 italic leading-relaxed">
+                        &ldquo;{aiRec.recommended_script}&rdquo;
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
@@ -343,8 +475,8 @@ export function FollowUpListClient({
                   rows={3}
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  placeholder="Contoh: Kirim penawaran harga Rimula R4 X 10 drum dan follow-up via WA..."
-                  className="w-full rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-900 shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
+                  placeholder="Contoh: Kirim penawaran harga Tellus S2 MX 46 2 drum dan follow-up via WA..."
+                  className="w-full rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-900 shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none leading-relaxed"
                 />
               </div>
 
@@ -352,14 +484,14 @@ export function FollowUpListClient({
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="rounded-xl border border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50"
+                  className="rounded-xl border border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-neutral-800 transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-neutral-800 transition disabled:opacity-50 cursor-pointer"
                 >
                   {isPending ? (
                     <>

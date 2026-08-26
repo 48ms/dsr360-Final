@@ -556,47 +556,21 @@ export async function quickVisit(input: QuickVisitInput) {
 export async function generateAIPopsa(
   customerId: string,
   visitType: VisitType = "ROUTINE",
-  customPurpose?: string
+  customPurpose?: string,
+  visitDate?: string
 ) {
-  const supabase = await createClient();
+  const { generateProgressivePopsa } = await import("@/lib/ai/gemini");
+  const popsa = await generateProgressivePopsa(customerId, {
+    visitType,
+    customPurpose,
+    visitDate,
+  });
 
-  // Get customer profile + equipment + products to ground the AI generator
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("customer_name, segment, priority, city")
-    .eq("id", customerId)
-    .single();
-
-  const { data: equipment } = await supabase
-    .from("customer_equipment")
-    .select("equipment_type, brand, model, current_brand, current_product, current_viscosity, drain_interval")
-    .eq("customer_id", customerId)
-    .limit(3);
-
-  const { data: products } = await supabase
-    .from("customer_products")
-    .select("brand, product_name, viscosity, status, monthly_volume")
-    .eq("customer_id", customerId);
-
-  const customerName = customer?.customer_name ?? "Customer";
-  const segment = customer?.segment ?? "FLEET";
-  const equipSummary = equipment?.length
-    ? equipment
-        .map(
-          (e) =>
-            `${e.equipment_type} ${e.brand || ""} (Oli: ${e.current_brand || "Kompetitor"} ${e.current_product || ""})`
-        )
-        .join(", ")
-    : "Unit operasional standar industri";
-
-  const currentOil = products?.find((p) => p.status === "CURRENT")?.product_name || "Pelumas Kompetitor eksisting";
-
-  // Deterministic high-quality POPSA generation based on domain logic
   return {
-    purpose: customPurpose || `Kunjungan ${visitType.toLowerCase()} teknis & evaluasi efisiensi pelumasan unit.`,
-    objective: `Mendapatkan persetujuan PIC untuk pengujian/trial produk Shell (Rimula / Tellus) pada unit ${segment.toLowerCase()} customer.`,
-    premises: `${customerName} saat ini menggunakan ${currentOil} untuk ${equipSummary}. Prioritas akun: ${customer?.priority ?? "A"}.`,
-    strategy: `Fokus pada Total Cost of Ownership (TCO), perpanjangan drain interval, dan sertifikasi OEM Shell dibanding sekadar adu diskon harga per liter.`,
-    anticipate: `Customer kemungkinan mengajukan keberatan selisih harga awal dan meminta data perbandingan teknis uji lab/oil analysis.`,
+    purpose: customPurpose || popsa.objective,
+    objective: popsa.objective,
+    premises: `${popsa.milestone} — ${popsa.position}`,
+    strategy: `${popsa.strategy}${popsa.target_shell_product ? ` | Target Produk: ${popsa.target_shell_product}` : ""}${popsa.cross_sell_opportunity ? ` | Peluang Cross-Sell: ${popsa.cross_sell_opportunity}` : ""}`,
+    anticipate: popsa.action,
   };
 }

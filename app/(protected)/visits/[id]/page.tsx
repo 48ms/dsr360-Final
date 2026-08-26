@@ -155,6 +155,7 @@ export default async function VisitDetailPage({
             <div className="pt-2 border-t border-emerald-200/70">
               <VisitWhatsAppShareButton
                 customerName={customer?.customer_name || "Customer"}
+                customerId={visit.customer_id}
                 defaultPhone={primaryContactPhone}
                 contacts={formattedContacts}
                 visitDate={formatDate(visit.visit_date)}

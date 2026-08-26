@@ -5,6 +5,13 @@ import { createOpportunity } from "@/actions/opportunities";
 import { OPPORTUNITY_STAGES, type OpportunityStage } from "@/constants/enums";
 import { ArrowLeft, Check, Loader2, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import {
+  OpportunityProductItemsEditor,
+} from "@/components/pipeline/opportunity-product-items-editor";
+import {
+  serializeOpportunityItems,
+  type OpportunityProductItem,
+} from "@/lib/utils/opportunity-items";
 
 type CustomerOption = {
   id: string;
@@ -20,6 +27,7 @@ type MasterProduct = {
   product_name: string;
   category: string | null;
   viscosity: string | null;
+  packaging?: string | null;
 };
 
 type MasterCompetitor = {
@@ -45,11 +53,17 @@ export function OpportunityForm({
   // Form State
   const [customerId, setCustomerId] = useState<string>(defaultCustomerId || (customers[0]?.id ?? ""));
   const [opportunityName, setOpportunityName] = useState<string>("");
-  const [productId, setProductId] = useState<string>(masterProducts[0]?.id ?? "");
   const [stage, setStage] = useState<OpportunityStage>("PROSPECT");
-  const [potentialVolume, setPotentialVolume] = useState<string>("");
-  const [volumeUnit, setVolumeUnit] = useState<"LITER" | "DRUM" | "PAIL">("DRUM");
-  const [potentialValue, setPotentialValue] = useState<string>("");
+  const [productItems, setProductItems] = useState<OpportunityProductItem[]>([
+    {
+      id: `item-${Date.now()}`,
+      productId: "",
+      qty: "1",
+      unit: "DRUM",
+      unitPrice: 0,
+      subtotal: 0,
+    },
+  ]);
   const [probability, setProbability] = useState<number>(30);
   const [expectedCloseDate, setExpectedCloseDate] = useState<string>("");
   const [competitorId, setCompetitorId] = useState<string>("");
@@ -69,29 +83,20 @@ export function OpportunityForm({
 
     setErrorMsg(null);
     startTransition(async () => {
-      let calculatedVolumeLiters: number | null = null;
-      if (potentialVolume) {
-        const num = parseFloat(potentialVolume);
-        if (!isNaN(num)) {
-          if (volumeUnit === "DRUM") calculatedVolumeLiters = num * 209;
-          else if (volumeUnit === "PAIL") calculatedVolumeLiters = num * 20;
-          else calculatedVolumeLiters = num;
-        }
-      }
-
-      const parsedVal = potentialValue ? parseFloat(potentialValue) : null;
+      const { serializedNotes, totalVolumeLiters, totalValue, primaryProductId } =
+        serializeOpportunityItems(customerNeed, productItems);
 
       const res = await createOpportunity({
         customer_id: customerId,
         opportunity_name: opportunityName.trim(),
-        product_id: productId || null,
+        product_id: primaryProductId,
         stage,
-        potential_volume: calculatedVolumeLiters,
-        potential_value: parsedVal !== null && !isNaN(parsedVal) ? parsedVal : null,
+        potential_volume: totalVolumeLiters > 0 ? totalVolumeLiters : null,
+        potential_value: totalValue > 0 ? totalValue : null,
         probability,
         expected_close_date: expectedCloseDate || undefined,
         competitor_id: competitorId || null,
-        customer_need: customerNeed || undefined,
+        customer_need: serializedNotes.trim() || undefined,
         next_action: nextAction || undefined,
       });
 
@@ -112,7 +117,7 @@ export function OpportunityForm({
         </Link>
         <div>
           <h1 className="text-lg font-bold text-neutral-900">Tambah Peluang Baru</h1>
-          <p className="text-xs text-neutral-500">Catat deal prospek ke dalam sales pipeline</p>
+          <p className="text-xs text-neutral-500">Buat deal baru & tawarkan paket pelumas Shell.</p>
         </div>
       </div>
 
@@ -123,8 +128,8 @@ export function OpportunityForm({
         </div>
       )}
 
-      {/* Customer & Name */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
+      {/* Customer & Deal Name */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-4">
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
             Customer *
@@ -134,7 +139,6 @@ export function OpportunityForm({
             onChange={(e) => setCustomerId(e.target.value)}
             className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 text-xs text-neutral-900 shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
           >
-            <option value="">-- Pilih Customer --</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.customer_name} ({c.city ?? "Tanpa Kota"} &bull; {c.segment})
@@ -149,34 +153,27 @@ export function OpportunityForm({
           </label>
           <input
             type="text"
+            required
             value={opportunityName}
             onChange={(e) => setOpportunityName(e.target.value)}
-            placeholder="Contoh: Pengadaan Oli Armada Bus 20 Unit"
+            placeholder="Contoh: Pengadaan Oli Pabrik Tekstil 10 Drum"
             className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 text-xs text-neutral-900 shadow-xs focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
           />
         </div>
       </div>
 
-      {/* Product & Stage */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Produk Shell Ditawarkan
-            </label>
-            <select
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
-            >
-              {masterProducts.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.brand} {p.product_name}
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Multi-Product Line Items Editor */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs">
+        <OpportunityProductItemsEditor
+          items={productItems}
+          onChange={setProductItems}
+          masterProducts={masterProducts}
+        />
+      </div>
 
+      {/* Stage, Close Date & Competitor */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
               Tahap Penjualan (Stage)
@@ -193,52 +190,36 @@ export function OpportunityForm({
               ))}
             </select>
           </div>
-        </div>
-
-        {/* Volume & Value */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Estimasi Volume
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={potentialVolume}
-                onChange={(e) => setPotentialVolume(e.target.value)}
-                placeholder="Jumlah"
-                className="flex-1 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
-              />
-              <select
-                value={volumeUnit}
-                onChange={(e) => setVolumeUnit(e.target.value as "LITER" | "DRUM" | "PAIL")}
-                className="rounded-xl border border-neutral-200 bg-white px-2 py-2 text-xs font-semibold text-neutral-800"
-              >
-                <option value="DRUM">Drum (209L)</option>
-                <option value="PAIL">Pail (20L)</option>
-                <option value="LITER">Liter</option>
-              </select>
-            </div>
-          </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Estimasi Nilai Total (Rp)
+              Target Tanggal Closing
             </label>
             <input
-              type="number"
-              value={potentialValue}
-              onChange={(e) => setPotentialValue(e.target.value)}
-              placeholder="Contoh: 150000000"
+              type="date"
+              value={expectedCloseDate}
+              onChange={(e) => setExpectedCloseDate(e.target.value)}
               className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
             />
           </div>
         </div>
-      </div>
 
-      {/* Competitor & Close Date */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-neutral-100">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
+              Peluang Close (%): <span className="text-amber-700 font-bold">{probability}%</span>
+            </label>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              step="5"
+              value={probability}
+              onChange={(e) => setProbability(parseInt(e.target.value, 10))}
+              className="w-full accent-amber-500 mt-2"
+            />
+          </div>
+
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
               Kompetitor yang Digeser
@@ -256,85 +237,59 @@ export function OpportunityForm({
               ))}
             </select>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Target Closing (Close Date)
-            </label>
-            <input
-              type="date"
-              value={expectedCloseDate}
-              onChange={(e) => setExpectedCloseDate(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
-            />
-          </div>
         </div>
+      </div>
 
+      {/* Customer Need & Next Action */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-4">
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-            Catatan Kebutuhan Customer
+            Kebutuhan / Alasan Pelanggan
           </label>
           <textarea
             rows={2}
             value={customerNeed}
             onChange={(e) => setCustomerNeed(e.target.value)}
-            placeholder="Contoh: Butuh oli sintetis untuk armada baru dengan interval ganti oli lebih panjang..."
-            className="w-full rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-900 shadow-xs focus:border-amber-500 outline-none"
+            placeholder="Contoh: Kebutuhan oli hidrolik untuk 5 mesin injection baru..."
+            className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Probabilitas Closing (%)
-            </label>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={probability}
-              onChange={(e) => setProbability(Number(e.target.value) || 0)}
-              className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
-              Next Action untuk Deal Ini
-            </label>
-            <input
-              type="text"
-              value={nextAction}
-              onChange={(e) => setNextAction(e.target.value)}
-              placeholder="Contoh: Kirim penawaran harga & presentasi TCO"
-              className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600 mb-1">
+            Rencana Tindak Lanjut (Next Action)
+          </label>
+          <input
+            type="text"
+            value={nextAction}
+            onChange={(e) => setNextAction(e.target.value)}
+            placeholder="Contoh: Kirim penawaran harga resmi (SPH) via WhatsApp"
+            className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900"
+          />
         </div>
       </div>
 
-      {/* Submit Button */}
       <div className="flex items-center justify-end gap-3 pt-2">
         <Link
           href="/pipeline"
-          className="rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 transition"
+          className="rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition"
         >
           Batal
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-6 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-neutral-800 transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-600 transition disabled:opacity-50"
         >
           {isPending ? (
             <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               <span>Menyimpan Deal...</span>
             </>
           ) : (
             <>
-              <Check className="h-3.5 w-3.5" />
-              <span>Simpan Opportunity</span>
+              <Check className="h-4 w-4" />
+              <span>Simpan Peluang</span>
             </>
           )}
         </button>

@@ -8,6 +8,7 @@ import {
   type UpdateStageInput,
 } from "@/lib/validations/opportunity";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import type { OpportunityStage } from "@/constants/enums";
 
@@ -30,6 +31,7 @@ export async function listOpportunities(filters?: {
       potential_value,
       probability,
       expected_close_date,
+      customer_need,
       next_action,
       next_action_date,
       created_at,
@@ -162,13 +164,10 @@ export async function createOpportunity(input: OpportunityInput) {
   }
 
   const newId = randomUUID();
-  const stage = parsed.data.stage;
-  const status = stage === "WON" ? "WON" : stage === "LOST" ? "LOST" : "OPEN";
 
   const { error } = await supabase.from("opportunities").insert({
     ...parsed.data,
     id: newId,
-    status,
     created_by: user.id,
   });
 
@@ -188,13 +187,11 @@ export async function updateOpportunityStage(input: UpdateStageInput) {
 
   const supabase = await createClient();
   const { opportunity_id, stage, notes } = parsed.data;
-  const status = stage === "WON" ? "WON" : stage === "LOST" ? "LOST" : "OPEN";
 
   const { error } = await supabase
     .from("opportunities")
     .update({
       stage,
-      status,
       objection: notes ? notes : undefined,
       updated_at: new Date().toISOString(),
     })
@@ -205,5 +202,45 @@ export async function updateOpportunityStage(input: UpdateStageInput) {
     return { error: "Gagal update stage opportunity." };
   }
 
+  revalidatePath("/pipeline");
+  revalidatePath(`/pipeline/${opportunity_id}`);
+  return { success: true };
+}
+
+export async function updateOpportunity(id: string, input: OpportunityInput) {
+  const parsed = opportunitySchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Input tidak valid" };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("opportunities")
+    .update({
+      ...parsed.data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("updateOpportunity error:", error.message);
+    return { error: "Gagal mengupdate opportunity. Coba lagi." };
+  }
+
+  revalidatePath("/pipeline");
+  revalidatePath(`/pipeline/${id}`);
+  return { success: true };
+}
+
+export async function deleteOpportunity(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("opportunities").delete().eq("id", id);
+  if (error) {
+    console.error("deleteOpportunity error:", error.message);
+    return { error: "Gagal menghapus opportunity." };
+  }
+
+  revalidatePath("/pipeline");
   return { success: true };
 }

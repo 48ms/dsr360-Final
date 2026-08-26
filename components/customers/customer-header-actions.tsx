@@ -109,6 +109,7 @@ export function CustomerHeaderActions({
         isOpen={showWaModal}
         onClose={() => setShowWaModal(false)}
         customerName={customerName || "Customer"}
+        customerId={customerId}
         defaultPhone={defaultPhone}
         contacts={formattedContacts}
         defaultTemplate="INTRODUCTION"

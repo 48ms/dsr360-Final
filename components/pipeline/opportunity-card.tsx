@@ -10,8 +10,11 @@ import {
   Calendar,
   TrendingUp,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { cleanProductName } from "@/components/pipeline/product-combobox";
+import { parseOpportunityItems } from "@/lib/utils/opportunity-items";
 
 export type OpportunityItem = {
   id: string;
@@ -22,6 +25,7 @@ export type OpportunityItem = {
   potential_value: number | null;
   probability: number | null;
   expected_close_date: string | null;
+  customer_need?: string | null;
   next_action: string | null;
   next_action_date: string | null;
   customer: {
@@ -108,50 +112,75 @@ export function OpportunityCard({
           </Link>
         </div>
 
-        {/* Quick Stage Selector */}
-        <div className="relative shrink-0">
-          <select
-            value={currentStage}
-            aria-label="Ubah tahapan deal"
-            onChange={(e) => handleStageChange(e.target.value as OpportunityStage)}
-            disabled={isPending}
-            className={cn(
-              "rounded-xl border px-2.5 py-1 text-[11px] font-bold shadow-2xs outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500",
-              STAGE_COLORS[currentStage]
-            )}
+        {/* Quick Edit & Stage Selector */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Link
+            href={`/pipeline/${opp.id}?edit=true`}
+            title="Edit Deal"
+            className="rounded-xl border border-neutral-200 bg-white p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition shadow-2xs"
           >
-            {OPPORTUNITY_STAGES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-          {isPending && (
-            <Loader2 className="absolute right-1 top-2 h-3 w-3 animate-spin text-neutral-500" aria-hidden="true" />
-          )}
+            <Pencil className="h-3.5 w-3.5" />
+          </Link>
+
+          <div className="relative shrink-0">
+            <select
+              value={currentStage}
+              aria-label="Ubah tahapan deal"
+              onChange={(e) => handleStageChange(e.target.value as OpportunityStage)}
+              disabled={isPending}
+              className={cn(
+                "rounded-xl border px-2.5 py-1 text-[11px] font-bold shadow-2xs outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500",
+                STAGE_COLORS[currentStage]
+              )}
+            >
+              {OPPORTUNITY_STAGES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            {isPending && (
+              <Loader2 className="absolute right-1 top-2 h-3 w-3 animate-spin text-neutral-500" aria-hidden="true" />
+            )}
+          </div>
         </div>
       </div>
 
       {/* Product & Volume Highlight */}
-      <div className="rounded-xl bg-neutral-50 p-3 text-xs space-y-1.5 border border-neutral-100">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-neutral-800">
-            🛢️ {opp.product ? `${opp.product.brand} ${opp.product.product_name}` : "Pelumas Shell"}
-          </span>
-          {opp.potential_volume && (
-            <span className="font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md text-[10px]">
-              {opp.potential_volume} Liter
-            </span>
-          )}
-        </div>
+      {(() => {
+        const parsedItems = parseOpportunityItems(
+          opp.customer_need,
+          opp.product?.id,
+          opp.potential_volume,
+          opp.potential_value
+        ).items.filter((it) => !!it.productId);
 
-        <div className="flex items-center justify-between pt-1 border-t border-neutral-200/60">
-          <span className="text-neutral-500 text-[11px]">Estimasi Nilai Deal:</span>
-          <span className="text-xs font-extrabold text-emerald-700">
-            {opp.potential_value ? formatCurrency(opp.potential_value) : "Belum diisi"}
-          </span>
-        </div>
-      </div>
+        return (
+          <div className="rounded-xl bg-neutral-50 p-3 text-xs space-y-1.5 border border-neutral-100">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-neutral-800 truncate">
+                {parsedItems.length > 1
+                  ? `🛢️ ${parsedItems.length} Produk Ditawarkan`
+                  : opp.product
+                  ? `🛢️ ${cleanProductName(opp.product.brand, opp.product.product_name)}`
+                  : "🛢️ Pelumas Shell"}
+              </span>
+              {opp.potential_volume && (
+                <span className="font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md text-[10px] shrink-0">
+                  {opp.potential_volume} Liter
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-1 border-t border-neutral-200/60">
+              <span className="text-neutral-500 text-[11px]">Estimasi Nilai Deal:</span>
+              <span className="text-xs font-extrabold text-emerald-700">
+                {opp.potential_value ? formatCurrency(opp.potential_value) : "Belum diisi"}
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Metadata Row */}
       <div className="flex items-center justify-between text-xs text-neutral-500 pt-1">

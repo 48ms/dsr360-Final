@@ -57,7 +57,7 @@ export function PlanVisitForm({
     setErrorMsg(null);
     setIsGeneratingAIPopsa(true);
     try {
-      const generated = await generateAIPopsa(selectedCustomerId, visitType, purpose);
+      const generated = await generateAIPopsa(selectedCustomerId, visitType, purpose, visitDate);
       setPopsaPurpose(generated.purpose);
       setPopsaObjective(generated.objective);
       setPopsaPremises(generated.premises);
