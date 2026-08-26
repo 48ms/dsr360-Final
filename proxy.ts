@@ -8,10 +8,10 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Jalankan middleware di semua route KECUALI:
+     * Jalankan proxy di semua route KECUALI:
      * - static file (_next/static, _next/image, favicon, dll)
-     * - asset gambar
+     * - asset gambar, logos, icons, manifest
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|favicon.svg|manifest.json|manifest.webmanifest|logos|icons|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
