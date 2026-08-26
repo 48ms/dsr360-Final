@@ -249,18 +249,36 @@ export default async function VisitDetailPage({
 
       {/* Photos Grid */}
       {photos.length > 0 && (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs space-y-3">
-          <div className="flex items-center gap-2 pb-2 border-b border-neutral-100 text-neutral-900 font-bold text-xs uppercase tracking-wider">
-            <Camera className="h-4 w-4 text-neutral-500" />
-            <span>Foto Bukti Lapangan</span>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+            <div className="flex items-center gap-2 text-neutral-900 font-bold text-xs uppercase tracking-wider">
+              <Camera className="h-4 w-4 text-amber-600" />
+              <span>Foto Bukti Lapangan ({photos.length})</span>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {photos.map((ph) => (
-              <div key={ph.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-2 text-xs">
-                <span className="font-bold text-[10px] uppercase text-neutral-500 bg-neutral-200 px-1.5 py-0.5 rounded-sm">
-                  {ph.photo_type}
-                </span>
-                <p className="mt-1 text-[11px] text-neutral-800">{ph.caption || ph.photo_url}</p>
+              <div
+                key={ph.id}
+                className="rounded-2xl border border-neutral-200 bg-neutral-50 overflow-hidden shadow-2xs group"
+              >
+                <div className="relative aspect-video w-full bg-neutral-900 overflow-hidden">
+                  <img
+                    src={ph.photo_url}
+                    alt={ph.caption || ph.photo_type}
+                    className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  <div className="absolute top-2 left-2">
+                    <span className="font-mono font-black text-[10px] uppercase text-white bg-neutral-950/80 backdrop-blur-xs px-2 py-0.5 rounded-md border border-white/20">
+                      {ph.photo_type}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-xs font-semibold text-neutral-900 line-clamp-2">
+                    {ph.caption || "Foto dokumentasi lapangan"}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

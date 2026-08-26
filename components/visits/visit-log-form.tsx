@@ -14,6 +14,7 @@ import {
   type FollowUpPriority,
   type PhotoType,
 } from "@/constants/enums";
+import { VisitPhotoUploader, type CapturedPhoto } from "@/components/visits/visit-photo-uploader";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -95,30 +96,7 @@ export function VisitLogForm({
   const [nextActionPriority, setNextActionPriority] = useState<FollowUpPriority>("HIGH");
 
   // Photos State
-  const [photos, setPhotos] = useState<
-    Array<{ photo_url: string; photo_type: PhotoType; caption: string }>
-  >([]);
-  const [photoUrlInput, setPhotoUrlInput] = useState<string>("");
-  const [photoTypeInput, setPhotoTypeInput] = useState<PhotoType>("WORKSHOP");
-  const [photoCaptionInput, setPhotoCaptionInput] = useState<string>("");
-
-  function handleAddPhoto() {
-    if (!photoUrlInput.trim()) return;
-    setPhotos((prev) => [
-      ...prev,
-      {
-        photo_url: photoUrlInput.trim(),
-        photo_type: photoTypeInput,
-        caption: photoCaptionInput.trim(),
-      },
-    ]);
-    setPhotoUrlInput("");
-    setPhotoCaptionInput("");
-  }
-
-  function handleRemovePhoto(index: number) {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
-  }
+  const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -417,72 +395,7 @@ export function VisitLogForm({
         <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-600">
           4. Foto Bukti Lapangan (Storage / Nameplate / Workshop)
         </label>
-
-        {photos.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            {photos.map((p, idx) => (
-              <div key={idx} className="relative rounded-xl border border-neutral-200 bg-neutral-50 p-2.5 text-xs flex justify-between items-start">
-                <div className="min-w-0 pr-2">
-                  <span className="font-bold text-[10px] text-neutral-600 bg-neutral-200 px-1.5 py-0.5 rounded-sm uppercase">
-                    {p.photo_type}
-                  </span>
-                  <p className="text-neutral-800 mt-1 line-clamp-1 text-[11px] font-medium">
-                    {p.caption || "Tanpa keterangan"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhoto(idx)}
-                  className="text-red-500 hover:text-red-700 p-1"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="rounded-xl border border-neutral-200 p-3 bg-neutral-50/50 space-y-2">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div className="sm:col-span-2">
-              <input
-                type="text"
-                value={photoUrlInput}
-                onChange={(e) => setPhotoUrlInput(e.target.value)}
-                placeholder="Paste URL foto bukti / nameplate..."
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs"
-              />
-            </div>
-            <select
-              value={photoTypeInput}
-              onChange={(e) => setPhotoTypeInput(e.target.value as PhotoType)}
-              className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs"
-            >
-              {PHOTO_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={photoCaptionInput}
-              onChange={(e) => setPhotoCaptionInput(e.target.value)}
-              placeholder="Keterangan foto (misal: Nameplate genset Caterpillar)"
-              className="flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs"
-            />
-            <button
-              type="button"
-              onClick={handleAddPhoto}
-              disabled={!photoUrlInput.trim()}
-              className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-800 disabled:opacity-40"
-            >
-              + Tambah Foto
-            </button>
-          </div>
-        </div>
+        <VisitPhotoUploader photos={photos} onChange={setPhotos} />
       </div>
 
       {/* 5. 🚨 MANDATORY NEXT ACTION (Gerbang Wajib Follow-Up) */}
