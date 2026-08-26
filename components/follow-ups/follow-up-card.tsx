@@ -60,12 +60,12 @@ export function FollowUpCard({
     <>
       <div
         className={cn(
-          "rounded-2xl border bg-white p-4 shadow-xs transition space-y-3",
+          "rounded-2xl border bg-white p-4 shadow-xs transition-all duration-200 hover:shadow-md space-y-3",
           isOverdue
-            ? "border-red-300 bg-red-50/15"
+            ? "border-red-300 bg-red-50/15 hover:border-red-400"
             : isCompleted
             ? "border-neutral-200 bg-neutral-50/50 opacity-80"
-            : "border-neutral-200"
+            : "border-neutral-200 hover:border-neutral-300"
         )}
       >
         {/* Top Header */}

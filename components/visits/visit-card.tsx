@@ -36,7 +36,7 @@ export function VisitCard({ visit }: { visit: VisitCardItem }) {
   const isCompleted = visit.visit_status === "COMPLETED";
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-xs transition hover:border-neutral-300">
+    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-xs transition-all duration-200 hover:border-neutral-300 hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap mb-1">

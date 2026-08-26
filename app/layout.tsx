@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
+import { ToastProvider } from "@/components/ui/toast-context";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "DSR360 — B2B Sales Visit & CRM",
@@ -30,10 +38,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-neutral-50">
-        <OfflineIndicator />
-        {children}
+    <html lang="id" className={`h-full antialiased ${inter.variable}`}>
+      <body className="min-h-full flex flex-col bg-neutral-50 font-sans">
+        <ToastProvider>
+          <OfflineIndicator />
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

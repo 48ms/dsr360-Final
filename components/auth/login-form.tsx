@@ -24,8 +24,6 @@ export function LoginForm() {
     setServerError(null);
     startTransition(async () => {
       const result = await login(data);
-      // Kalau login sukses, server action sudah redirect duluan (throw NEXT_REDIRECT),
-      // jadi baris di bawah ini cuma jalan kalau ada error.
       if (result?.error) {
         setServerError(result.error);
       }
@@ -35,7 +33,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <Input
-        label="Email"
+        label="Email Sales"
         type="email"
         placeholder="nama@hum.co.id"
         autoComplete="email"
@@ -52,11 +50,13 @@ export function LoginForm() {
       />
 
       {serverError && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{serverError}</p>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700">
+          {serverError}
+        </div>
       )}
 
-      <Button type="submit" isLoading={isPending} className="mt-2">
-        Masuk
+      <Button type="submit" isLoading={isPending} className="mt-2 text-sm font-bold">
+        Masuk ke DSR360
       </Button>
     </form>
   );

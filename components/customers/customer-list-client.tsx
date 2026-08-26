@@ -50,10 +50,14 @@ export function CustomerListClient({ customers }: { customers: CustomerListItem[
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-medium text-neutral-900">Customers</h1>
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">Customers</h1>
+          <p className="text-xs text-neutral-500 mt-0.5">Database akun & profil pelanggan</p>
+        </div>
         <Link
           href="/customers/new"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white shadow-xs hover:bg-amber-600 active:scale-95 transition cursor-pointer"
+          title="Tambah Customer Baru"
         >
           <Plus size={18} />
         </Link>
@@ -64,8 +68,8 @@ export function CustomerListClient({ customers }: { customers: CustomerListItem[
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari customer..."
-          className="w-full rounded-xl border border-neutral-300 py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+          placeholder="Cari nama toko, pabrik, atau kota..."
+          className="w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-sm transition focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
         />
       </div>
 

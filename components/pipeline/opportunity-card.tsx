@@ -83,8 +83,12 @@ export function OpportunityCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-white p-4 shadow-xs transition space-y-3",
-        isWon ? "border-emerald-300 bg-emerald-50/20" : isLost ? "border-red-200 opacity-75" : "border-neutral-200"
+        "rounded-2xl border bg-white p-4 shadow-xs transition-all duration-200 hover:shadow-md space-y-3",
+        isWon
+          ? "border-emerald-300 bg-emerald-50/20 hover:border-emerald-400"
+          : isLost
+          ? "border-red-200 opacity-75 hover:opacity-100"
+          : "border-neutral-200 hover:border-neutral-300"
       )}
     >
       {/* Top Header & Stage Dropdown */}
