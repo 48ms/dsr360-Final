@@ -104,17 +104,24 @@ export function DashboardClient({
         <div className="flex items-center justify-between pt-2 border-t border-amber-200/60 text-xs flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <Link
+              href="/visits/plan"
+              className="text-[11px] font-extrabold text-amber-950 hover:text-amber-800 flex items-center gap-1 min-h-[36px] py-1 bg-amber-500/10 px-2.5 rounded-lg border border-amber-300"
+            >
+              <span>🗺️ Hermes Rute Cerdas</span>
+              <ChevronRight className="h-3.5 w-3.5 text-amber-600" />
+            </Link>
+            <Link
               href="/follow-ups"
               className="text-[11px] font-bold text-amber-900 hover:text-amber-700 flex items-center gap-1 min-h-[36px] py-1"
             >
-              <span>AI Follow-Up Radar</span>
+              <span>AI Radar</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/pipeline"
               className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1 min-h-[36px] py-1"
             >
-              <span>Pipeline Deal</span>
+              <span>Pipeline</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>

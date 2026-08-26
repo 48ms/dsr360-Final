@@ -56,19 +56,26 @@ export function VisitListClient({ initialVisits }: { initialVisits: VisitCardIte
 
         <div className="flex items-center gap-2">
           <Link
+            href="/visits/plan"
+            className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl border border-amber-300 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-950 shadow-2xs hover:bg-amber-500/20 active:scale-95 transition cursor-pointer"
+          >
+            <Calendar className="h-4 w-4 text-amber-700" />
+            <span className="hidden sm:inline">🗺️ Hermes Rute</span>
+            <span className="sm:hidden">Rute</span>
+          </Link>
+          <Link
             href="/visits/quick"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-2 text-xs font-semibold text-white shadow-xs hover:bg-amber-600 transition"
+            className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl bg-amber-500 px-3 py-2 text-xs font-bold text-white shadow-2xs hover:bg-amber-600 active:scale-95 transition cursor-pointer"
           >
             <Zap className="h-4 w-4 fill-current" />
             <span>Quick Visit</span>
           </Link>
           <Link
             href="/visits/new"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2 text-xs font-semibold text-white shadow-xs hover:bg-neutral-800 transition"
+            className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl bg-neutral-900 px-3 py-2 text-xs font-bold text-white shadow-2xs hover:bg-neutral-800 active:scale-95 transition cursor-pointer"
           >
             <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Rencanakan Visit</span>
-            <span className="sm:hidden">Plan</span>
+            <span className="hidden sm:inline">+ Visit</span>
           </Link>
         </div>
       </div>
