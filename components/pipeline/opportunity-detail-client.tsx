@@ -353,40 +353,81 @@ export function OpportunityDetailClient({
         </div>
       </div>
 
+      {/* 🎉 CELEBRATORY DEAL WON MILESTONE CARD (IMPECCABLE DELIGHT) */}
+      {isWon && (
+        <div className="rounded-3xl border border-emerald-300 bg-gradient-to-br from-emerald-500/15 via-emerald-50/60 to-white p-5 shadow-xs space-y-3 animate-fade-in-up">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500 text-white text-xl shadow-xs">
+                🏆
+              </div>
+              <div>
+                <h2 className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
+                  <span>DEAL WON BERHASIL DITUTUP!</span>
+                  <span className="rounded-full bg-emerald-200/80 px-2 py-0.2 text-[10px] font-black text-emerald-900 border border-emerald-400">
+                    +{(opportunity.potential_volume || 0).toLocaleString("id-ID")} L
+                  </span>
+                </h2>
+                <p className="text-xs text-emerald-800 font-medium">
+                  Selamat, Bro! Volume deal ini otomatis dihitung ke target kuota bulanan lo di Dashboard.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-200/80 text-xs">
+            <div className="bg-white/90 p-2.5 rounded-xl border border-emerald-200">
+              <span className="text-[10px] font-bold text-neutral-500 block uppercase">Status Pelanggan</span>
+              <span className="font-extrabold text-emerald-800 flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Otomatis Upgrade ke ACTIVE</span>
+              </span>
+            </div>
+            <div className="bg-white/90 p-2.5 rounded-xl border border-emerald-200">
+              <span className="text-[10px] font-bold text-neutral-500 block uppercase">Tugas Follow-Up</span>
+              <span className="font-extrabold text-emerald-800 flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Semua Task Auto-Resolved</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Value & Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
-          <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider block">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 shadow-xs">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
             Nilai Estimasi
           </span>
-          <span className="text-sm font-extrabold text-emerald-700 mt-1 block">
+          <span className="text-sm font-black text-emerald-700 mt-1 block">
             {opportunity.potential_value ? formatCurrency(opportunity.potential_value) : "Rp -"}
           </span>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
-          <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider block">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 shadow-xs">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
             Potensi Volume
           </span>
-          <span className="text-sm font-extrabold text-neutral-900 mt-1 block">
+          <span className="text-sm font-black text-neutral-900 mt-1 block">
             {opportunity.potential_volume ? formatVolume(opportunity.potential_volume) : "-"}
           </span>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
-          <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider block">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 shadow-xs">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
             Peluang Close
           </span>
-          <span className="text-sm font-extrabold text-amber-700 mt-1 block">
+          <span className="text-sm font-black text-amber-700 mt-1 block">
             {opportunity.probability ?? 30}%
           </span>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
-          <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider block">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 shadow-xs">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
             Target Closing
           </span>
-          <span className="text-xs font-bold text-neutral-800 mt-1.5 block">
+          <span className="text-xs font-black text-neutral-800 mt-1.5 block">
             {opportunity.expected_close_date ? formatDate(opportunity.expected_close_date) : "Belum ditentukan"}
           </span>
         </div>
@@ -394,7 +435,7 @@ export function OpportunityDetailClient({
 
       {/* Customer Info Card */}
       {customer && (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 sm:p-5 shadow-xs space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
@@ -402,7 +443,7 @@ export function OpportunityDetailClient({
               </span>
               <Link
                 href={`/customers/${customer.id}`}
-                className="text-base font-bold text-neutral-900 hover:text-amber-600 transition block mt-0.5"
+                className="text-base font-black text-neutral-900 hover:text-amber-600 transition block mt-0.5"
               >
                 {customer.customer_name}
               </Link>

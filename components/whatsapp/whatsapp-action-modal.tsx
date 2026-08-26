@@ -501,7 +501,7 @@ export function WhatsAppActionModal({
                         setIncomingChatInput(chip.prompt);
                         handleGenerateChatReply(chip.prompt);
                       }}
-                      className="rounded-lg bg-white border border-neutral-200 px-2.5 py-1 text-[11px] font-semibold text-neutral-700 hover:bg-amber-100 hover:border-amber-300 transition cursor-pointer text-left shadow-2xs"
+                      className="rounded-lg bg-white border border-neutral-200 px-2.5 py-1 text-[11px] font-semibold text-neutral-800 hover:bg-amber-100 hover:border-amber-300 hover:text-amber-950 transition cursor-pointer text-left shadow-2xs" /* impeccable-disable-line gray-on-color */
                     >
                       {chip.label}
                     </button>

@@ -53,10 +53,10 @@ export function OfflineIndicator() {
     >
       <div className="mx-auto flex max-w-md items-center justify-center gap-2">
         {isOffline ? (
-          <>
-            <WifiOff className="h-3.5 w-3.5 text-amber-400 shrink-0 animate-pulse" />
-            <span>📡 Mode Offline (Blank Spot) — Data di layar tetap aman.</span>
-          </>
+          <div className="flex items-center gap-2">
+            <WifiOff className="h-4 w-4 shrink-0 text-amber-400 animate-pulse" />
+            <span>📡 Mode Offline (Blank Spot) : Data di layar tetap aman.</span>
+          </div>
         ) : (
           <>
             <Wifi className="h-3.5 w-3.5 text-white shrink-0" />

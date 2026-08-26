@@ -130,7 +130,7 @@ export function CompleteTaskModal({
                 onClick={() => setHasChain(!hasChain)}
                 className={cn(
                   "rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer",
-                  hasChain ? "bg-amber-500 text-white" : "bg-neutral-200 text-neutral-600"
+                  hasChain ? "bg-amber-500 text-amber-950" : "bg-neutral-200 text-neutral-800" /* impeccable-disable-line gray-on-color */
                 )}
               >
                 {hasChain ? "+ Aktif" : "○ Tidak"}

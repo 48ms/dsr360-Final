@@ -272,7 +272,7 @@ export async function startVisit(input: StartVisitInput) {
   // 1. Validate existing visit and status transition
   const { data: existingVisit } = await supabase
     .from("visits")
-    .select("user_id, visit_status")
+    .select("user_id, visit_status, customer_id")
     .eq("id", visit_id)
     .single();
 
@@ -285,6 +285,35 @@ export async function startVisit(input: StartVisitInput) {
   }
 
   const now = start_time || new Date().toISOString();
+
+  // Auto-pin GPS coordinates to customer profile if empty
+  if (latitude && longitude && existingVisit.customer_id) {
+    const { data: cust } = await supabase
+      .from("customers")
+      .select("id, latitude, longitude, notes, customer_name, address, city, province")
+      .eq("id", existingVisit.customer_id)
+      .single();
+
+    if (cust && (cust.latitude === null || cust.longitude === null)) {
+      const { parseCustomerBranches, serializeCustomerBranches } = await import("@/lib/utils/branches");
+      const { branches, rawNotes } = parseCustomerBranches(cust.notes, cust);
+      if (branches.length > 0 && (branches[0].latitude === null || branches[0].longitude === null)) {
+        branches[0].latitude = latitude;
+        branches[0].longitude = longitude;
+      }
+      const updatedNotes = serializeCustomerBranches(branches, rawNotes);
+
+      await supabase
+        .from("customers")
+        .update({
+          latitude,
+          longitude,
+          notes: updatedNotes,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existingVisit.customer_id);
+    }
+  }
 
   const { error } = await supabase
     .from("visits")
@@ -421,7 +450,20 @@ export async function submitVisitLog(input: VisitLogInput) {
     }
   }
 
-  // 4. Create Mandatory Next Action in Follow-Ups
+  // 4. Auto-resolve prior pending/overdue follow-ups for this customer
+  const todayDateStr = new Date().toISOString().split("T")[0];
+  await supabase
+    .from("follow_ups")
+    .update({
+      status: "COMPLETED",
+      completed_at: new Date().toISOString(),
+      result: "Selesai otomatis melalui Kunjungan Lapangan",
+    })
+    .eq("customer_id", existingVisit.customer_id)
+    .eq("status", "PENDING")
+    .lte("due_date", todayDateStr);
+
+  // 5. Create Mandatory Next Action in Follow-Ups if specified
   if (has_next_action && next_action_description && next_action_due_date) {
     const newFollowUpId = randomUUID();
     const { error: followUpError } = await supabase.from("follow_ups").insert({
@@ -485,6 +527,8 @@ export async function quickVisit(input: QuickVisitInput) {
     product_id,
     potential_volume,
     potential_value,
+    latitude,
+    longitude,
     next_action_type,
     next_action_description,
     next_action_due_date,
@@ -508,6 +552,8 @@ export async function quickVisit(input: QuickVisitInput) {
     discussion,
     opportunity_found,
     potential_volume: potential_volume ?? null,
+    latitude: latitude ?? null,
+    longitude: longitude ?? null,
     start_time: nowIso,
     end_time: nowIso,
     duration_minutes: 15,
@@ -516,6 +562,35 @@ export async function quickVisit(input: QuickVisitInput) {
   if (visitError) {
     console.error("quickVisit error:", visitError.message);
     return { error: "Gagal menyimpan Quick Visit. Coba lagi." };
+  }
+
+  // Auto-pin GPS coordinates to customer profile if empty
+  if (latitude && longitude && customer_id) {
+    const { data: cust } = await supabase
+      .from("customers")
+      .select("id, latitude, longitude, notes, customer_name, address, city, province")
+      .eq("id", customer_id)
+      .single();
+
+    if (cust && (cust.latitude === null || cust.longitude === null)) {
+      const { parseCustomerBranches, serializeCustomerBranches } = await import("@/lib/utils/branches");
+      const { branches, rawNotes } = parseCustomerBranches(cust.notes, cust);
+      if (branches.length > 0 && (branches[0].latitude === null || branches[0].longitude === null)) {
+        branches[0].latitude = latitude;
+        branches[0].longitude = longitude;
+      }
+      const updatedNotes = serializeCustomerBranches(branches, rawNotes);
+
+      await supabase
+        .from("customers")
+        .update({
+          latitude,
+          longitude,
+          notes: updatedNotes,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", customer_id);
+    }
   }
 
   // 2. Insert Opportunity if found
@@ -534,7 +609,19 @@ export async function quickVisit(input: QuickVisitInput) {
     });
   }
 
-  // 3. Insert Follow-up
+  // 3. Auto-resolve prior pending/overdue follow-ups for this customer
+  await supabase
+    .from("follow_ups")
+    .update({
+      status: "COMPLETED",
+      completed_at: new Date().toISOString(),
+      result: "Selesai otomatis melalui Quick Visit Lapangan",
+    })
+    .eq("customer_id", customer_id)
+    .eq("status", "PENDING")
+    .lte("due_date", todayStr);
+
+  // 4. Insert Next Follow-up if defined
   if (next_action_description && next_action_due_date) {
     const newFollowUpId = randomUUID();
     await supabase.from("follow_ups").insert({
@@ -569,7 +656,7 @@ export async function generateAIPopsa(
   return {
     purpose: customPurpose || popsa.objective,
     objective: popsa.objective,
-    premises: `${popsa.milestone} — ${popsa.position}`,
+    premises: `${popsa.milestone} : ${popsa.position}`,
     strategy: `${popsa.strategy}${popsa.target_shell_product ? ` | Target Produk: ${popsa.target_shell_product}` : ""}${popsa.cross_sell_opportunity ? ` | Peluang Cross-Sell: ${popsa.cross_sell_opportunity}` : ""}`,
     anticipate: popsa.action,
   };

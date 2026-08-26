@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DSR360 — B2B Sales Visit & CRM",
-  description: "B2B Sales Visit & Customer Management — PT Harapan Utama Motor",
+  title: "DSR360 | B2B Sales Visit & CRM",
+  description: "B2B Sales Visit & Customer Management | PT Harapan Utama Motor",
   applicationName: "DSR360",
   appleWebApp: {
     capable: true,

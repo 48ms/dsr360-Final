@@ -73,7 +73,7 @@ export function SmartRoutePlannerClient({
           longitude: pos.coords.longitude,
         };
         setCurrentCoords(coords);
-        setOriginLabel("📍 Posisi GPS Saya Saat Ini (Live)");
+        setOriginLabel("Posisi GPS Saya Saat Ini (Live)");
         setGpsDetected(true);
         setIsLocatingGPS(false);
         success("Lokasi GPS Anda berhasil terdeteksi!");
@@ -192,7 +192,7 @@ export function SmartRoutePlannerClient({
                 }}
                 className="flex-1 min-h-[44px] rounded-xl border border-neutral-700 bg-neutral-900 px-3 py-2 text-xs font-bold text-white outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30"
               >
-                {gpsDetected && <option value="gps">📍 GPS Saya Saat Ini (Live)</option>}
+                {gpsDetected && <option value="gps">Posisi GPS Saya Saat Ini (Live)</option>}
                 {INDONESIA_INDUSTRIAL_HUBS.map((hub) => (
                   <option key={hub.id} value={hub.id}>
                     {hub.name} ({hub.region})
@@ -245,7 +245,7 @@ export function SmartRoutePlannerClient({
       {/* 2. CONTROLS & QUOTA PACING METERS */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Left Card: Stops Slider & Setting */}
-        <div className="md:col-span-5 rounded-3xl border border-neutral-200 bg-white p-5 space-y-4 shadow-2xs">
+        <div className="md:col-span-5 rounded-3xl border border-[#EAE4D9] bg-white p-5 space-y-4 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase text-neutral-900 flex items-center gap-1.5">
               <Navigation className="h-4 w-4 text-amber-600" />
@@ -278,7 +278,7 @@ export function SmartRoutePlannerClient({
 
           <div className="rounded-2xl bg-amber-500/10 border border-amber-300/70 p-3 text-xs text-amber-950 space-y-1">
             <p className="font-bold flex items-center gap-1">
-              💡 <strong>Taktik Hermes:</strong>
+              <strong>Taktik Hermes:</strong>
             </p>
             <p className="text-[11px] leading-relaxed text-neutral-700">
               Urutan stop disusun otomatis menggunakan prinsip <em>Nearest-Neighbor TSP</em> untuk meminimalkan waktu di jalanan macet dan mengutamakan akun berpeluang closing tercepat.
@@ -442,21 +442,37 @@ export function SmartRoutePlannerClient({
                   </div>
 
                   {/* POPSA Tactical Directive Card */}
-                  <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 p-3 text-xs text-amber-950 space-y-1.5">
+                  <div
+                    className={cn(
+                      "rounded-2xl border p-3 text-xs space-y-1.5",
+                      c.hasOverdueFollowUp
+                        ? "bg-red-50/70 border-red-200/90 text-red-950"
+                        : c.highestDealStage === "QUOTATION"
+                        ? "bg-amber-50/70 border-amber-200/90 text-amber-950"
+                        : "bg-neutral-50/80 border-neutral-200 text-neutral-900"
+                    )}
+                  >
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="font-bold flex items-center gap-1 text-amber-900">
-                        🎯 <strong>Objektif POPSA:</strong> {c.popsaBrief.purpose}
+                      <span className="font-bold flex items-center gap-1">
+                        🎯 <strong>Misi Utama:</strong> {c.popsaBrief.purpose}
                       </span>
-                      {c.highestDealStage && (
-                        <span className="text-[10px] font-bold bg-white text-neutral-800 px-2 py-0.5 rounded-md border border-amber-300">
-                          Stage: {c.highestDealStage}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {c.hasOverdueFollowUp && (
+                          <span className="text-[10px] font-black bg-red-600 text-white px-2 py-0.5 rounded-md shadow-2xs">
+                            🔴 TUGAS OVERDUE
+                          </span>
+                        )}
+                        {c.highestDealStage && (
+                          <span className="text-[10px] font-bold bg-white text-neutral-800 px-2 py-0.5 rounded-md border border-neutral-300">
+                            Stage: {c.highestDealStage}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-[11px] text-neutral-700 leading-relaxed font-medium">
                       <strong>Target:</strong> {c.popsaBrief.objective}
                     </p>
-                    <div className="rounded-xl bg-white/80 p-2 border border-amber-200 text-[11px] text-neutral-800 italic">
+                    <div className="rounded-xl bg-white/80 p-2 border border-neutral-200 text-[11px] text-neutral-800 italic">
                       💬 <strong>Taktik Lapangan:</strong> {c.popsaBrief.talkingPoint}
                     </div>
                   </div>

@@ -72,21 +72,20 @@ export function CustomerHeaderActions({
           </span>
         </button>
 
-        {/* Row 2: Visit Planning Actions */}
+        {/* Row 2: Visit Planning Actions & SPH Generator */}
         <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/visits/new?customerId=${customerId}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-600 active:scale-95 transition"
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-600 active:scale-95 transition"
           >
             <Plus className="h-4 w-4" />
             <span>Rencanakan Visit</span>
           </Link>
           <Link
-            href={`/visits/quick`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-neutral-800 active:scale-95 transition"
+            href={`/calculator?customerId=${customerId}`}
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2.5 text-xs font-bold text-amber-400 shadow-xs hover:bg-neutral-800 active:scale-95 transition border border-neutral-800"
           >
-            <Zap className="h-3.5 w-3.5 fill-current text-amber-400" />
-            <span>⚡ Quick Visit</span>
+            <span>📄 Buat SPH &amp; Fee</span>
           </Link>
         </div>
       </div>

@@ -80,6 +80,9 @@ export const quickVisitSchema = z.object({
   customer_response: z.enum(CUSTOMER_RESPONSES).default("INTERESTED"),
   discussion: z.string().min(1, "Catatan diskusi wajib diisi"),
 
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+
   // Quick opportunity
   opportunity_found: z.boolean().default(false),
   product_id: z.string().nullable().optional(),
@@ -88,8 +91,8 @@ export const quickVisitSchema = z.object({
 
   // Mandatory Next Action
   next_action_type: z.enum(FOLLOW_UP_ACTIVITY_TYPES).default("WHATSAPP"),
-  next_action_description: z.string().min(1, "Aksi selanjutnya wajib diisi"),
-  next_action_due_date: z.string().min(1, "Tanggal follow-up wajib diisi"),
+  next_action_description: z.string().optional(),
+  next_action_due_date: z.string().optional(),
   next_action_priority: z.enum(FOLLOW_UP_PRIORITIES).default("HIGH"),
 });
 

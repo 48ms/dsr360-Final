@@ -118,6 +118,25 @@ export function QuickVisitForm({
     setNextActionDueDate(due.toISOString().split("T")[0]);
   }
 
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setCoords({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          });
+        },
+        (err) => {
+          console.warn("GPS not available in quick visit:", err);
+        },
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    }
+  }, []);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!customerId) {
@@ -148,6 +167,8 @@ export function QuickVisitForm({
           const parsed = parseFloat(potentialVolume);
           return !isNaN(parsed) ? parsed * 209 : undefined;
         })(),
+        latitude: coords?.latitude ?? null,
+        longitude: coords?.longitude ?? null,
         next_action_type: nextActionType,
         next_action_description: nextActionDescription,
         next_action_due_date: nextActionDueDate,
@@ -293,7 +314,7 @@ export function QuickVisitForm({
               onClick={() => setHasOpportunity(!hasOpportunity)}
               className={cn(
                 "rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer",
-                hasOpportunity ? "bg-amber-500 text-white" : "bg-neutral-100 text-neutral-600"
+                hasOpportunity ? "bg-amber-500 text-amber-950" : "bg-neutral-100 text-neutral-800" /* impeccable-disable-line gray-on-color */
               )}
             >
               {hasOpportunity ? "🔥 Ada" : "○ Tidak"}

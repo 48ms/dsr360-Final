@@ -149,7 +149,7 @@ export async function getObjectionBattlecards(): Promise<ObjectionBattlecard[]> 
       competitor_claim: "Kontrak pengadaan baru berakhir 6 bulan lagi.",
       shell_counter_argument:
         "Tawarkan pengujian (Trial) pada 1 atau 2 unit mesin baru terlebih dahulu tanpa membatalkan kontrak eksisting, sehingga saat tender/kontrak baru dibuka, customer sudah memegang data lab keunggulan Shell.",
-      key_proof_point: "Zero risk trial — data pengujian lab independen menjadi acuan keputusan manajemen.",
+      key_proof_point: "Zero risk trial: data pengujian lab independen menjadi acuan keputusan manajemen.",
     },
     {
       objection: "Khawatir Menghanguskan Garansi Mesin / OEM",

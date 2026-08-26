@@ -124,6 +124,9 @@ export type RouteCandidateCustomer = {
   highestDealValue: number;
   highestDealVolume: number;
   daysSinceLastVisit: number;
+  hasOverdueFollowUp?: boolean;
+  pendingFollowUpCount?: number;
+  urgentFollowUpNote?: string | null;
   popsaBrief: {
     purpose: string;
     objective: string;
@@ -168,23 +171,30 @@ function scoreCustomerForRoute(
   else if (p === "P2" || p === "B") score += 18;
   else score += 8;
 
-  // 2. High Probability Deal Stages
+  // 2. High Probability Deal Stages (from SPH & Pipeline)
   const stage = (c.highestDealStage || "").toUpperCase();
-  if (stage === "NEGOTIATION") score += 45;
-  else if (stage === "QUOTATION" || stage === "PROPOSAL_SENT") score += 35;
-  else if (stage === "TRIAL") score += 25;
-  else if (stage === "QUALIFIED" || stage === "PRESENTATION") score += 15;
+  if (stage === "NEGOTIATION") score += 50;
+  else if (stage === "QUOTATION" || stage === "PROPOSAL_SENT") score += 40;
+  else if (stage === "TRIAL") score += 30;
+  else if (stage === "QUALIFIED" || stage === "PRESENTATION") score += 18;
 
-  // 3. Deal Value Weight
+  // 3. Overdue & Pending Follow-Ups Urgency Boost
+  if (c.hasOverdueFollowUp) {
+    score += 45; // High priority: jangan sampai customer lepas karena follow-up telat!
+  } else if ((c.pendingFollowUpCount || 0) > 0) {
+    score += 20;
+  }
+
+  // 4. Deal Value Weight
   if (c.highestDealValue > 100_000_000) score += 25;
   else if (c.highestDealValue > 30_000_000) score += 15;
   else if (c.highestDealValue > 0) score += 8;
 
-  // 4. Inactivity & Churn Risk Penalty/Urgency
+  // 5. Inactivity & Churn Risk Penalty/Urgency
   if (c.daysSinceLastVisit >= 28) score += 25;
   else if (c.daysSinceLastVisit >= 14) score += 12;
 
-  // 5. Distance Factor (Penalize distance > 25km)
+  // 6. Distance Factor (Penalize distance > 25km)
   const distancePenalty = Math.min(distanceKm * 1.2, 40);
   score = Math.max(score - distancePenalty, 5);
 

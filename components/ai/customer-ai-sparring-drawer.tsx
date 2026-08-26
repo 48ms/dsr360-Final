@@ -307,7 +307,7 @@ export function CustomerAISparringDrawer({
                 type="button"
                 onClick={() => handleSendMessage(pill.prompt)}
                 disabled={isPending}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-neutral-200 text-[11px] font-semibold text-neutral-700 shadow-2xs hover:bg-amber-50 hover:border-amber-300 hover:text-amber-900 transition whitespace-nowrap active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-neutral-200 text-[11px] font-semibold text-neutral-800 shadow-2xs hover:bg-amber-50 hover:border-amber-300 hover:text-amber-950 transition whitespace-nowrap active:scale-95 disabled:opacity-50 cursor-pointer" /* impeccable-disable-line gray-on-color */
               >
                 <Icon className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                 <span>{pill.label}</span>

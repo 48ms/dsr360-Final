@@ -64,6 +64,7 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
     { data: customers },
     { data: visits },
     { data: opportunities },
+    { data: followUps },
   ] = await Promise.all([
     supabase
       .from("customers")
@@ -95,6 +96,10 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
       )
       .neq("stage", "LOST")
       .neq("stage", "WON"),
+    supabase
+      .from("follow_ups")
+      .select("id, customer_id, activity_type, description, due_date, priority, status")
+      .eq("status", "PENDING"),
   ]);
 
   const defaultVolumeTarget = 40; // 40 Drum
@@ -111,6 +116,8 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
 
   const rawVisits = visits || [];
   const rawOpps = opportunities || [];
+  const rawFollowUps = followUps || [];
+  const todayStr = getTodayWIB();
 
   const { parseCustomerBranches } = await import("@/lib/utils/branches");
 
@@ -125,20 +132,33 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
     custOpps.sort((a: any, b: any) => (b.potential_value || 0) - (a.potential_value || 0));
     const topOpp = custOpps[0];
 
+    const custFollowUps = rawFollowUps.filter((f: any) => f.customer_id === c.id);
+    const overdueFollowUps = custFollowUps.filter((f: any) => f.due_date < todayStr);
+    const hasOverdueFollowUp = overdueFollowUps.length > 0;
+    const urgentFollowUp = overdueFollowUps[0] || custFollowUps[0];
+
     // Formulate POPSA Directive
     let purpose = "Technical Selling & Customer Follow-up";
     let objective = "Kunjungan rutin dan evaluasi kepuasan produk Shell.";
     let talkingPoint = "Tawarkan program uji sampel oli gratis Shell LubeAnalyst.";
 
-    if (topOpp) {
+    if (hasOverdueFollowUp && urgentFollowUp) {
+      purpose = `🔴 Selesaikan Follow-Up Overdue: ${urgentFollowUp.activity_type}`;
+      objective = urgentFollowUp.description || "Tindak lanjuti komitmen pending dengan PIC customer.";
+      talkingPoint = "Temui PIC langsung di lokasi pabrik untuk memastikan kelanjutan order oli.";
+    } else if (topOpp) {
       if (topOpp.stage === "NEGOTIATION") {
         purpose = `Finalisasi Negosiasi: ${topOpp.opportunity_name}`;
         objective = "Kunci kesepakatan volume drum dan termin pembayaran resmi.";
         talkingPoint = "Terapkan aturan Give-Get: Diskon hanya diberikan dengan komitmen kuota.";
       } else if (topOpp.stage === "QUOTATION") {
-        purpose = `Follow-Up SPH: ${topOpp.opportunity_name}`;
-        objective = "Dapatkan feedback teknis dari Purchasing / Kepala Mekanik.";
-        talkingPoint = "Bahas perbandingan TCO 5.000 jam TOST vs oli kompetitor lama.";
+        purpose = `⚡ Closing SPH: ${topOpp.opportunity_name}`;
+        objective = "Kawal penawaran harga resmi & dapatkan Purchase Order (PO).";
+        talkingPoint = "Bahas garansi pasokan buffer stock distributor PT HUM & termin pembayaran 30 hari.";
+      } else if (topOpp.stage === "TRIAL") {
+        purpose = `Evaluasi Trial Oli: ${topOpp.opportunity_name}`;
+        objective = "Cek performa mesin selama uji coba pelumas Shell.";
+        talkingPoint = "Tunjukkan data penurunan suhu dan kebersihan oli Shell dibanding merk lama.";
       }
     } else if (days >= 28) {
       purpose = "Pencegahan Churn & Win-Back";
@@ -170,6 +190,9 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
           highestDealValue: topOpp?.potential_value || 0,
           highestDealVolume: topOpp?.potential_volume || c.potential_monthly_volume || 0,
           daysSinceLastVisit: days,
+          hasOverdueFollowUp,
+          pendingFollowUpCount: custFollowUps.length,
+          urgentFollowUpNote: urgentFollowUp?.description || null,
           popsaBrief: {
             purpose: b.isPrimary ? purpose : `${purpose} - Lokasi: ${b.branchName}`,
             objective,
@@ -200,6 +223,9 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
         highestDealValue: topOpp?.potential_value || 0,
         highestDealVolume: topOpp?.potential_volume || c.potential_monthly_volume || 0,
         daysSinceLastVisit: days,
+        hasOverdueFollowUp,
+        pendingFollowUpCount: custFollowUps.length,
+        urgentFollowUpNote: urgentFollowUp?.description || null,
         popsaBrief: {
           purpose,
           objective,

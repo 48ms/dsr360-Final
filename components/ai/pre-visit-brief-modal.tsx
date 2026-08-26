@@ -215,7 +215,7 @@ export function PreVisitBriefModal({
                     onClose();
                     onOpenSparring();
                   }}
-                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-neutral-950 shadow-xs hover:bg-amber-400 transition cursor-pointer"
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-xs font-extrabold text-amber-950 shadow-xs hover:bg-amber-400 transition cursor-pointer"
                 >
                   <MessageSquare className="h-4 w-4" />
                   <span>Ajak Bang Radit Brainstorming</span>

@@ -87,12 +87,12 @@ export function OpportunityCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-white p-4 shadow-xs transition-all duration-200 hover:shadow-md space-y-3",
+        "rounded-3xl border bg-white p-4 sm:p-5 shadow-xs transition-all duration-200 hover:shadow-md space-y-3",
         isWon
-          ? "border-emerald-300 bg-emerald-50/20 hover:border-emerald-400"
+          ? "border-emerald-300/80 bg-gradient-to-br from-emerald-50/40 via-[#FDFBF7] to-white hover:border-emerald-400"
           : isLost
-          ? "border-red-200 opacity-75 hover:opacity-100"
-          : "border-neutral-200 hover:border-neutral-300"
+          ? "border-red-200/80 opacity-75 hover:opacity-100 bg-red-50/10"
+          : "border-[#EAE4D9] hover:border-amber-300 hover:shadow-xs"
       )}
     >
       {/* Top Header & Stage Dropdown */}

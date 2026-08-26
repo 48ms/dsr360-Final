@@ -5,6 +5,7 @@ import Link from "next/link";
 import { logout } from "@/actions/auth";
 import { formatCurrency } from "@/lib/utils/format";
 import type { DashboardData } from "@/actions/dashboard";
+import { RadialPacingGaugeCard } from "@/components/dashboard/radial-pacing-gauge-card";
 import { ProductTechnicalSheetModal, type MasterProductItem } from "@/components/products/product-technical-sheet-modal";
 import {
   Calendar,
@@ -16,8 +17,6 @@ import {
   Zap,
   Sparkles,
   Bot,
-  TrendingUp,
-  Award,
   BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -39,25 +38,20 @@ export function DashboardClient({
     timeZone: "Asia/Jakarta",
   }).format(new Date());
 
-  const volumeProgress = Math.min(
-    100,
-    Math.round(((data.monthlyWonVolume || 0) / (data.monthlyVolumeTarget || 20000)) * 100)
-  );
-
-  const valueProgress = Math.min(
-    100,
-    Math.round(((data.monthlyWonValue || 0) / (data.monthlyValueTarget || 200000000)) * 100)
-  );
-
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-5 pb-24">
       {/* 1. Header: Greeting & Role */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
-            Hi, {data.profile?.full_name ?? "Sales Rep"} 👋
-          </h1>
-          <p className="text-xs text-neutral-500 mt-0.5 capitalize">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-black text-neutral-900 tracking-tight">
+              Hi, {data.profile?.full_name ?? "Sales Rep"}
+            </h1>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-black text-amber-950 uppercase border border-amber-300/80">
+              Executive
+            </span>
+          </div>
+          <p className="text-xs text-neutral-500 mt-0.5 capitalize font-medium">
             {todayFormatted} &bull; {data.profile?.role ?? "DSR"} {data.profile?.sales_area ? `(${data.profile.sales_area})` : ""}
           </p>
         </div>
@@ -66,7 +60,7 @@ export function DashboardClient({
           <button
             type="submit"
             aria-label="Keluar dari akun"
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl border border-neutral-200 bg-white p-2.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50 active:scale-95 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 outline-none shadow-2xs"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl border border-[#EAE4D9] bg-white p-2.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 active:scale-95 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 outline-none shadow-2xs"
             title="Keluar / Logout"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
@@ -74,18 +68,18 @@ export function DashboardClient({
         </form>
       </div>
 
-      {/* 2. ☀️ BANG RADIT MORNING BRIEFING CARD */}
-      <div className="rounded-3xl border border-amber-300 bg-gradient-to-br from-amber-500/15 via-amber-50/50 to-white p-4 sm:p-5 shadow-xs space-y-3">
+      {/* 2. BANG RADIT MORNING BRIEFING CARD */}
+      <div className="rounded-3xl border border-amber-300/90 bg-gradient-to-br from-amber-500/10 via-[#FFFDF9] to-white p-4 sm:p-5 shadow-xs space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white shadow-2xs">
-              <Bot className="h-4 w-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs">
+              <Bot className="h-4.5 w-4.5" />
             </div>
             <div>
               <h2 className="text-xs sm:text-sm font-extrabold text-neutral-900 flex items-center gap-1.5">
                 <span>{data.morningBriefing?.greeting || "Briefing Taktis Pagi Ini"}</span>
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-900 border border-amber-500/30">
-                  <Sparkles className="h-2.5 w-2.5 text-amber-600" /> 13 Pilar Grounded
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-950 border border-amber-500/30">
+                  <Sparkles className="h-2.5 w-2.5 text-amber-700" /> 13 Pilar Grounded
                 </span>
               </h2>
             </div>
@@ -96,30 +90,30 @@ export function DashboardClient({
           <p className="font-semibold text-neutral-900 leading-relaxed">
             {data.morningBriefing?.focusText}
           </p>
-          <div className="rounded-xl bg-white/90 p-2.5 border border-amber-200/80 text-[11px] text-neutral-700 font-medium leading-relaxed italic">
-            💡 <strong>Taktik Bang Radit:</strong> {data.morningBriefing?.tacticalTip}
+          <div className="rounded-2xl bg-white/95 p-3 border border-amber-200/80 text-[11px] text-neutral-800 font-medium leading-relaxed italic shadow-2xs">
+            <strong>Taktik Bang Radit:</strong> {data.morningBriefing?.tacticalTip}
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-amber-200/60 text-xs flex-wrap gap-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link
               href="/visits/plan"
-              className="text-[11px] font-extrabold text-amber-950 hover:text-amber-800 flex items-center gap-1 min-h-[36px] py-1 bg-amber-500/10 px-2.5 rounded-lg border border-amber-300"
+              className="text-[11px] font-extrabold text-amber-950 hover:text-amber-800 flex items-center gap-1 min-h-[36px] py-1 bg-amber-500/15 px-3 rounded-xl border border-amber-300 shadow-2xs"
             >
-              <span>🗺️ Hermes Rute Cerdas</span>
-              <ChevronRight className="h-3.5 w-3.5 text-amber-600" />
+              <span>Hermes Rute Cerdas</span>
+              <ChevronRight className="h-3.5 w-3.5 text-amber-700" />
             </Link>
             <Link
               href="/follow-ups"
-              className="text-[11px] font-bold text-amber-900 hover:text-amber-700 flex items-center gap-1 min-h-[36px] py-1"
+              className="text-[11px] font-bold text-amber-950 hover:text-amber-800 flex items-center gap-1 min-h-[36px] py-1 px-2 rounded-lg hover:bg-amber-100/50 transition"
             >
               <span>AI Radar</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/pipeline"
-              className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1 min-h-[36px] py-1"
+              className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1 min-h-[36px] py-1 px-2 rounded-lg hover:bg-neutral-100 transition"
             >
               <span>Pipeline</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -144,7 +138,7 @@ export function DashboardClient({
         <div className="grid grid-cols-3 gap-2.5">
           <Link
             href="/visits"
-            className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-2xs hover:border-neutral-300 transition text-center group focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
+            className="rounded-2xl border border-[#EAE4D9] bg-white p-3.5 shadow-2xs hover:border-amber-300 transition text-center group focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
           >
             <div className="text-2xl font-black text-neutral-900 group-hover:text-amber-600 transition tabular-nums">
               {data.todayVisitsCount}
@@ -157,7 +151,7 @@ export function DashboardClient({
 
           <Link
             href="/follow-ups"
-            className="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-2xs hover:border-neutral-300 transition text-center group focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
+            className="rounded-2xl border border-[#EAE4D9] bg-white p-3.5 shadow-2xs hover:border-amber-300 transition text-center group focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
           >
             <div className="text-2xl font-black text-neutral-900 group-hover:text-amber-600 transition tabular-nums">
               {data.todayFollowUpsCount}
@@ -174,7 +168,7 @@ export function DashboardClient({
               "rounded-2xl border p-3.5 shadow-2xs transition text-center group focus-visible:ring-2 focus-visible:ring-amber-500 outline-none",
               data.overdueCount > 0
                 ? "border-red-300 bg-red-50/40 hover:border-red-400"
-                : "border-neutral-200 bg-white hover:border-neutral-300"
+                : "border-[#EAE4D9] bg-white hover:border-amber-300"
             )}
           >
             <div
@@ -198,73 +192,37 @@ export function DashboardClient({
         </div>
       </div>
 
-      {/* 4. 🎯 SALES TARGET & QUOTA PROGRESS METER */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3.5">
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5">
-            <Award className="h-4 w-4 text-amber-500" />
-            <span>Target Penjualan Bulan Ini</span>
-          </span>
-          <span className="text-[10px] font-extrabold uppercase bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
-            Shell B2B Quota
-          </span>
-        </div>
-
-        {/* Volume Progress Bar */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-neutral-700">Pencapaian Volume (Liter):</span>
-            <span className="text-neutral-900 font-bold">
-              {data.monthlyWonVolume.toLocaleString("id-ID")} / {data.monthlyVolumeTarget.toLocaleString("id-ID")} L
-              <span className="ml-1.5 text-amber-600">({volumeProgress}%)</span>
-            </span>
-          </div>
-          <div className="w-full h-2.5 rounded-full bg-neutral-100 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
-              style={{ width: `${volumeProgress}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Value Progress Bar */}
-        <div className="space-y-1.5 pt-1">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-neutral-700">Pencapaian Nilai (IDR):</span>
-            <span className="text-emerald-700 font-extrabold">
-              {formatCurrency(data.monthlyWonValue)} / {formatCurrency(data.monthlyValueTarget)}
-              <span className="ml-1.5 text-emerald-600">({valueProgress}%)</span>
-            </span>
-          </div>
-          <div className="w-full h-2.5 rounded-full bg-neutral-100 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
-              style={{ width: `${valueProgress}%` }}
-            />
-          </div>
-        </div>
-      </div>
+      {/* 4. 🎯 CINEMATIC INDUSTRIAL RADIAL PACING GAUGE (OVERDRIVE) */}
+      <RadialPacingGaugeCard
+        wonVolumeLiter={data.monthlyWonVolume || 0}
+        targetVolumeLiter={data.monthlyVolumeTarget || 8360}
+        wonValueIdr={data.monthlyWonValue || 0}
+        targetValueIdr={data.monthlyValueTarget || 350000000}
+        pipelineVolumeLiter={data.pipelineTotalValue ? Math.round(data.pipelineTotalValue / 50000) : 0}
+      />
 
       {/* 5. 🔥 PRIORITY TODAY ("What Should I Do Today?") */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-          <div className="flex items-center gap-1.5">
-            <Flame className="h-4 w-4 text-amber-500" />
+      <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#EAE4D9]/60">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600">
+              <Flame className="h-3.5 w-3.5" />
+            </div>
             <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900">
               Priority Today
             </h2>
           </div>
-          <span className="text-[10px] font-semibold text-neutral-400">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase">
             Aksi Utama DSR
           </span>
         </div>
 
         {data.priorityAlerts.length === 0 ? (
           <div className="py-4 text-center text-xs text-neutral-400">
-            Semua task dan kunjungan prioritas aman terkendali! 🎉
+            Semua task dan kunjungan prioritas aman terkendali.
           </div>
         ) : (
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-[#EAE4D9]/60">
             {data.priorityAlerts.map((alert) => (
               <Link
                 key={alert.id}
@@ -297,7 +255,7 @@ export function DashboardClient({
       </div>
 
       {/* 6. PIPELINE SUMMARY */}
-      <div className="rounded-2xl bg-neutral-900 p-5 text-white shadow-md space-y-4">
+      <div className="rounded-3xl bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-5 text-white shadow-md space-y-4 border border-neutral-800">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
             <Target className="h-4 w-4 text-amber-400" />
@@ -323,7 +281,7 @@ export function DashboardClient({
         {data.pipelineStageBreakdown.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-neutral-800">
             {data.pipelineStageBreakdown.map((item) => (
-              <div key={item.stage} className="rounded-xl bg-neutral-800/80 p-2.5 border border-neutral-700/60">
+              <div key={item.stage} className="rounded-2xl bg-neutral-950/70 p-2.5 border border-neutral-800">
                 <span className="text-[10px] font-bold text-neutral-400 uppercase block">
                   {item.stage} ({item.count})
                 </span>
@@ -337,7 +295,7 @@ export function DashboardClient({
       </div>
 
       {/* 7. MONTHLY PERFORMANCE KPI */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
+      <div className="rounded-3xl border border-[#EAE4D9] bg-white p-4 sm:p-5 shadow-xs space-y-3">
         <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 block">
           Pencapaian Bulan Ini
         </span>

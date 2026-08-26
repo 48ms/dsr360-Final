@@ -188,10 +188,18 @@ export async function updateOpportunityStage(input: UpdateStageInput) {
   const supabase = await createClient();
   const { opportunity_id, stage, notes } = parsed.data;
 
+  // 1. Fetch existing opportunity to get customer_id & volume
+  const { data: opp } = await supabase
+    .from("opportunities")
+    .select("customer_id, potential_volume, potential_value")
+    .eq("id", opportunity_id)
+    .single();
+
   const { error } = await supabase
     .from("opportunities")
     .update({
       stage,
+      status: stage === "WON" ? "WON" : stage === "LOST" ? "LOST" : "IN_PROGRESS",
       objection: notes ? notes : undefined,
       updated_at: new Date().toISOString(),
     })
@@ -202,8 +210,50 @@ export async function updateOpportunityStage(input: UpdateStageInput) {
     return { error: "Gagal update stage opportunity." };
   }
 
+  // 2. Cross-Tab Automation: If WON, upgrade customer status to ACTIVE & update volume
+  if (stage === "WON" && opp?.customer_id) {
+    const { data: cust } = await supabase
+      .from("customers")
+      .select("id, status, potential_monthly_volume")
+      .eq("id", opp.customer_id)
+      .single();
+
+    if (cust) {
+      const currentVol = cust.potential_monthly_volume || 0;
+      const wonVol = opp.potential_volume || 0;
+      const newVol = Math.max(currentVol, wonVol);
+
+      await supabase
+        .from("customers")
+        .update({
+          status: "ACTIVE",
+          potential_monthly_volume: newVol > 0 ? newVol : currentVol,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", opp.customer_id);
+    }
+
+    // Auto-resolve pending follow-ups linked to this won deal
+    await supabase
+      .from("follow_ups")
+      .update({
+        status: "COMPLETED",
+        completed_at: new Date().toISOString(),
+        result: "Deal resmi WON / Closing!",
+      })
+      .eq("opportunity_id", opportunity_id)
+      .eq("status", "PENDING");
+  }
+
   revalidatePath("/pipeline");
   revalidatePath(`/pipeline/${opportunity_id}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/customers");
+  if (opp?.customer_id) {
+    revalidatePath(`/customers/${opp.customer_id}`);
+  }
+  revalidatePath("/follow-ups");
+
   return { success: true };
 }
 
@@ -219,6 +269,7 @@ export async function updateOpportunity(id: string, input: OpportunityInput) {
     .from("opportunities")
     .update({
       ...parsed.data,
+      status: parsed.data.stage === "WON" ? "WON" : parsed.data.stage === "LOST" ? "LOST" : "IN_PROGRESS",
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -228,8 +279,49 @@ export async function updateOpportunity(id: string, input: OpportunityInput) {
     return { error: "Gagal mengupdate opportunity. Coba lagi." };
   }
 
+  // Cross-Tab Automation: If WON, upgrade customer
+  if (parsed.data.stage === "WON" && parsed.data.customer_id) {
+    const { data: cust } = await supabase
+      .from("customers")
+      .select("id, status, potential_monthly_volume")
+      .eq("id", parsed.data.customer_id)
+      .single();
+
+    if (cust) {
+      const currentVol = cust.potential_monthly_volume || 0;
+      const wonVol = parsed.data.potential_volume || 0;
+      const newVol = Math.max(currentVol, wonVol);
+
+      await supabase
+        .from("customers")
+        .update({
+          status: "ACTIVE",
+          potential_monthly_volume: newVol > 0 ? newVol : currentVol,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", parsed.data.customer_id);
+    }
+
+    await supabase
+      .from("follow_ups")
+      .update({
+        status: "COMPLETED",
+        completed_at: new Date().toISOString(),
+        result: "Deal resmi WON / Closing!",
+      })
+      .eq("opportunity_id", id)
+      .eq("status", "PENDING");
+  }
+
   revalidatePath("/pipeline");
   revalidatePath(`/pipeline/${id}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/customers");
+  if (parsed.data.customer_id) {
+    revalidatePath(`/customers/${parsed.data.customer_id}`);
+  }
+  revalidatePath("/follow-ups");
+
   return { success: true };
 }
 
