@@ -56,7 +56,7 @@ export async function generateSphNumberAction(): Promise<string> {
   
   // Random or sequential seed for realism
   const seq = Math.floor(500 + Math.random() * 50);
-  return `${seq}/HUM/SPH/${monthRoman}/${year}`;
+  return `${seq}/NYL/SPH/${monthRoman}/${year}`;
 }
 
 /**
@@ -88,6 +88,7 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
   success: boolean;
   sphId: string;
   message: string;
+  isPendingApproval?: boolean;
 }> {
   try {
     const supabase = await createClient();
@@ -96,6 +97,12 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
     const sphId = randomUUID();
     const totalValue = input.items.reduce((sum, item) => sum + item.subtotal, 0);
     const totalVolume = input.items.reduce((sum, item) => sum + item.qty, 0);
+
+    // Detect if any item is below calculated floor price
+    const isDiscounted = input.items.some((i) => i.offeredPrice < i.minPrice);
+    const approvalTag = isDiscounted
+      ? `SPH PENDING_APPROVAL: No. ${input.sphNumber} | Alasan: ${input.notes || "Permohonan harga khusus di bawah Floor Margin"}`
+      : `Penawaran SPH Resmi No. ${input.sphNumber}`;
 
     let linkedOppId: string | null = null;
 
@@ -117,6 +124,7 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
             stage: "QUOTATION",
             potential_value: totalValue,
             potential_volume: totalVolume,
+            customer_need: approvalTag,
             updated_at: new Date().toISOString(),
           })
           .eq("id", linkedOppId);
@@ -138,7 +146,7 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
           potential_volume: totalVolume,
           probability: 70,
           expected_close_date: closeDateStr,
-          customer_need: `Penawaran SPH Resmi No. ${input.sphNumber}`,
+          customer_need: approvalTag,
           next_action: `Follow up konfirmasi SPH ${input.sphNumber} dengan ${input.picName || "PIC"}`,
           next_action_date: closeDateStr,
           created_by: user.user.id,
@@ -158,9 +166,11 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
         opportunity_id: linkedOppId,
         user_id: user.user.id,
         activity_type: "WHATSAPP",
-        description: `Follow-up konfirmasi respon SPH No. ${input.sphNumber} ke ${input.picName || "Purchasing"}`,
+        description: isDiscounted
+          ? `[Approval Pending] Follow-up persetujuan harga SPH No. ${input.sphNumber} ke Manager & customer ${input.picName || "Purchasing"}`
+          : `Follow-up konfirmasi respon SPH No. ${input.sphNumber} ke ${input.picName || "Purchasing"}`,
         due_date: followUpDateStr,
-        priority: "HIGH",
+        priority: isDiscounted ? "HIGH" : "MEDIUM",
         status: "PENDING",
         created_at: new Date().toISOString(),
       });
@@ -174,7 +184,10 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
     return {
       success: true,
       sphId,
-      message: `SPH ${input.sphNumber} berhasil disimpan ke Pipeline (QUOTATION) & Tugas Follow-Up H+3 otomatis dijadwalkan!`,
+      isPendingApproval: isDiscounted,
+      message: isDiscounted
+        ? `⚠️ SPH ${input.sphNumber} disimpan dengan status PENDING APPROVAL (Harga di bawah Floor Price). Menunggu persetujuan Manager.`
+        : `SPH ${input.sphNumber} berhasil disimpan ke Pipeline (QUOTATION) & Tugas Follow-Up H+3 otomatis dijadwalkan!`,
     };
   } catch (err: any) {
     console.error("saveSphQuotationAction error:", err);

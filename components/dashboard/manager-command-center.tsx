@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
 import type { ManagerCommandCenterData, RepPerformance } from "@/actions/manager";
 import { ReassignAccountModal } from "@/components/customers/reassign-account-modal";
+import {
+  approveSphDiscountAction,
+  rejectSphDiscountAction,
+  type SphApprovalItem,
+} from "@/actions/sph-approval";
 import {
   Users,
   Trophy,
@@ -20,6 +25,9 @@ import {
   Calendar,
   CheckCircle2,
   UserCheck,
+  FileCheck,
+  FileX,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -29,11 +37,18 @@ export function ManagerCommandCenter({
   data: ManagerCommandCenterData;
 }) {
   const [selectedArea, setSelectedArea] = useState<string>("ALL");
+  const [approvalsList, setApprovalsList] = useState<SphApprovalItem[]>(
+    data.pendingSphApprovals || []
+  );
   const [reassignTarget, setReassignTarget] = useState<{
     customerId: string;
     customerName: string;
     ownerName?: string;
   } | null>(null);
+
+  const [processingSphId, setProcessingSphId] = useState<string | null>(null);
+  const [approvalFeedback, setApprovalFeedback] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const filteredReps =
     selectedArea === "ALL"
@@ -57,6 +72,33 @@ export function ManagerCommandCenter({
   const totalTargetDrums = (data.totalTeamTargetVolume / 209).toFixed(1);
   const totalPipelineDrums = (data.totalTeamPipelineVolume / 209).toFixed(1);
 
+  function handleApproveSph(oppId: string) {
+    setProcessingSphId(oppId);
+    setApprovalFeedback(null);
+    startTransition(async () => {
+      const res = await approveSphDiscountAction(oppId);
+      if (res.success) {
+        setApprovalFeedback(res.message);
+        setApprovalsList((prev) => prev.filter((a) => a.opportunityId !== oppId));
+      }
+      setProcessingSphId(null);
+    });
+  }
+
+  function handleRejectSph(oppId: string) {
+    const reason = window.prompt("Masukkan alasan penolakan / catatan revisi untuk DSR:") || "Harga di bawah batas toleransi profit margin distributor.";
+    setProcessingSphId(oppId);
+    setApprovalFeedback(null);
+    startTransition(async () => {
+      const res = await rejectSphDiscountAction(oppId, reason);
+      if (res.success) {
+        setApprovalFeedback(res.message);
+        setApprovalsList((prev) => prev.filter((a) => a.opportunityId !== oppId));
+      }
+      setProcessingSphId(null);
+    });
+  }
+
   return (
     <div className="space-y-6">
       {/* 1. COMMAND CENTER BANNER */}
@@ -71,7 +113,7 @@ export function ManagerCommandCenter({
               Macro Territory &amp; Team Pipeline Overview
             </h2>
             <p className="text-xs sm:text-sm text-neutral-400 font-medium leading-relaxed max-w-xl">
-              Monitoring performa kuota, leaderboard tim sales, rute kawasan, dan pipeline deal seluruh DSR secara real-time.
+              Monitoring performa kuota, leaderboard tim sales, approval diskon SPH, dan pipeline deal seluruh DSR secara real-time.
             </p>
           </div>
 
@@ -174,7 +216,98 @@ export function ManagerCommandCenter({
         </div>
       </div>
 
-      {/* 2. SALES REPS PERFORMANCE LEADERBOARD */}
+      {/* 2. PENDING SPH DISCOUNT APPROVALS SECTION */}
+      {approvalsList.length > 0 && (
+        <div className="rounded-3xl border-2 border-amber-400 bg-amber-50/50 p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white font-black">
+                <AlertTriangle className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-amber-950 tracking-tight flex items-center gap-1.5">
+                  <span>Permohonan Persetujuan Diskon SPH ({approvalsList.length})</span>
+                  <span className="rounded-full bg-amber-200 px-2 py-0.2 text-[10px] font-bold text-amber-900">
+                    Perlu Keputusan Manager
+                  </span>
+                </h3>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Pengajuan harga khusus di bawah Floor Price standard oleh DSR
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {approvalFeedback && (
+            <div className="rounded-xl bg-emerald-100 text-emerald-800 p-2.5 text-xs font-bold flex items-center gap-1.5 border border-emerald-300">
+              <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
+              <span>{approvalFeedback}</span>
+            </div>
+          )}
+
+          <div className="space-y-2.5">
+            {approvalsList.map((app) => (
+              <div
+                key={app.opportunityId}
+                className="rounded-2xl bg-white p-4 border border-amber-200 shadow-2xs space-y-3"
+              >
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-xs text-neutral-900">
+                        {app.customerName}
+                      </span>
+                      <span className="font-mono text-[10px] font-bold bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-700">
+                        {app.sphNumber}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                      DSR: <strong className="text-neutral-800">{app.dsrName}</strong> ({app.dsrArea || "General"})
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-xs font-black font-mono text-neutral-900">
+                      {formatCurrency(app.potentialValue)}
+                    </div>
+                    <div className="text-[10px] text-amber-700 font-bold font-mono">
+                      Volume: {app.potentialVolume} L ({(app.potentialVolume / 209).toFixed(1)} Drum)
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-amber-50/80 p-2.5 border border-amber-200/60 text-xs text-amber-950 font-medium">
+                  <strong>Catatan Alasan DSR:</strong> {app.discountReason}
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleRejectSph(app.opportunityId)}
+                    disabled={isPending && processingSphId === app.opportunityId}
+                    className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer disabled:opacity-50"
+                  >
+                    <FileX className="h-3.5 w-3.5" />
+                    <span>Tolak / Minta Revisi</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleApproveSph(app.opportunityId)}
+                    disabled={isPending && processingSphId === app.opportunityId}
+                    className="flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 text-xs font-bold transition active:scale-95 shadow-2xs cursor-pointer disabled:opacity-50"
+                  >
+                    <FileCheck className="h-3.5 w-3.5" />
+                    <span>{isPending && processingSphId === app.opportunityId ? "Memproses..." : "Setujui Harga (Approve)"}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3. SALES REPS PERFORMANCE LEADERBOARD */}
       <div className="rounded-3xl border border-[#EAE4D9] bg-white p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -210,7 +343,7 @@ export function ManagerCommandCenter({
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 font-medium text-neutral-800">
-              {filteredReps.map((rep, idx) => {
+              {filteredReps.map((rep) => {
                 const pacingPct =
                   rep.monthlyTargetLiter > 0
                     ? Math.min(
@@ -288,7 +421,7 @@ export function ManagerCommandCenter({
         </div>
       </div>
 
-      {/* 3. RECENT TEAM DEALS LIVE STREAM */}
+      {/* 4. RECENT TEAM DEALS LIVE STREAM */}
       <div className="rounded-3xl border border-[#EAE4D9] bg-white p-5 sm:p-6 shadow-2xs space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">

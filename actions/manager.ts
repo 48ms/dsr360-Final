@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
 
+import { getPendingSphApprovals, type SphApprovalItem } from "@/actions/sph-approval";
+
 export type RepPerformance = {
   id: string;
   fullName: string;
@@ -45,6 +47,7 @@ export type ManagerCommandCenterData = {
   totalOverdueTasks: number;
   reps: RepPerformance[];
   recentTeamDeals: ManagerTeamDeal[];
+  pendingSphApprovals: SphApprovalItem[];
   territorySummary: Array<{
     area: string;
     repsCount: number;
@@ -74,6 +77,7 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
       totalOverdueTasks: 0,
       reps: [],
       recentTeamDeals: [],
+      pendingSphApprovals: [],
       territorySummary: [],
     };
   }
@@ -235,6 +239,8 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
 
   const totalOverdue = followUpsList.filter((f) => f.due_date < todayStr).length;
 
+  const pendingSphApprovals = isManagerRole ? await getPendingSphApprovals() : [];
+
   return {
     isManager: isManagerRole,
     userRole: myProfile?.role || "DSR",
@@ -248,6 +254,7 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
     totalOverdueTasks: totalOverdue,
     reps: repsData,
     recentTeamDeals: recentDeals,
+    pendingSphApprovals,
     territorySummary,
   };
 }

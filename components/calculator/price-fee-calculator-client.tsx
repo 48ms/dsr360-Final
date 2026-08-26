@@ -906,7 +906,7 @@ export function PriceFeeCalculatorClient({
         {/* Tactical Guidance Box */}
         <div className="rounded-2xl bg-white/90 p-3.5 border border-amber-200 text-xs text-neutral-800 space-y-1">
           <p className="font-extrabold text-neutral-900 flex items-center gap-1.5">
-            <strong>Analisis Margin &amp; Kebijakan PT HUM:</strong>
+            <strong>Analisis Margin &amp; Kebijakan Nyales24/7 B2B:</strong>
           </p>
           <p className="text-[11px] text-neutral-700 leading-relaxed font-medium">
             {pricingMode === "FEE"
@@ -914,6 +914,19 @@ export function PriceFeeCalculatorClient({
               : calcSummary.terIncentive.description}
           </p>
         </div>
+
+        {/* Approval Warning Alert if any item is below floor price */}
+        {calcSummary.hasApprovalWarning && (
+          <div className="rounded-2xl bg-amber-50 border border-amber-300 p-3.5 text-xs text-amber-950 flex items-start gap-2.5">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <strong className="font-black text-amber-900">Perhatian: Memerlukan Approval Manager</strong>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Terdapat harga produk yang berada di bawah Floor Price standar. Dokumen SPH ini akan otomatis diajukan ke Manager Command Center untuk disetujui (Approved) sebelum stempel resmi disahkan.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 6. PRIMARY ACTION BUTTONS */}
         <div className="flex items-center gap-3 pt-3 border-t border-amber-200 flex-wrap">
@@ -930,10 +943,21 @@ export function PriceFeeCalculatorClient({
             type="button"
             onClick={handleSaveDeal}
             disabled={isSaving}
-            className="min-h-[48px] inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-500 px-5 py-2.5 text-xs font-extrabold text-white hover:bg-amber-600 active:scale-95 transition cursor-pointer shadow-md disabled:opacity-50"
+            className={cn(
+              "min-h-[48px] inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-extrabold text-white active:scale-95 transition cursor-pointer shadow-md disabled:opacity-50",
+              calcSummary.hasApprovalWarning
+                ? "bg-amber-600 hover:bg-amber-700"
+                : "bg-amber-500 hover:bg-amber-600"
+            )}
           >
             <Check className="h-4 w-4" />
-            <span>{isSaving ? "Menyimpan..." : "Simpan Deal (Auto Pipeline & Follow-Up H+3)"}</span>
+            <span>
+              {isSaving
+                ? "Menyimpan..."
+                : calcSummary.hasApprovalWarning
+                ? "Simpan & Ajukan Approval SPH ke Manager"
+                : "Simpan Deal (Auto Pipeline & Follow-Up H+3)"}
+            </span>
           </button>
         </div>
       </div>
