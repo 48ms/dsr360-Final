@@ -66,7 +66,7 @@ export function DashboardClient({
           <button
             type="submit"
             aria-label="Keluar dari akun"
-            className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 outline-none"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-2xl border border-neutral-200 bg-white p-2.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50 active:scale-95 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 outline-none shadow-2xs"
             title="Keluar / Logout"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
@@ -105,14 +105,14 @@ export function DashboardClient({
           <div className="flex items-center gap-3">
             <Link
               href="/follow-ups"
-              className="text-[11px] font-bold text-amber-900 hover:text-amber-700 flex items-center gap-1"
+              className="text-[11px] font-bold text-amber-900 hover:text-amber-700 flex items-center gap-1 min-h-[36px] py-1"
             >
               <span>AI Follow-Up Radar</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/pipeline"
-              className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[11px] font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1 min-h-[36px] py-1"
             >
               <span>Pipeline Deal</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -121,9 +121,9 @@ export function DashboardClient({
           <button
             type="button"
             onClick={() => setIsCatalogOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-950 border border-amber-500/40 hover:bg-amber-500/30 transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 min-h-[38px] px-3.5 py-1.5 text-[11px] font-bold text-amber-950 border border-amber-500/40 hover:bg-amber-500/30 active:scale-95 transition cursor-pointer shadow-2xs"
           >
-            <BookOpen className="h-3 w-3 text-amber-700" />
+            <BookOpen className="h-3.5 w-3.5 text-amber-700" />
             <span>Contekan Spek Shell</span>
           </button>
         </div>
@@ -354,7 +354,7 @@ export function DashboardClient({
       <div className="pt-2">
         <Link
           href="/visits/quick"
-          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 transition cursor-pointer"
+          className="w-full min-h-[50px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
           <Zap className="h-4 w-4 fill-current" />
           <span>⚡ + QUICK VISIT LAPANGAN (1 MENIT)</span>

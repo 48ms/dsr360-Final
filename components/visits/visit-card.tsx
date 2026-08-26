@@ -110,30 +110,30 @@ export function VisitCard({ visit }: { visit: VisitCardItem }) {
           {isPlanned && (
             <Link
               href={`/visits/${visit.id}/start`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 font-medium text-white shadow-xs hover:bg-amber-600 transition"
+              className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-amber-600 active:scale-95 transition"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
-              Mulai Visit
+              <span>Mulai Visit</span>
             </Link>
           )}
 
           {isInProgress && (
             <Link
               href={`/visits/${visit.id}/log`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 font-medium text-white shadow-xs hover:bg-emerald-700 transition animate-pulse"
+              className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 active:scale-95 transition animate-pulse"
             >
               <FileText className="h-3.5 w-3.5" />
-              Isi Log Visit
+              <span>Isi Log Visit</span>
             </Link>
           )}
 
           {isCompleted && (
             <Link
               href={`/visits/${visit.id}`}
-              className="inline-flex items-center gap-1 text-neutral-600 hover:text-neutral-900 font-medium"
+              className="inline-flex items-center gap-1.5 min-h-[42px] px-2.5 py-1 text-xs text-neutral-600 hover:text-neutral-900 font-bold"
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              Lihat Detail
+              <span>Lihat Detail</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}

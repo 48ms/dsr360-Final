@@ -31,16 +31,16 @@ export function CustomerDetailTabs({ customerId, contacts, equipment, products, 
 
   return (
     <div className="mt-4">
-      <div className="flex border-b border-neutral-200">
+      <div className="flex border-b border-neutral-200 bg-neutral-50/50 rounded-xl p-1 gap-1">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => switchTab(tab)}
             className={cn(
-              "flex-1 py-2.5 text-xs font-medium",
+              "flex-1 min-h-[44px] py-2.5 px-3 text-xs font-semibold rounded-lg transition-all duration-150 active:scale-95 cursor-pointer",
               activeTab === tab
-                ? "border-b-2 border-red-600 text-red-600"
-                : "text-neutral-400"
+                ? "bg-white text-amber-700 shadow-xs border border-amber-200/60 font-bold"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/60"
             )}
           >
             {tab}
@@ -160,7 +160,7 @@ function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-neutral-300 py-2.5 text-sm text-neutral-500"
+      className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-dashed border-neutral-300 py-2.5 px-4 text-sm font-semibold text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 hover:bg-neutral-100/70 active:scale-[0.98] transition-all cursor-pointer"
     >
       <Plus size={16} /> {label}
     </button>

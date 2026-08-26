@@ -113,7 +113,8 @@ Keunggulan Utama: Perlindungan anti-aus maksimal, ketahanan oksidasi tinggi, efi
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 transition cursor-pointer"
+            aria-label="Tutup modal contekan spek Shell"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 active:scale-95 transition cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -147,9 +148,9 @@ Keunggulan Utama: Perlindungan anti-aus maksimal, ketahanan oksidasi tinggi, efi
                   type="button"
                   onClick={() => setSelectedProductId(p.id)}
                   className={cn(
-                    "w-full text-left p-2.5 rounded-xl border text-xs transition cursor-pointer space-y-0.5",
+                    "w-full text-left p-3 min-h-[48px] rounded-xl border text-xs transition active:scale-[0.99] cursor-pointer space-y-0.5",
                     isSelected
-                      ? "border-amber-500 bg-amber-50/80 ring-1 ring-amber-400/30"
+                      ? "border-amber-500 bg-amber-50/80 ring-1 ring-amber-400/30 shadow-2xs"
                       : "border-neutral-100 bg-white hover:bg-neutral-50"
                   )}
                 >
@@ -233,9 +234,9 @@ Keunggulan Utama: Perlindungan anti-aus maksimal, ketahanan oksidasi tinggi, efi
                   <button
                     type="button"
                     onClick={handleCopyTechnical}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-neutral-800 transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 min-h-[44px] rounded-xl bg-neutral-900 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-neutral-800 active:scale-95 transition cursor-pointer"
                   >
-                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
                     <span>{copied ? "Tersalin!" : "Salin ke WA"}</span>
                   </button>
                 </div>

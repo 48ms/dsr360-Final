@@ -96,12 +96,12 @@ export function AIFollowUpRadarCard() {
             onClick={handleRunHermes}
             disabled={isHermesRunning || isLoading}
             title="Jalankan Audit Forensik Hermes Sekarang"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-950 hover:bg-amber-500/20 transition cursor-pointer shadow-2xs disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 min-h-[42px] rounded-xl border border-amber-300 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-950 hover:bg-amber-500/20 active:scale-95 transition cursor-pointer shadow-2xs disabled:opacity-50"
           >
             {isHermesRunning ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-700" />
+              <Loader2 className="h-4 w-4 animate-spin text-amber-700" />
             ) : (
-              <Moon className="h-3.5 w-3.5 text-amber-700" />
+              <Moon className="h-4 w-4 text-amber-700" />
             )}
             <span className="hidden sm:inline">
               {isHermesRunning ? "Menganalisis..." : "Audit Forensik Hermes"}
@@ -113,7 +113,7 @@ export function AIFollowUpRadarCard() {
             onClick={loadRadar}
             disabled={isLoading || isHermesRunning}
             title="Refresh Radar AI"
-            className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100 transition cursor-pointer shadow-2xs disabled:opacity-50"
+            className="min-h-[42px] min-w-[42px] flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-2.5 text-neutral-600 hover:bg-neutral-100 active:scale-95 transition cursor-pointer shadow-2xs disabled:opacity-50"
           >
             <RefreshCw className={cn("h-4 w-4", isLoading ? "animate-spin text-amber-600" : "")} />
           </button>
@@ -211,22 +211,22 @@ export function AIFollowUpRadarCard() {
                     👉 {item.recommended_action}
                   </span>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => setSelectedItemForWA(item)}
-                      className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 min-h-[40px] rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 active:scale-95 transition cursor-pointer"
                     >
-                      <MessageCircle className="h-3.5 w-3.5" />
+                      <MessageCircle className="h-4 w-4" />
                       <span>Kirim WA AI</span>
-                      <Sparkles className="h-2.5 w-2.5 text-amber-200" />
+                      <Sparkles className="h-3 w-3 text-amber-200" />
                     </button>
 
                     <Link
                       href={`/visits/new?customerId=${item.customer_id}`}
-                      className="inline-flex items-center gap-1 rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-bold text-neutral-700 hover:bg-neutral-50 transition shadow-2xs"
+                      className="inline-flex items-center gap-1.5 min-h-[40px] rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-bold text-neutral-700 hover:bg-neutral-50 active:scale-95 transition shadow-2xs"
                     >
-                      <Calendar className="h-3.5 w-3.5 text-neutral-500" />
+                      <Calendar className="h-4 w-4 text-neutral-500" />
                       <span>Rencana Visit</span>
                     </Link>
                   </div>

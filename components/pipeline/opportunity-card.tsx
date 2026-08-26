@@ -117,9 +117,9 @@ export function OpportunityCard({
           <Link
             href={`/pipeline/${opp.id}?edit=true`}
             title="Edit Deal"
-            className="rounded-xl border border-neutral-200 bg-white p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition shadow-2xs"
+            className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 hover:border-neutral-300 active:scale-95 transition shadow-2xs"
           >
-            <Pencil className="h-3.5 w-3.5" />
+            <Pencil className="h-4 w-4" />
           </Link>
 
           <div className="relative shrink-0">
@@ -129,7 +129,7 @@ export function OpportunityCard({
               onChange={(e) => handleStageChange(e.target.value as OpportunityStage)}
               disabled={isPending}
               className={cn(
-                "rounded-xl border px-2.5 py-1 text-[11px] font-bold shadow-2xs outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500",
+                "min-h-[40px] rounded-xl border px-3 py-1.5 text-xs font-bold shadow-2xs outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 active:scale-[0.98] transition",
                 STAGE_COLORS[currentStage]
               )}
             >
@@ -140,7 +140,7 @@ export function OpportunityCard({
               ))}
             </select>
             {isPending && (
-              <Loader2 className="absolute right-1 top-2 h-3 w-3 animate-spin text-neutral-500" aria-hidden="true" />
+              <Loader2 className="absolute right-1 top-3 h-3.5 w-3.5 animate-spin text-neutral-500" aria-hidden="true" />
             )}
           </div>
         </div>
