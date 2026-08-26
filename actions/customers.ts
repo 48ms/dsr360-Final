@@ -196,3 +196,74 @@ export async function updateCustomerLocationAction(input: {
   }
 }
 
+/**
+ * Server action to save/update customer branches (plants)
+ */
+export async function saveCustomerBranchesAction(input: {
+  customerId: string;
+  branches: import("@/lib/utils/branches").CustomerBranch[];
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    const { serializeCustomerBranches } = await import("@/lib/utils/branches");
+    const supabase = await createClient();
+
+    // 1. Fetch current customer record
+    const { data: customer, error: fetchErr } = await supabase
+      .from("customers")
+      .select("notes, address, city, latitude, longitude")
+      .eq("id", input.customerId)
+      .single();
+
+    if (fetchErr || !customer) {
+      return { success: false, message: "Customer tidak ditemukan." };
+    }
+
+    // 2. Format updated notes with serialized branches
+    const serializedNotes = serializeCustomerBranches(input.branches, customer.notes);
+
+    // 3. If primary branch exists, sync its coordinates to customer root
+    const primaryBranch = input.branches.find((b) => b.isPrimary) || input.branches[0];
+
+    const updatePayload: {
+      notes: string;
+      latitude?: number | null;
+      longitude?: number | null;
+      address?: string;
+      city?: string;
+      updated_at?: string;
+    } = {
+      notes: serializedNotes,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (primaryBranch) {
+      if (primaryBranch.latitude !== undefined) updatePayload.latitude = primaryBranch.latitude;
+      if (primaryBranch.longitude !== undefined) updatePayload.longitude = primaryBranch.longitude;
+      if (primaryBranch.address) updatePayload.address = primaryBranch.address;
+      if (primaryBranch.city) updatePayload.city = primaryBranch.city;
+    }
+
+    const { error: updateErr } = await supabase
+      .from("customers")
+      .update(updatePayload)
+      .eq("id", input.customerId);
+
+    if (updateErr) {
+      console.error("saveCustomerBranchesAction update error:", updateErr.message);
+      return { success: false, message: `Gagal menyimpan cabang: ${updateErr.message}` };
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/customers/${input.customerId}`);
+    revalidatePath("/customers");
+    revalidatePath("/visits/plan");
+    revalidatePath("/dashboard");
+
+    return { success: true, message: "Daftar cabang & pabrik berhasil diperbarui!" };
+  } catch (err: any) {
+    console.error("saveCustomerBranchesAction exception:", err);
+    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+  }
+}
+
+

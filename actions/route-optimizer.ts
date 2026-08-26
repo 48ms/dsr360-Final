@@ -112,7 +112,11 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
   const rawVisits = visits || [];
   const rawOpps = opportunities || [];
 
-  const candidates: RouteCandidateCustomer[] = customers.map((c: any) => {
+  const { parseCustomerBranches } = await import("@/lib/utils/branches");
+
+  const candidates: RouteCandidateCustomer[] = [];
+
+  for (const c of customers as any[]) {
     const custVisits = rawVisits.filter((v: any) => v.customer_id === c.id);
     const lastVisit = custVisits[0];
     const days = lastVisit ? daysSince(lastVisit.visit_date) : 999;
@@ -120,13 +124,6 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
     const custOpps = rawOpps.filter((o: any) => o.customer_id === c.id);
     custOpps.sort((a: any, b: any) => (b.potential_value || 0) - (a.potential_value || 0));
     const topOpp = custOpps[0];
-
-    const coords = resolveCustomerCoordinates(
-      c.latitude,
-      c.longitude,
-      c.city,
-      c.id
-    );
 
     // Formulate POPSA Directive
     let purpose = "Technical Selling & Customer Follow-up";
@@ -149,26 +146,68 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
       talkingPoint = "Notifikasi pengamanan alokasi buffer stock PT HUM sebelum harga naik.";
     }
 
-    return {
-      id: c.id,
-      name: c.customer_name,
-      priority: (c.priority as "P1" | "P2" | "P3") || "P2",
-      city: c.city || "Cikarang",
-      address: c.address || c.city || "Kawasan Industri",
-      coordinates: coords,
-      potentialMonthlyVolume: c.potential_monthly_volume || 0,
-      openDealCount: custOpps.length,
-      highestDealStage: topOpp?.stage || null,
-      highestDealValue: topOpp?.potential_value || 0,
-      highestDealVolume: topOpp?.potential_volume || c.potential_monthly_volume || 0,
-      daysSinceLastVisit: days,
-      popsaBrief: {
-        purpose,
-        objective,
-        talkingPoint,
-      },
-    };
-  });
+    const { branches } = parseCustomerBranches(c.notes, c);
+
+    if (branches.length > 0) {
+      for (const b of branches) {
+        const branchCoords = resolveCustomerCoordinates(
+          b.latitude,
+          b.longitude,
+          b.city || c.city,
+          `${c.id}-${b.id}`
+        );
+
+        candidates.push({
+          id: c.id,
+          name: branches.length > 1 ? `${c.customer_name} (${b.branchName})` : c.customer_name,
+          priority: (c.priority as "P1" | "P2" | "P3") || "P2",
+          city: b.city || c.city || "Cikarang",
+          address: b.address || c.address || "Kawasan Industri",
+          coordinates: branchCoords,
+          potentialMonthlyVolume: c.potential_monthly_volume || 0,
+          openDealCount: custOpps.length,
+          highestDealStage: topOpp?.stage || null,
+          highestDealValue: topOpp?.potential_value || 0,
+          highestDealVolume: topOpp?.potential_volume || c.potential_monthly_volume || 0,
+          daysSinceLastVisit: days,
+          popsaBrief: {
+            purpose: b.isPrimary ? purpose : `${purpose} - Lokasi: ${b.branchName}`,
+            objective,
+            talkingPoint: b.picName
+              ? `Temui ${b.picName}${b.picPhone ? ` (${b.picPhone})` : ""}: ${talkingPoint}`
+              : talkingPoint,
+          },
+        });
+      }
+    } else {
+      const coords = resolveCustomerCoordinates(
+        c.latitude,
+        c.longitude,
+        c.city,
+        c.id
+      );
+
+      candidates.push({
+        id: c.id,
+        name: c.customer_name,
+        priority: (c.priority as "P1" | "P2" | "P3") || "P2",
+        city: c.city || "Cikarang",
+        address: c.address || c.city || "Kawasan Industri",
+        coordinates: coords,
+        potentialMonthlyVolume: c.potential_monthly_volume || 0,
+        openDealCount: custOpps.length,
+        highestDealStage: topOpp?.stage || null,
+        highestDealValue: topOpp?.potential_value || 0,
+        highestDealVolume: topOpp?.potential_volume || c.potential_monthly_volume || 0,
+        daysSinceLastVisit: days,
+        popsaBrief: {
+          purpose,
+          objective,
+          talkingPoint,
+        },
+      });
+    }
+  }
 
   return {
     candidates,

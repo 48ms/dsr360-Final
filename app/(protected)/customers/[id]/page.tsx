@@ -9,6 +9,7 @@ import { CustomerPrintButton } from "@/components/customers/customer-print-butto
 import { formatVolume } from "@/lib/utils/format";
 
 import { CustomerLocationCard } from "@/components/customers/customer-location-card";
+import { parseCustomerBranches } from "@/lib/utils/branches";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,6 +17,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   if (!result) notFound();
   const { customer, contacts, equipment, products, recentVisits } = result;
+
+  const { branches } = parseCustomerBranches(customer.notes, customer);
 
   return (
     <div className="max-w-3xl mx-auto pb-24">
@@ -94,6 +97,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
       <CustomerDetailTabs
         customerId={customer.id}
+        customerName={customer.customer_name}
+        initialBranches={branches}
         contacts={contacts}
         equipment={equipment}
         products={products}

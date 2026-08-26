@@ -1,26 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Plus } from "lucide-react";
+import { Phone, Plus, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatVolume, formatDate } from "@/lib/utils/format";
 import { AddContactForm } from "@/components/customers/add-contact-form";
 import { AddEquipmentForm } from "@/components/customers/add-equipment-form";
 import { AddProductForm } from "@/components/customers/add-product-form";
+import { CustomerBranchesTab } from "@/components/customers/customer-branches-tab";
+import type { CustomerBranch } from "@/lib/utils/branches";
 import type { Tables } from "@/types/database";
 
 type Props = {
   customerId: string;
+  customerName: string;
+  initialBranches: CustomerBranch[];
   contacts: Tables<"customer_contacts">[];
   equipment: Tables<"customer_equipment">[];
   products: Tables<"customer_products">[];
   recentVisits: Pick<Tables<"visits">, "id" | "visit_date" | "visit_type" | "purpose" | "visit_status">[];
 };
 
-const TABS = ["Contacts", "Equipment", "Products", "Riwayat Visit"] as const;
+const TABS = ["Contacts", "Cabang & Pabrik", "Equipment", "Products", "Riwayat Visit"] as const;
 type Tab = (typeof TABS)[number];
 
-export function CustomerDetailTabs({ customerId, contacts, equipment, products, recentVisits }: Props) {
+export function CustomerDetailTabs({
+  customerId,
+  customerName,
+  initialBranches,
+  contacts,
+  equipment,
+  products,
+  recentVisits,
+}: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("Contacts");
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -31,13 +43,13 @@ export function CustomerDetailTabs({ customerId, contacts, equipment, products, 
 
   return (
     <div className="mt-4">
-      <div className="flex border-b border-neutral-200 bg-neutral-50/50 rounded-xl p-1 gap-1">
+      <div className="flex border-b border-neutral-200 bg-neutral-50/50 rounded-xl p-1 gap-1 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => switchTab(tab)}
             className={cn(
-              "flex-1 min-h-[44px] py-2.5 px-3 text-xs font-semibold rounded-lg transition-all duration-150 active:scale-95 cursor-pointer",
+              "flex-1 min-h-[44px] py-2.5 px-3 text-xs font-semibold rounded-lg transition-all duration-150 active:scale-95 cursor-pointer whitespace-nowrap",
               activeTab === tab
                 ? "bg-white text-amber-700 shadow-xs border border-amber-200/60 font-bold"
                 : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/60"
@@ -49,6 +61,13 @@ export function CustomerDetailTabs({ customerId, contacts, equipment, products, 
       </div>
 
       <div className="p-4">
+        {activeTab === "Cabang & Pabrik" && (
+          <CustomerBranchesTab
+            customerId={customerId}
+            customerName={customerName}
+            initialBranches={initialBranches}
+          />
+        )}
         {activeTab === "Contacts" && (
           <div className="flex flex-col gap-3">
             {contacts.length === 0 && !showAddForm && (
