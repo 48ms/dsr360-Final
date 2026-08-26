@@ -1,198 +1,45 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import type { CustomerResponse, FollowUpActivityType } from "@/constants/enums";
-import { daysSince } from "@/lib/utils/format";
+import {
+  generateCustomerStrategyBrief,
+  sparWithCustomerAI,
+  parseUnstructuredVisitNotes as parseWithGemini,
+  type RichPreVisitBrief,
+  type ParsedVisitNote,
+  type ChatMessage,
+} from "@/lib/ai/gemini";
 
-export type ParsedVisitNote = {
-  customer_response: CustomerResponse;
-  objection: string | null;
-  opportunity_found: boolean;
-  product_name_suggestion: string | null;
-  potential_volume_suggestion: number | null;
-  next_action_type: FollowUpActivityType;
-  next_action_description: string;
-  next_action_due_days: number;
-  competitor_name: string | null;
-};
+export type { RichPreVisitBrief, ParsedVisitNote, ChatMessage };
 
-export async function parseUnstructuredVisitNotes(rawText: string): Promise<ParsedVisitNote> {
-  const text = rawText.trim();
-  const lower = text.toLowerCase();
+// Legacy alias for PreVisitBrief
+export type PreVisitBrief = RichPreVisitBrief;
 
-  // 1. Detect Response
-  let response: CustomerResponse = "INTERESTED";
-  if (lower.includes("tolak") || lower.includes("tidak tertarik") || lower.includes("gamau") || lower.includes("ga mau")) {
-    response = "NOT_INTERESTED";
-  } else if (lower.includes("pikir") || lower.includes("pertimbangkan") || lower.includes("bandingkan") || lower.includes("lihat nanti")) {
-    response = "CONSIDERING";
-  } else if (lower.includes("netral") || lower.includes("biasa") || lower.includes("silaturahmi")) {
-    response = "NEUTRAL";
-  }
-
-  // 2. Detect Competitor
-  let competitor: string | null = null;
-  if (lower.includes("pertamina") || lower.includes("meditran") || lower.includes("turalik")) competitor = "Pertamina";
-  else if (lower.includes("mobil") || lower.includes("delvac") || lower.includes("dte")) competitor = "Mobil";
-  else if (lower.includes("total") || lower.includes("rubia")) competitor = "TotalEnergies";
-  else if (lower.includes("castrol")) competitor = "Castrol";
-
-  // 3. Detect Objection
-  let objection: string | null = null;
-  if (lower.includes("harga") || lower.includes("mahal") || lower.includes("budget") || lower.includes("diskon")) {
-    objection = "Harga / Selisih Biaya Pembelian Awal";
-  } else if (lower.includes("kontrak") || lower.includes("terikat")) {
-    objection = "Masih Terikat Kontrak Supplier Eksisting";
-  } else if (lower.includes("garansi") || lower.includes("oem")) {
-    objection = "Kekhawatiran Garansi Mesin / OEM Approval";
-  }
-
-  // 4. Detect Opportunity & Product
-  let oppFound = true;
-  if (response === "NOT_INTERESTED") oppFound = false;
-
-  let productSuggestion: string | null = "Shell Rimula R4 X (15W-40)";
-  if (lower.includes("hydraulic") || lower.includes("hidrolik") || lower.includes("tellus")) {
-    productSuggestion = "Shell Tellus S2 V 46";
-  } else if (lower.includes("gear") || lower.includes("gardan") || lower.includes("omala") || lower.includes("spirax")) {
-    productSuggestion = "Shell Omala S2 G 220";
-  } else if (lower.includes("grease") || lower.includes("gemuk") || lower.includes("gadus")) {
-    productSuggestion = "Shell Gadus S2 V220";
-  }
-
-  // 5. Detect Next Action
-  let nextActionType: FollowUpActivityType = "SEND_QUOTATION";
-  let nextActionDesc = "Kirimkan penawaran harga resmi & data sheet teknis.";
-  let dueDays = 1;
-
-  if (lower.includes("sample") || lower.includes("sampel") || lower.includes("uji")) {
-    nextActionType = "SEND_SAMPLE";
-    nextActionDesc = "Kirimkan sampel produk pelumas Shell untuk uji lab.";
-    dueDays = 2;
-  } else if (lower.includes("trial") || lower.includes("tes mesin")) {
-    nextActionType = "TRIAL_FOLLOWUP";
-    nextActionDesc = "Follow-up persiapan trial uji oli pada unit mesin customer.";
-    dueDays = 3;
-  } else if (lower.includes("wa") || lower.includes("whatsapp") || lower.includes("chat")) {
-    nextActionType = "WHATSAPP";
-    nextActionDesc = "Follow-up respon PIC via WhatsApp.";
-    dueDays = 1;
-  } else if (lower.includes("telpon") || lower.includes("telepon") || lower.includes("call")) {
-    nextActionType = "CALL";
-    nextActionDesc = "Hubungi PIC per telepon untuk konfirmasi penawaran.";
-    dueDays = 1;
-  } else if (lower.includes("visit") || lower.includes("kunjung") || lower.includes("ketemu")) {
-    nextActionType = "VISIT";
-    nextActionDesc = "Jadwalkan kunjungan lanjutan ke lokasi customer.";
-    dueDays = 7;
-  }
-
-  // If OpenAI / Gemini API key exists in environment in future, we can call it here.
-  // The current deterministic parser works 100% offline & fast in sub-50ms!
-  return {
-    customer_response: response,
-    objection,
-    opportunity_found: oppFound,
-    product_name_suggestion: productSuggestion,
-    potential_volume_suggestion: 5,
-    next_action_type: nextActionType,
-    next_action_description: nextActionDesc,
-    next_action_due_days: dueDays,
-    competitor_name: competitor,
-  };
+/**
+ * Server action to get deep tactical pre-visit briefing for a customer
+ */
+export async function getPreVisitAIBrief(customerId: string): Promise<RichPreVisitBrief | null> {
+  return generateCustomerStrategyBrief(customerId);
 }
 
-export type PreVisitBrief = {
-  customer_name: string;
-  segment: string;
-  priority: string;
-  city: string | null;
-  days_since_last_visit: number;
-  last_visit_summary: string;
-  primary_pic: { name: string; position: string | null; phone: string | null } | null;
-  current_competitor_oil: string;
-  equipment_summary: string;
-  active_opportunity: { name: string; stage: string; value: number | null } | null;
-  recommended_approach: string;
-};
+/**
+ * Server action to spar / brainstorm tactically with Bang Radit (Gemini 3.6 Flash)
+ */
+export async function sparWithAI(
+  customerId: string,
+  userMessage: string,
+  chatHistory: ChatMessage[] = []
+): Promise<string> {
+  return sparWithCustomerAI(customerId, userMessage, chatHistory);
+}
 
-export async function getPreVisitAIBrief(customerId: string): Promise<PreVisitBrief | null> {
-  const supabase = await createClient();
-
-  const [
-    { data: customer },
-    { data: contacts },
-    { data: equipment },
-    { data: products },
-    { data: recentVisits },
-    { data: opportunities },
-  ] = await Promise.all([
-    supabase.from("customers").select("*").eq("id", customerId).single(),
-    supabase.from("customer_contacts").select("*").eq("customer_id", customerId),
-    supabase.from("customer_equipment").select("*").eq("customer_id", customerId),
-    supabase.from("customer_products").select("*").eq("customer_id", customerId),
-    supabase
-      .from("visits")
-      .select("visit_date, discussion, purpose, customer_response")
-      .eq("customer_id", customerId)
-      .order("visit_date", { ascending: false })
-      .limit(1),
-    supabase
-      .from("opportunities")
-      .select("opportunity_name, stage, potential_value")
-      .eq("customer_id", customerId)
-      .neq("stage", "LOST")
-      .neq("stage", "WON")
-      .limit(1),
-  ]);
-
-  if (!customer) return null;
-
-  const primaryContact = (contacts ?? []).find((c) => c.is_primary) || (contacts ?? [])[0] || null;
-  const lastVisit = (recentVisits ?? [])[0];
-  const activeOpp = (opportunities ?? [])[0];
-
-  const currentOil = (products ?? []).find((p) => p.status === "CURRENT");
-  const oilText = currentOil
-    ? `${currentOil.brand} ${currentOil.product_name} (${currentOil.viscosity || "Std"})`
-    : "Pelumas Kompetitor Eksisting";
-
-  const equipText = (equipment ?? []).length
-    ? (equipment ?? []).map((e) => `${e.equipment_type} ${e.brand || ""}`).join(", ")
-    : "Unit operasional standar industri";
-
-  let strategyRecommendation = "Tawarkan evaluasi Total Cost of Ownership (TCO) & perpanjangan drain interval.";
-  if (customer.priority === "A") {
-    strategyRecommendation = "Prioritas Akun A: Tawarkan program oil analysis (LubeAnalyst) gratis dan trial 1 armada.";
-  } else if (activeOpp?.stage === "TRIAL") {
-    strategyRecommendation = "Tahap Trial: Tinjau hasil uji performa oli pada mesin dan siapkan draf komersial quotation.";
-  }
-
-  return {
-    customer_name: customer.customer_name,
-    segment: customer.segment,
-    priority: customer.priority,
-    city: customer.city,
-    days_since_last_visit: lastVisit ? daysSince(lastVisit.visit_date) : 999,
-    last_visit_summary: lastVisit?.discussion || lastVisit?.purpose || "Belum ada riwayat kunjungan.",
-    primary_pic: primaryContact
-      ? {
-          name: primaryContact.name,
-          position: primaryContact.position,
-          phone: primaryContact.phone,
-        }
-      : null,
-    current_competitor_oil: oilText,
-    equipment_summary: equipText,
-    active_opportunity: activeOpp
-      ? {
-          name: activeOpp.opportunity_name,
-          stage: activeOpp.stage,
-          value: activeOpp.potential_value,
-        }
-      : null,
-    recommended_approach: strategyRecommendation,
-  };
+/**
+ * Server action to parse freeform voice notes / text into structured visit log
+ */
+export async function parseUnstructuredVisitNotes(
+  rawText: string,
+  customerId?: string
+): Promise<ParsedVisitNote> {
+  return parseWithGemini(rawText, customerId);
 }
 
 export type ObjectionBattlecard = {
@@ -229,8 +76,16 @@ export async function getObjectionBattlecards(): Promise<ObjectionBattlecard[]> 
       objection: "Oli Hidrolik Cepat Panas & Mengalami Kerak",
       competitor_claim: "Kondisi suhu pabrik/site memang ekstrem.",
       shell_counter_argument:
-        "Shell Tellus S2 V memiliki indeks viskositas tinggi dan stabilitas termal unggul yang mencegah pembentukan deposit pernis (varnish) pada katup presisi hidrolik.",
+        "Shell Tellus S2 MX/VX memiliki indeks viskositas tinggi dan stabilitas termal unggul yang mencegah pembentukan deposit pernis (varnish) pada katup presisi hidrolik.",
       key_proof_point: "Efisiensi transmisi hidrolik meningkat hingga 3-5% dan memperpanjang umur pompa.",
+    },
+    {
+      objection: "Gearbox Sering Panas & Mengalami Aus Gigi",
+      competitor_claim: "Beban kerja mesin pabrik memang 24 jam nonstop.",
+      shell_counter_argument:
+        "Shell Omala S2 G 220 memberikan perlindungan micro-pitting kelas atas yang menjaga kontak permukaan gigi gir tetap halus walau terkena beban kejut (shock load).",
+      key_proof_point: "Menurunkan temperatur operasi gearbox hingga 5-8°C.",
     },
   ];
 }
+

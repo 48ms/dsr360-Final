@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Zap, Plus, MessageSquare } from "lucide-react";
+import { Sparkles, Zap, Plus, MessageSquare, Bot } from "lucide-react";
 import { PreVisitBriefModal } from "@/components/ai/pre-visit-brief-modal";
+import { CustomerAISparringDrawer } from "@/components/ai/customer-ai-sparring-drawer";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
 import type { WhatsAppContact } from "@/lib/utils/whatsapp";
 
@@ -19,6 +20,7 @@ export function CustomerHeaderActions({
   contacts?: { id?: string; name: string; phone: string | null; position?: string | null; contact_type?: string | null }[];
 }) {
   const [showBriefModal, setShowBriefModal] = useState(false);
+  const [showSparringDrawer, setShowSparringDrawer] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
 
   const formattedContacts: WhatsAppContact[] = contacts
@@ -32,6 +34,7 @@ export function CustomerHeaderActions({
   return (
     <>
       <div className="mt-4 space-y-2 no-print">
+        {/* Row 1: WhatsApp & AI Actions */}
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -52,6 +55,24 @@ export function CustomerHeaderActions({
           </button>
         </div>
 
+        {/* AI Sparring Direct Action Banner */}
+        <button
+          type="button"
+          onClick={() => setShowSparringDrawer(true)}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-bold hover:bg-amber-100 active:scale-[0.99] transition cursor-pointer shadow-2xs"
+        >
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-amber-500 text-white font-bold shrink-0">
+              <Bot className="h-3.5 w-3.5" />
+            </div>
+            <span className="truncate">Diskusi Taktis dengan Bang Radit (AI Copilot)</span>
+          </div>
+          <span className="text-[10px] bg-amber-200/80 px-2 py-0.5 rounded-md text-amber-900 shrink-0">
+            Sparring 💬
+          </span>
+        </button>
+
+        {/* Row 2: Visit Planning Actions */}
         <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/visits/new?customerId=${customerId}`}
@@ -74,6 +95,14 @@ export function CustomerHeaderActions({
         isOpen={showBriefModal}
         customerId={customerId}
         onClose={() => setShowBriefModal(false)}
+        onOpenSparring={() => setShowSparringDrawer(true)}
+      />
+
+      <CustomerAISparringDrawer
+        isOpen={showSparringDrawer}
+        customerId={customerId}
+        customerName={customerName || "Customer"}
+        onClose={() => setShowSparringDrawer(false)}
       />
 
       <WhatsAppActionModal

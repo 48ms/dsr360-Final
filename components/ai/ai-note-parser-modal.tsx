@@ -6,10 +6,12 @@ import { Sparkles, Loader2, Check, X, Wand2 } from "lucide-react";
 
 export function AINoteParserModal({
   isOpen,
+  customerId,
   onClose,
   onApply,
 }: {
   isOpen: boolean;
+  customerId?: string;
   onClose: () => void;
   onApply: (parsed: ParsedVisitNote) => void;
 }) {
@@ -22,7 +24,7 @@ export function AINoteParserModal({
   function handleExtract() {
     if (!rawText.trim()) return;
     startTransition(async () => {
-      const result = await parseUnstructuredVisitNotes(rawText);
+      const result = await parseUnstructuredVisitNotes(rawText, customerId);
       setParsedResult(result);
     });
   }

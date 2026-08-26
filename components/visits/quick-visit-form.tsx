@@ -87,14 +87,26 @@ export function QuickVisitForm({
 
   function handleApplyAI(parsed: ParsedVisitNote) {
     setCustomerResponse(parsed.customer_response);
-    setDiscussion(
-      (prev) => (prev ? prev + "\n\n" : "") + `[Catatan AI] ${parsed.next_action_description}`
-    );
+    if (parsed.structured_summary) {
+      setDiscussion(parsed.structured_summary);
+    } else {
+      setDiscussion(
+        (prev) => (prev ? prev + "\n\n" : "") + `[Catatan AI] ${parsed.next_action_description}`
+      );
+    }
 
     if (parsed.opportunity_found) {
       setHasOpportunity(true);
       if (parsed.potential_volume_suggestion) {
         setPotentialVolume(parsed.potential_volume_suggestion.toString());
+      }
+      if (parsed.product_name_suggestion) {
+        const found = masterProducts.find((p) =>
+          p.product_name.toLowerCase().includes(parsed.product_name_suggestion!.toLowerCase().split(" ")[1] || "")
+        );
+        if (found) {
+          setProductId(found.id);
+        }
       }
     }
 
@@ -375,6 +387,7 @@ export function QuickVisitForm({
       {/* AI Modals */}
       <AINoteParserModal
         isOpen={showAIModal}
+        customerId={customerId}
         onClose={() => setShowAIModal(false)}
         onApply={handleApplyAI}
       />
