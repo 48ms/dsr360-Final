@@ -8,6 +8,8 @@ import { CustomerHeaderActions } from "@/components/customers/customer-header-ac
 import { CustomerPrintButton } from "@/components/customers/customer-print-button";
 import { formatVolume } from "@/lib/utils/format";
 
+import { CustomerLocationCard } from "@/components/customers/customer-location-card";
+
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const result = await getCustomerDetail(id);
@@ -63,12 +65,6 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           {customer.city ? ` · ${customer.city}` : ""}
         </p>
 
-        {customer.address && (
-          <p className="mt-1 text-xs text-neutral-500">
-            Alamat: {customer.address}
-          </p>
-        )}
-
         <p className="mt-1.5 text-xs text-neutral-700">
           Potensi:{" "}
           <strong className="text-neutral-900">
@@ -77,6 +73,16 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               : "belum diisi"}
           </strong>
         </p>
+
+        {/* 📍 Interactive Customer Location & Maps Pin Card */}
+        <CustomerLocationCard
+          customerId={customer.id}
+          customerName={customer.customer_name}
+          city={customer.city}
+          address={customer.address}
+          latitude={customer.latitude}
+          longitude={customer.longitude}
+        />
 
         <CustomerHeaderActions
           customerId={customer.id}

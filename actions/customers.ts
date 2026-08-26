@@ -144,3 +144,55 @@ export async function getCustomerDetail(id: string) {
     recentVisits: recentVisits ?? [],
   };
 }
+
+/**
+ * Server action to update customer coordinates and address
+ */
+export async function updateCustomerLocationAction(input: {
+  customerId: string;
+  latitude: number | null;
+  longitude: number | null;
+  address?: string;
+  city?: string;
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    const supabase = await createClient();
+
+    const updatePayload: {
+      latitude?: number | null;
+      longitude?: number | null;
+      address?: string;
+      city?: string;
+      updated_at?: string;
+    } = {
+      latitude: input.latitude,
+      longitude: input.longitude,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (input.address !== undefined) updatePayload.address = input.address;
+    if (input.city !== undefined) updatePayload.city = input.city;
+
+    const { error } = await supabase
+      .from("customers")
+      .update(updatePayload)
+      .eq("id", input.customerId);
+
+    if (error) {
+      console.error("updateCustomerLocationAction error:", error.message);
+      return { success: false, message: `Gagal memperbarui lokasi: ${error.message}` };
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/customers/${input.customerId}`);
+    revalidatePath("/customers");
+    revalidatePath("/visits/plan");
+    revalidatePath("/dashboard");
+
+    return { success: true, message: "Titik lokasi maps customer berhasil diperbarui!" };
+  } catch (err: any) {
+    console.error("updateCustomerLocationAction exception:", err);
+    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+  }
+}
+
