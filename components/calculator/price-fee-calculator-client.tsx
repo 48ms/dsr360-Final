@@ -329,7 +329,7 @@ export function PriceFeeCalculatorClient({
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 px-3 py-0.5 text-xs font-bold text-amber-300 border border-amber-500/40">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>PT Harapan Utama Motor Engine</span>
+              <span>Nyales24/7 Pricing Engine</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
               Smart Price, Fee &amp; SPH Generator

@@ -1,6 +1,6 @@
 /**
- * Master Prompts & Sales Intelligence Engine for DSR360 Gemini AI Copilot
- * (PT Harapan Utama Motor - Official Shell Commercial & Industrial Lubricants Distributor)
+ * Master Prompts & Sales Intelligence Engine for Nyales24/7 Gemini AI Copilot
+ * (Created & Engineered by Bima Maulana Saputra)
  * 
  * Synthesizes 12 World-Class Frameworks:
  * 1. Shell Official Lubricants B2B Ecosystem (api-evangelist/shell)
@@ -18,7 +18,7 @@
  */
 
 export const SYSTEM_PERSONA_PROMPT = `
-Kamu adalah "Bang Radit", Senior B2B Lubrication Sales Strategist & Technical Field Mentor di PT Harapan Utama Motor (Distributor Resmi Shell Lubricants di Indonesia).
+Kamu adalah "Bang Radit", Senior B2B Lubrication Sales Strategist & Technical Field Mentor di Nyales24/7 (Platform AI B2B Sales Intelligence oleh Bima Maulana Saputra).
 Tugas utamamu adalah mendampingi DSR (Direct Sales Representative) agar setiap aktivitas di lapangan menjadi super taktis, manusiawi, tajam, dan berorientasi closing berbasis nilai (TCO, Efisiensi Energi, & Standar Global Shell plc).
 
 === 1. KARAKTER & TONE OF VOICE ===
@@ -270,7 +270,7 @@ ${options.collectiveBenchmarks ? "=== 🧠 BENCHMARK & KECERDASAN KOLEKTIF CRM (
 - Tujuan Singkat yang Ditulis DSR: "${options.customPurpose || "Kunjungan & Follow Up Kebutuhan Pelumas"}"
 
 TUGAS UTAMA:
-Sebagai Strategic AI Sales Engine DSR360 (PT Harapan Utama Motor - Distributor Resmi Shell), susun RENCANA STRATEGI KUNJUNGAN POPSA (Position/Premises, Objective, People, Strategy, Action, Anticipate) yang SANGAT TAJAM, KONTEKSTUAL, DAN WAJIB MENGIKUTI 4 PRINSIP GROUND TRUTH:
+Sebagai Strategic AI Sales Engine Nyales24/7 (oleh Bima Maulana Saputra), susun RENCANA STRATEGI KUNJUNGAN POPSA (Position/Premises, Objective, People, Strategy, Action, Anticipate) yang SANGAT TAJAM, KONTEKSTUAL, DAN WAJIB MENGIKUTI 4 PRINSIP GROUND TRUTH:
 
 1. IKUTI PRODUK OLI EKSISTING CUSTOMER:
    - Cek produk oli eksisting yang tercatat (misal: Shell Tellus S2 MX 46, Rimula, atau merk kompetitor) dan catatan profil customer.
@@ -395,7 +395,7 @@ export function buildProspectSignalAnalyzerPrompt(dossierString: string): string
 ${dossierString}
 
 TUGAS UTAMA:
-Sebagai Strategic B2B Prospecting Hunter di DSR360 (PT Harapan Utama Motor), lakukan analisis mendalam pada akun prospek baru di atas menggunakan Framework 5 Sinyal Pembelian (Codex First Customer Finder):
+Sebagai Strategic B2B Prospecting Hunter di Nyales24/7, lakukan analisis mendalam pada akun prospek baru di atas menggunakan Framework 5 Sinyal Pembelian (Codex First Customer Finder):
 
 1. PAIN SIGNAL (Keluhan Teknis / Masalah Mesin Lapangan):
    - Identifikasi risiko panas mesin, keausan bearing, endapan oli, atau pompa hidrolik lelet pada tipe armada/industri mereka.
@@ -454,7 +454,7 @@ export function buildFollowUpRecommendationPrompt(dossierString: string): string
 ${dossierString}
 
 TUGAS UTAMA:
-Kamu adalah Bang Radit, Senior B2B Lubrication Sales Strategist di PT Harapan Utama Motor (Distributor Resmi Shell).
+Kamu adalah Bang Radit, Senior B2B Lubrication Sales Strategist di Nyales24/7 (oleh Bima Maulana Saputra).
 Berdasarkan SELURUH DATA HISTORIS akun customer di atas (riwayat kunjungan terakhir, POPSA sebelumnya, inventaris mesin & oli eksisting, deal opportunity, serta hasil follow-up terdahulu):
 1. Evaluasi sampai di mana progres hubungan dan transaksi akun ini saat ini (Progress Terakhir).
 2. Tentukan 1 aksi tindak lanjut (Follow-Up) paling strategis dan bernilai tinggi yang HARUS dilakukan DSR berikutnya agar pipeline tidak mandek.
@@ -528,7 +528,7 @@ Format Output WAJIB JSON murni:
  */
 export function buildDailyRadarPrompt(allAccountsSummary: string): string {
   return `
-DATA SELURUH AKUN & PIPELINE CRM PT HARAPAN UTAMA MOTOR:
+DATA SELURUH AKUN & PIPELINE CRM NYALES24/7:
 """
 ${allAccountsSummary}
 """

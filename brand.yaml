@@ -1,0 +1,52 @@
+name: "Nyales24/7"
+slug: "nyales-247"
+version: "1.0.0"
+creator: "Bima Maulana Saputra"
+role: "Creator & Chief Software Architect"
+category: "B2B Sales Operating System & Field Intelligence Engine"
+tagline: "The 24/7 AI-Powered Sales Operating System for B2B Industrial Champions"
+mission: "Empowering B2B sales representatives to close deals faster, optimize territory routes, calculate profit margins with mathematical precision, and dominate industrial accounts 24/7 without manual spreadsheet friction."
+vision: "To become the undisputed gold-standard field sales intelligence platform across industrial Southeast Asia."
+
+pillars:
+  - name: "Battle-Tested Field Intelligence"
+    description: "Built directly from the industrial factory floor by Bima Maulana Saputra, not disconnected corporate boardroom theory."
+  - name: "24/7 Autonomous Sales Engine"
+    description: "Nightly route optimization (Hermes 3), instant WhatsApp sparring, and H+3 automated follow-up scheduling."
+  - name: "Executive Mathematical Precision"
+    description: "Real-time Floor Price margins (52% markup divisor), PPh 25%, TER incentives, and working-day quota pacing."
+  - name: "Rep-Centric Empowerment"
+    description: "Designed to empower sales representatives to achieve record commissions, not just spy on their GPS coordinates."
+
+palette:
+  primary:
+    name: "Executive Shell Amber Gold"
+    hex: "#D97706"
+    rgb: "rgb(217, 119, 6)"
+    hsl: "hsl(37, 94%, 44%)"
+  accent_red:
+    name: "Shell Racing Heritage Red"
+    hex: "#DD1D21"
+    rgb: "rgb(221, 29, 33)"
+  canvas:
+    name: "Warm Ivory Desk Canvas"
+    hex: "#FDFBF7"
+  border:
+    name: "Warm Executive Border"
+    hex: "#EAE4D9"
+  dark_slate:
+    name: "Navy Graphite Slate"
+    hex: "#0F172A"
+  success:
+    name: "Emerald Deal Won Green"
+    hex: "#10B981"
+
+typography:
+  primary_sans: "Inter, system-ui, -apple-system, sans-serif"
+  numbers_mono: "JetBrains Mono, monospace (tabular-nums)"
+
+tone_of_voice:
+  - "Direct & Decisive (B2B Commercial Focus)"
+  - "Field-Grounded & Practical"
+  - "Supportive & High-Energy Mentorship"
+  - "Zero Corporate Fluff & Zero Em-Dashes"

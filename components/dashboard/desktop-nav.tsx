@@ -43,20 +43,20 @@ export function DesktopNav({
         {/* Left: Brand & Distributor Badge */}
         <div className="flex items-center gap-4 xl:gap-6 shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white font-black text-xs shadow-xs group-hover:scale-105 transition">
-              360
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white font-black text-[11px] font-mono shadow-xs group-hover:scale-105 transition">
+              24/7
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="font-black text-sm tracking-tight text-neutral-900">
-                  DSR360
+                  Nyales24/7
                 </span>
-                <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-900 border border-amber-200/80 tracking-wide">
-                  PT HUM
+                <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-extrabold text-amber-900 border border-amber-200/80 tracking-tight">
+                  by Bima Maulana Saputra
                 </span>
               </div>
               <span className="text-[10px] font-medium text-neutral-400 tracking-tight leading-none mt-1 whitespace-nowrap">
-                Distributor Resmi Shell
+                B2B Sales Operating System
               </span>
             </div>
           </Link>

@@ -1,11 +1,83 @@
 {
   "version": 1,
   "skills": {
+    "brand-architecture": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-architecture/SKILL.md",
+      "computedHash": "e00a2c75f9d76ea1b620751ebce26ca388d332965ab7089895ffc3e05511a2b2"
+    },
+    "brand-audit": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-audit/SKILL.md",
+      "computedHash": "8499413f7af69080d34ed75dfada16d5aaaa60be0b7705a8195860a10bef112a"
+    },
+    "brand-context": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-context/SKILL.md",
+      "computedHash": "b620743f9a8f8cf8fbc9802061b58f5923c07f0ea8b47f15330c3b3117d97fb0"
+    },
+    "brand-guidelines": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-guidelines/SKILL.md",
+      "computedHash": "491d130b3a55021441e30632e0a5445b8c498f4b3605cda51002823649324d58"
+    },
+    "brand-identity": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-identity/SKILL.md",
+      "computedHash": "aea9f37047a4e3de16c7b28c4c9993184a41d6dc51683d9cb9bd7e154cb349cc"
+    },
+    "brand-init": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-init/SKILL.md",
+      "computedHash": "56ea3f1374d087d0eefe60b293f1ea9055193d5a17428cf818dd80a8e30d246b"
+    },
+    "brand-messaging": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-messaging/SKILL.md",
+      "computedHash": "34c853f08e53b833f70162575df145cf9727d5a3af82b2f793a367d9503edb4c"
+    },
+    "brand-positioning": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-positioning/SKILL.md",
+      "computedHash": "33054486e331830038036a2e021267d2fde87d36bb70535a93a115d3f5232ced"
+    },
+    "brand-story": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-story/SKILL.md",
+      "computedHash": "f86deb46f36b17d14f47454acacf1f58ab7d133b28496c3c9aa04537e43abc38"
+    },
+    "brand-strategy": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-strategy/SKILL.md",
+      "computedHash": "7620c7d3081646dd754d783a056adaab19da80ff4573ed4da0c0929965c57ab8"
+    },
+    "brand-voice": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand-voice/SKILL.md",
+      "computedHash": "5fd2c5d48feb4a51f77f1d2ffd740edb8f8345031859be5b97e2751164971d00"
+    },
     "brandkit": {
       "source": "Leonxlnx/taste-skill",
       "sourceType": "github",
       "skillPath": "skills/brandkit/SKILL.md",
       "computedHash": "735007879f5110aeae1e981a53fe74a12afde70347f9773dacd50e4697a091bf"
+    },
+    "competitor-branding": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitor-branding/SKILL.md",
+      "computedHash": "b50500e0691a55808fb7923c466cd77f0bdc2c50673e0750a734739210592103"
     },
     "design-taste-frontend": {
       "source": "Leonxlnx/taste-skill",
@@ -67,6 +139,18 @@
       "skillPath": "skills/minimalist-skill/SKILL.md",
       "computedHash": "7e88897e0371184e97a82b8d9ef080323c13f21eb067b58ef71eb05173a08ac2"
     },
+    "naming": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/naming/SKILL.md",
+      "computedHash": "2b117206189524fd950828339d57b9624a0c52e6009e27355de5d3d86e7b2d39"
+    },
+    "rebranding": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/rebranding/SKILL.md",
+      "computedHash": "da8668f81d8745c730aaf977bc2e50a3b188c97ea9046064c94c3a85263b8228"
+    },
     "redesign-existing-projects": {
       "source": "Leonxlnx/taste-skill",
       "sourceType": "github",
@@ -78,6 +162,12 @@
       "sourceType": "github",
       "skillPath": "skills/stitch-skill/SKILL.md",
       "computedHash": "c96b580192b34167efa01f460bbc669ff4315cf97f3cf6ff85ded8029aa720b8"
+    },
+    "target-audience": {
+      "source": "cofoundy/brand-skills",
+      "sourceType": "github",
+      "skillPath": "skills/target-audience/SKILL.md",
+      "computedHash": "627e8f1ac4062f1007150223d3c17913e0cc169c23e2180228b28e8aa598f64e"
     }
   }
 }

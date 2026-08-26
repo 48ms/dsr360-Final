@@ -43,12 +43,12 @@ const PERSONA_CONFIGS: Record<SparringMode, PersonaModeConfig> = {
   mentor: {
     id: "mentor",
     name: "Bang Radit",
-    title: "Senior Sales Strategist & Mentor PT HUM",
+    title: "Senior Sales Strategist & Field Mentor",
     avatarIcon: GraduationCap,
     badge: "Senior Mentor",
     badgeBg: "bg-amber-500/20 text-amber-300 border-amber-500/40",
     initialMessage: (customerName) =>
-      `Halo bro! Gua Bang Radit, AI Sales Mentor lo di PT Harapan Utama Motor. Gua udah pelajari profil lengkap dan data riwayat **${customerName}**.\n\nMau kita brainstorming strategi apa buat kunjungan atau follow-up berikutnya? Pilih topik di atas atau langsung tanyakan situasi lapangan lo! 🚀`,
+      `Halo bro! Gua Bang Radit, AI Sales Mentor lo di Nyales24/7 (oleh Bima Maulana Saputra). Gua udah pelajari profil lengkap dan data riwayat **${customerName}**.\n\nMau kita brainstorming strategi apa buat kunjungan atau follow-up berikutnya? Pilih topik di atas atau langsung tanyakan situasi lapangan lo! 🚀`,
     pills: [
       {
         label: "🎯 Taktik Buka Obrolan",

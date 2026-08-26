@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "DSR360 | B2B Sales Visit & CRM",
-    short_name: "DSR360",
+    name: "Nyales24/7 | AI B2B Sales Operating System",
+    short_name: "Nyales24/7",
     description:
-      "B2B Sales Visit & Customer Management System untuk DSR Shell Lubricants PT Harapan Utama Motor",
+      "24/7 AI-Powered B2B Sales Operating System & Field Intelligence Engine by Bima Maulana Saputra",
     start_url: "/dashboard",
     display: "standalone",
     orientation: "portrait",

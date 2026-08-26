@@ -11,13 +11,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DSR360 | B2B Sales Visit & CRM",
-  description: "B2B Sales Visit & Customer Management | PT Harapan Utama Motor",
-  applicationName: "DSR360",
+  title: "Nyales24/7 | AI B2B Sales Operating System by Bima Maulana Saputra",
+  description: "24/7 AI-Powered B2B Sales Operating System & Field Intelligence Engine by Bima Maulana Saputra",
+  applicationName: "Nyales24/7",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "DSR360",
+    title: "Nyales24/7",
   },
   formatDetection: {
     telephone: false,

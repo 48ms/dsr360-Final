@@ -469,10 +469,10 @@ export async function personalizeWhatsAppMessage(
   const name = options.contactName || "Bapak/Ibu";
   const fallbackMessages: Record<string, string> = {
     casual_friendly: `Halo ${name}, selamat pagi/siang! Semoga operasional lancar ya. Mau sekadar info, minggu ini saya lagi keliling di area dekat pabrik/pool Bapak. Boleh mampir sebentar 15 menit buat ngobrol santai sambil bawakan sampel oli Shell? Kabari ya Pak, terima kasih!`,
-    professional_b2b: `Yth. ${name},\n\nTerima kasih atas waktu dan diskusi yang telah terjalin dengan PT Harapan Utama Motor (Distributor Resmi Shell Lubricants).\n\nMenindaklanjuti rencana efisiensi pelumasan armada/mesin industri Bapak, kami siap mengirimkan proposal penawaran resmi beserta jadwal uji lab Shell LubeAnalyst gratis.\n\nApakah kami dapat menjadwalkan meeting tindak lanjut pada pekan ini? Terima kasih atas perhatian Bapak.`,
-    ghost_recovery: `Halo ${name}, salam kenal kembali dari tim Shell PT HUM. Sekadar menginfokan, saat ini tim teknikal kami sedang ada program inspeksi dan uji lab gratis Shell LubeAnalyst untuk industri di area Bapak. Jika berkenan, kami bisa bantu uji kondisi oli di 1 unit mesin Bapak tanpa biaya untuk lihat efisiensi drain intervalnya. Apakah besok lusa ada waktu luang sebentar Pak?`,
+    professional_b2b: `Yth. ${name},\n\nTerima kasih atas waktu dan diskusi yang telah terjalin dengan tim kami (Distributor Resmi Shell Lubricants).\n\nMenindaklanjuti rencana efisiensi pelumasan armada/mesin industri Bapak, kami siap mengirimkan proposal penawaran resmi beserta jadwal uji lab Shell LubeAnalyst gratis.\n\nApakah kami dapat menjadwalkan meeting tindak lanjut pada pekan ini? Terima kasih atas perhatian Bapak.`,
+    ghost_recovery: `Halo ${name}, salam kenal kembali dari tim Shell Lubricants. Sekadar menginfokan, saat ini tim teknikal kami sedang ada program inspeksi dan uji lab gratis Shell LubeAnalyst untuk industri di area Bapak. Jika berkenan, kami bisa bantu uji kondisi oli di 1 unit mesin Bapak tanpa biaya untuk lihat efisiensi drain intervalnya. Apakah besok lusa ada waktu luang sebentar Pak?`,
     urgent_followup: `Halo ${name}, selamat pagi! Mengingat jadwal pengiriman armada distributor kami ke rute area Bapak akan ditutup besok, kami ingin konfirmasi apakah pesanan drum Shell Rimula / Tellus Bapak sudah dapat kami proses hari ini agar pengiriman aman dan tidak ada keterlambatan? Terima kasih banyak Pak!`,
-    icebreaker_prospect: `Halo ${name}, salam kenal dari tim Shell PT Harapan Utama Motor. Kami melihat operasional dan armada/mesin industri Bapak terus berkembang pesat di area ini. Sebagai distributor resmi Shell, kami sedang mengadakan program pendampingan efisiensi TCO dan uji lab gratis Shell LubeAnalyst untuk pelaku industri di wilayah Bapak. Apakah ada waktu luang 10 menit pekan ini untuk kami jelaskan potensi penghematannya? Terima kasih Pak!`,
+    icebreaker_prospect: `Halo ${name}, salam kenal dari tim Shell Lubricants. Kami melihat operasional dan armada/mesin industri Bapak terus berkembang pesat di area ini. Sebagai distributor resmi Shell, kami sedang mengadakan program pendampingan efisiensi TCO dan uji lab gratis Shell LubeAnalyst untuk pelaku industri di wilayah Bapak. Apakah ada waktu luang 10 menit pekan ini untuk kami jelaskan potensi penghematannya? Terima kasih Pak!`,
   };
 
   const fallback: PersonalizedWhatsApp = {
@@ -629,7 +629,7 @@ export async function sparWithCustomerAI(
   const dossierText = dossier ? formatCustomerDossierPrompt(dossier) : "Data customer tidak ditemukan.";
 
   let systemPrompt = SYSTEM_PERSONA_PROMPT;
-  let modeInstruction = "Jawab sebagai Bang Radit (Senior B2B Lubrication Sales Strategist & Mentor PT Harapan Utama Motor). Berikan jawaban yang santai, bersahabat, terstruktur, berbasis data riil customer di atas, dan sertakan contoh kalimat skrip konkret yang bisa langsung diucapkan DSR ke customer!";
+  let modeInstruction = "Jawab sebagai Bang Radit (Senior B2B Lubrication Sales Strategist & Mentor di platform Nyales24/7 oleh Bima Maulana Saputra). Berikan jawaban yang santai, bersahabat, terstruktur, berbasis data riil customer di atas, dan sertakan contoh kalimat skrip konkret yang bisa langsung diucapkan DSR ke customer!";
 
   if (mode === "roleplay_purchasing") {
     systemPrompt = ROLEPLAY_PURCHASING_PROMPT;
@@ -927,7 +927,7 @@ KONTEKS PELUANG / DEAL AKTIF:
       },
       commercial_winwin: {
         title: "🤝 Solusi Komersial & Give-Get",
-        text: `Selamat siang Bpk/Ibu, untuk penyesuaian pesanan kami siap berikan skema pengiriman terjadwal dan komitmen buffer stock resmi dari PT Harapan Utama Motor. Kapan kiranya kami bisa kirimkan surat penawaran resminya?`,
+        text: `Selamat siang Bpk/Ibu, untuk penyesuaian pesanan kami siap berikan skema pengiriman terjadwal dan komitmen buffer stock resmi dari distributor kami. Kapan kiranya kami bisa kirimkan surat penawaran resminya?`,
       },
       casual_direct: {
         title: "☕ Santai, Luwes & To-the-point",
@@ -1076,7 +1076,7 @@ export async function generateCompetitorBattlecard(
     shell_superiorities: [
       `Shell ${shellProduct} memiliki formula anti-aus dan anti-oksidasi terdepan di kelasnya.`,
       "Memperpanjang interval ganti oli 2x lipat dan menjaga kebersihan sistem pompa hidrolik/mesin.",
-      "Gratis fasilitas pengujian sampel oli Shell LubeAnalyst resmi dari PT Harapan Utama Motor.",
+      "Gratis fasilitas pengujian sampel oli Shell LubeAnalyst resmi dari distributor kami.",
     ],
     soundbite_pitch: `Pak, dengan beralih ke Shell ${shellProduct}, pabrik Bapak tidak hanya beli pelumas, tapi mengunci penghematan biaya perawatan jangka panjang dan jaminan pasokan resmi dari distributor kami.`,
   };
@@ -1096,7 +1096,7 @@ export async function analyzeProductTDSWithGemini(
   productName: string,
   question: string
 ): Promise<ProductTDSAnalysisResult> {
-  const prompt = `Anda adalah Shell Lubricants Senior Technical Application Specialist (LubeExpert) untuk PT Harapan Utama Motor (Distributor Resmi Shell).
+  const prompt = `Anda adalah Shell Lubricants Senior Technical Application Specialist (LubeExpert) di platform Nyales24/7 (oleh Bima Maulana Saputra).
 Bantu Direct Sales Representative (Bang Radit) menjawab pertanyaan teknis mendalam mengenai produk pelumas Shell berikut:
 
 PRODUK SHELL: ${productName}
