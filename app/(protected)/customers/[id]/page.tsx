@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { getCustomerDetail } from "@/actions/customers";
+import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, PriorityBadge } from "@/components/customers/status-badge";
 import { CustomerDetailTabs } from "@/components/customers/customer-detail-tabs";
 import { CustomerHeaderActions } from "@/components/customers/customer-header-actions";
 import { CustomerPrintButton } from "@/components/customers/customer-print-button";
 import { formatVolume } from "@/lib/utils/format";
-
 import { CustomerLocationCard } from "@/components/customers/customer-location-card";
 import { parseCustomerBranches } from "@/lib/utils/branches";
 
@@ -20,6 +20,30 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   const { branches } = parseCustomerBranches(customer.notes, customer);
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isManager = false;
+  let ownerName: string | undefined = undefined;
+
+  if (user) {
+    const [{ data: callerProfile }, { data: ownerProfile }] = await Promise.all([
+      supabase.from("profiles").select("role").eq("id", user.id).single(),
+      customer.owner_id
+        ? supabase.from("profiles").select("full_name").eq("id", customer.owner_id).single()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    isManager =
+      callerProfile?.role === "MANAGER" ||
+      callerProfile?.role === "SPV" ||
+      callerProfile?.role === "ADMIN";
+
+    ownerName = ownerProfile?.full_name;
+  }
+
   return (
     <div className="max-w-3xl mx-auto pb-24">
       {/* Print-Only Executive Header */}
@@ -27,14 +51,14 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-black text-neutral-900 tracking-tight">
-              PT HARAPAN UTAMA MOTOR
+              NYALES24/7 B2B SALES OS
             </h1>
             <p className="text-xs text-neutral-600">
-              Distributor Resmi Shell Lubricants &bull; Profil Akun Pelanggan B2B
+              Profil Akun Pelanggan B2B &bull; Engineered by Bima Maulana Saputra
             </p>
           </div>
           <div className="text-right">
-            <span className="text-sm font-bold text-neutral-800">DSR360 CRM</span>
+            <span className="text-sm font-bold text-neutral-800">Dossier Akun</span>
             <p className="text-[10px] text-neutral-500">
               Dicetak: {new Date().toLocaleDateString("id-ID", { dateStyle: "long" })}
             </p>
@@ -92,6 +116,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           customerName={customer.customer_name}
           defaultPhone={contacts?.find((c) => c.is_primary)?.phone ?? contacts?.[0]?.phone ?? null}
           contacts={contacts}
+          isManager={isManager}
+          currentOwnerId={customer.owner_id}
+          currentOwnerName={ownerName}
         />
       </div>
 

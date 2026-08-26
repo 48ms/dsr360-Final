@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
 import type { ManagerCommandCenterData, RepPerformance } from "@/actions/manager";
+import { ReassignAccountModal } from "@/components/customers/reassign-account-modal";
 import {
   Users,
   Trophy,
@@ -18,6 +19,7 @@ import {
   BarChart3,
   Calendar,
   CheckCircle2,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -27,6 +29,11 @@ export function ManagerCommandCenter({
   data: ManagerCommandCenterData;
 }) {
   const [selectedArea, setSelectedArea] = useState<string>("ALL");
+  const [reassignTarget, setReassignTarget] = useState<{
+    customerId: string;
+    customerName: string;
+    ownerName?: string;
+  } | null>(null);
 
   const filteredReps =
     selectedArea === "ALL"
@@ -345,13 +352,30 @@ export function ManagerCommandCenter({
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0">
-                    <div className="text-xs font-black font-mono text-neutral-900">
-                      {formatCurrency(deal.potentialValue)}
+                  <div className="text-right shrink-0 flex items-center gap-3">
+                    <div>
+                      <div className="text-xs font-black font-mono text-neutral-900">
+                        {formatCurrency(deal.potentialValue)}
+                      </div>
+                      <div className="text-[10px] text-neutral-400 font-medium">
+                        PIC: <span className="font-semibold text-neutral-700">{deal.ownerName}</span>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-neutral-400 font-medium">
-                      PIC: <span className="font-semibold text-neutral-700">{deal.ownerName}</span>
-                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setReassignTarget({
+                          customerId: (deal as any).customer?.id || (deal as any).customerId || deal.id,
+                          customerName: deal.customerName,
+                          ownerName: deal.ownerName,
+                        })
+                      }
+                      title="Realokasikan customer ini ke DSR lain"
+                      className="p-1.5 rounded-xl bg-white hover:bg-amber-100/80 border border-neutral-200 text-neutral-600 hover:text-amber-800 transition active:scale-95 cursor-pointer shadow-2xs"
+                    >
+                      <UserCheck className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               );
@@ -359,6 +383,16 @@ export function ManagerCommandCenter({
           )}
         </div>
       </div>
+
+      {reassignTarget && (
+        <ReassignAccountModal
+          isOpen={true}
+          onClose={() => setReassignTarget(null)}
+          customerId={reassignTarget.customerId}
+          customerName={reassignTarget.customerName}
+          currentOwnerName={reassignTarget.ownerName}
+        />
+      )}
     </div>
   );
 }

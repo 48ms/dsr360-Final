@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Zap, Plus, MessageSquare, Bot } from "lucide-react";
+import { Sparkles, Zap, Plus, MessageSquare, Bot, Users } from "lucide-react";
 import { PreVisitBriefModal } from "@/components/ai/pre-visit-brief-modal";
 import { CustomerAISparringDrawer } from "@/components/ai/customer-ai-sparring-drawer";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
+import { ReassignAccountModal } from "@/components/customers/reassign-account-modal";
 import type { WhatsAppContact } from "@/lib/utils/whatsapp";
 
 export function CustomerHeaderActions({
@@ -13,15 +14,23 @@ export function CustomerHeaderActions({
   customerName,
   defaultPhone,
   contacts = [],
+  isManager = false,
+  currentOwnerName,
+  currentOwnerId,
 }: {
   customerId: string;
   customerName?: string;
   defaultPhone?: string | null;
   contacts?: { id?: string; name: string; phone: string | null; position?: string | null; contact_type?: string | null }[];
+  isManager?: boolean;
+  currentOwnerName?: string;
+  currentOwnerId?: string;
 }) {
   const [showBriefModal, setShowBriefModal] = useState(false);
   const [showSparringDrawer, setShowSparringDrawer] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [assignedOwnerName, setAssignedOwnerName] = useState<string | undefined>(currentOwnerName);
 
   const formattedContacts: WhatsAppContact[] = contacts
     .filter((c) => Boolean(c.phone))
@@ -34,6 +43,28 @@ export function CustomerHeaderActions({
   return (
     <>
       <div className="mt-4 space-y-2 no-print">
+        {/* Manager Reassign Action Banner if user has manager role */}
+        {isManager && (
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-neutral-900 border border-neutral-800 text-white shadow-xs">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300">
+                <Users className="h-4 w-4" />
+              </div>
+              <div className="text-xs">
+                <span className="text-neutral-400 font-medium">DSR Ditugaskan: </span>
+                <strong className="text-amber-300 font-bold">{assignedOwnerName || "Belum Ditugaskan"}</strong>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowReassignModal(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white px-3 py-1.5 text-xs font-bold transition cursor-pointer shadow-2xs"
+            >
+              <span>Realokasi Akun</span>
+            </button>
+          </div>
+        )}
+
         {/* Row 1: WhatsApp & AI Actions */}
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -112,6 +143,16 @@ export function CustomerHeaderActions({
         defaultPhone={defaultPhone}
         contacts={formattedContacts}
         defaultTemplate="INTRODUCTION"
+      />
+
+      <ReassignAccountModal
+        isOpen={showReassignModal}
+        onClose={() => setShowReassignModal(false)}
+        customerId={customerId}
+        customerName={customerName || "Customer"}
+        currentOwnerId={currentOwnerId}
+        currentOwnerName={assignedOwnerName}
+        onSuccess={(newOwner) => setAssignedOwnerName(newOwner)}
       />
     </>
   );
