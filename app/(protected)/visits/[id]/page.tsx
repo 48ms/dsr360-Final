@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { VisitWhatsAppShareButton } from "@/components/visits/visit-whatsapp-share-button";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +30,19 @@ export default async function VisitDetailPage({
     notFound();
   }
 
-  const { visit, customer, popsa, photos, opportunities, followUps } = visitDetail;
+  const { visit, customer, contacts, popsa, photos, opportunities, followUps } = visitDetail;
   const isPlanned = visit.visit_status === "PLANNED";
   const isInProgress = visit.visit_status === "IN_PROGRESS";
   const isCompleted = visit.visit_status === "COMPLETED";
+
+  const primaryContactPhone = contacts?.find((c) => c.is_primary)?.phone ?? contacts?.[0]?.phone ?? null;
+  const formattedContacts = (contacts || [])
+    .filter((c) => Boolean(c.phone))
+    .map((c) => ({
+      name: c.name,
+      phone: c.phone as string,
+      role: c.position || c.contact_type,
+    }));
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-5">
@@ -141,6 +151,18 @@ export default async function VisitDetailPage({
                 <p className="text-neutral-800 mt-0.5">{visit.technical_issue}</p>
               </div>
             )}
+
+            <div className="pt-2 border-t border-emerald-200/70">
+              <VisitWhatsAppShareButton
+                customerName={customer?.customer_name || "Customer"}
+                defaultPhone={primaryContactPhone}
+                contacts={formattedContacts}
+                visitDate={formatDate(visit.visit_date)}
+                visitDiscussion={visit.discussion}
+                opportunityProduct={opportunities[0]?.opportunity_name}
+                nextAction={followUps[0]?.description}
+              />
+            </div>
           </div>
         </div>
       )}

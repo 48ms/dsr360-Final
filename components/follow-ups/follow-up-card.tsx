@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatDate, getTodayWIB } from "@/lib/utils/format";
 import type { FollowUpItem } from "@/actions/follow-ups";
 import { CompleteTaskModal } from "@/components/follow-ups/complete-task-modal";
+import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
 import {
   Phone,
   MessageCircle,
@@ -42,6 +43,7 @@ export function FollowUpCard({
   onCompleted: () => void;
 }) {
   const [showModal, setShowModal] = useState(false);
+  const [showWaModal, setShowWaModal] = useState(false);
 
   const isCompleted = item.status === "COMPLETED";
   const todayStr = getTodayWIB();
@@ -49,12 +51,6 @@ export function FollowUpCard({
   const isToday = !isCompleted && item.due_date === todayStr;
 
   const IconComponent = ACTIVITY_ICONS[item.activity_type] || Clock;
-
-  // Format clean phone for WA
-  const cleanPhone = item.customer?.primary_phone?.replace(/[^0-9]/g, "");
-  const waUrl = cleanPhone
-    ? `https://wa.me/${cleanPhone.startsWith("0") ? "62" + cleanPhone.slice(1) : cleanPhone}`
-    : null;
 
   return (
     <>
@@ -134,23 +130,22 @@ export function FollowUpCard({
             </span>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              {waUrl && (
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {item.customer.primary_phone && (
+                <button
+                  type="button"
+                  onClick={() => setShowWaModal(true)}
                   aria-label={`Kirim pesan WhatsApp ke ${item.customer.primary_pic || "PIC"}`}
-                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-emerald-700 transition focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none"
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-emerald-700 active:scale-95 transition focus-visible:ring-2 focus-visible:ring-emerald-500 outline-none cursor-pointer"
                 >
                   <MessageCircle className="h-3 w-3" aria-hidden="true" />
                   WA
-                </a>
+                </button>
               )}
               {item.customer.primary_phone && (
                 <a
                   href={`tel:${item.customer.primary_phone}`}
                   aria-label={`Telepon nomor ${item.customer.primary_phone}`}
-                  className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-blue-700 transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
+                  className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-blue-700 active:scale-95 transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                 >
                   <Phone className="h-3 w-3" aria-hidden="true" />
                   Call
@@ -195,6 +190,29 @@ export function FollowUpCard({
           }}
         />
       )}
+
+      <WhatsAppActionModal
+        isOpen={showWaModal}
+        onClose={() => setShowWaModal(false)}
+        customerName={item.customer?.customer_name ?? "Customer"}
+        defaultPhone={item.customer?.primary_phone}
+        contacts={
+          item.customer?.primary_phone
+            ? [
+                {
+                  name: item.customer.primary_pic || "PIC",
+                  phone: item.customer.primary_phone,
+                },
+              ]
+            : []
+        }
+        defaultTemplate="QUOTATION_FOLLOWUP"
+        context={{
+          customerName: item.customer?.customer_name ?? "Customer",
+          picName: item.customer?.primary_pic || undefined,
+          nextAction: item.description || undefined,
+        }}
+      />
     </>
   );
 }

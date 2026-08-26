@@ -144,18 +144,29 @@ export async function getVisitDetail(id: string) {
     return null;
   }
 
-  // Also fetch customer equipment & active products for technical context
-  const [{ data: equipment }, { data: customerProducts }, { data: opportunities }, { data: followUps }] =
-    await Promise.all([
-      supabase.from("customer_equipment").select("*").eq("customer_id", visit.customer_id),
-      supabase.from("customer_products").select("*").eq("customer_id", visit.customer_id),
-      supabase.from("opportunities").select("*").eq("visit_id", id),
-      supabase.from("follow_ups").select("*").eq("visit_id", id),
-    ]);
+  // Also fetch customer contacts, equipment & active products for technical and communication context
+  const [
+    { data: contacts },
+    { data: equipment },
+    { data: customerProducts },
+    { data: opportunities },
+    { data: followUps },
+  ] = await Promise.all([
+    supabase
+      .from("customer_contacts")
+      .select("*")
+      .eq("customer_id", visit.customer_id)
+      .order("is_primary", { ascending: false }),
+    supabase.from("customer_equipment").select("*").eq("customer_id", visit.customer_id),
+    supabase.from("customer_products").select("*").eq("customer_id", visit.customer_id),
+    supabase.from("opportunities").select("*").eq("visit_id", id),
+    supabase.from("follow_ups").select("*").eq("visit_id", id),
+  ]);
 
   return {
     visit,
     customer: visit.customer,
+    contacts: contacts ?? [],
     popsa: Array.isArray(visit.popsa) ? visit.popsa[0] : visit.popsa,
     photos: visit.photos ?? [],
     equipment: equipment ?? [],

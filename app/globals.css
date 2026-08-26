@@ -79,3 +79,41 @@ body {
 .animate-toast {
   animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Print Stylesheet for A4 Executive PDF Export */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+
+  nav,
+  header,
+  .no-print,
+  button:not(.print-include) {
+    display: none !important;
+  }
+
+  .shadow-xs,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  .rounded-2xl,
+  .rounded-xl {
+    border-radius: 6px !important;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+}
