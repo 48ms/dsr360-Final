@@ -32,7 +32,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
+  const pathname = request.nextUrl.pathname;
+  const isAuthRoute = pathname.startsWith("/login");
+  const isPublicAsset =
+    pathname.startsWith("/icons") ||
+    pathname === "/manifest.json" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/favicon.ico";
+
+  if (isPublicAsset) {
+    return supabaseResponse;
+  }
 
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();

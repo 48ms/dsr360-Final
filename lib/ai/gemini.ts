@@ -219,6 +219,7 @@ export async function callGemini(
               maxOutputTokens: 2500,
             },
           }),
+          signal: AbortSignal.timeout(15000),
         }
       );
 
