@@ -78,14 +78,17 @@ export function AIFollowUpRadarCard() {
             <Bot className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-extrabold text-neutral-900 flex items-center gap-2">
+            <h2 className="text-sm font-extrabold text-neutral-900 flex flex-wrap items-center gap-2">
               <span>AI Follow-Up Radar &amp; Cockpit</span>
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-500/30">
                 <Sparkles className="h-2.5 w-2.5 text-amber-600" /> 13 Pilar Grounded
               </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-500/30">
+                <Clock className="h-2.5 w-2.5 text-emerald-600" /> Cron Aktif (00:00 WIB)
+              </span>
             </h2>
             <p className="text-[11px] text-neutral-500">
-              Analisis siklus repeat order, deal tertunda, &amp; prioritas akun hari ini.
+              Analisis siklus repeat order, deal tertunda, &amp; prioritas akun otomatis setiap malam.
             </p>
           </div>
         </div>
