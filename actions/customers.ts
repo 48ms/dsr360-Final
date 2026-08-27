@@ -266,4 +266,51 @@ export async function saveCustomerBranchesAction(input: {
   }
 }
 
+/**
+ * Server action to delete a customer and its associated secondary data
+ */
+export async function deleteCustomer(id: string): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { error: "Sesi login berakhir, silakan login ulang." };
+    }
+
+    // 1. Delete dependent/secondary records
+    await Promise.allSettled([
+      supabase.from("customer_contacts").delete().eq("customer_id", id),
+      supabase.from("customer_equipment").delete().eq("customer_id", id),
+      supabase.from("customer_products").delete().eq("customer_id", id),
+      supabase.from("follow_ups").delete().eq("customer_id", id),
+      supabase.from("opportunities").delete().eq("customer_id", id),
+      supabase.from("visits").delete().eq("customer_id", id),
+    ]);
+
+    // 2. Delete root customer record
+    const { error } = await supabase.from("customers").delete().eq("id", id);
+
+    if (error) {
+      console.error("deleteCustomer error:", error.message);
+      return { error: `Gagal menghapus customer: ${error.message}` };
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/customers");
+    revalidatePath("/dashboard");
+    revalidatePath("/visits/plan");
+    revalidatePath("/pipeline");
+    revalidatePath("/follow-ups");
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("deleteCustomer exception:", err);
+    return { error: err?.message || "Terjadi kesalahan internal saat menghapus customer." };
+  }
+}
+
+
 

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Zap, Plus, MessageSquare, Bot, Users } from "lucide-react";
+import { Sparkles, Zap, Plus, MessageSquare, Bot, Users, Trash2 } from "lucide-react";
 import { PreVisitBriefModal } from "@/components/ai/pre-visit-brief-modal";
 import { CustomerAISparringDrawer } from "@/components/ai/customer-ai-sparring-drawer";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
 import { ReassignAccountModal } from "@/components/customers/reassign-account-modal";
+import { DeleteCustomerModal } from "@/components/customers/delete-customer-modal";
 import type { WhatsAppContact } from "@/lib/utils/whatsapp";
 
 export function CustomerHeaderActions({
@@ -30,6 +31,7 @@ export function CustomerHeaderActions({
   const [showSparringDrawer, setShowSparringDrawer] = useState(false);
   const [showWaModal, setShowWaModal] = useState(false);
   const [showReassignModal, setShowReassignModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [assignedOwnerName, setAssignedOwnerName] = useState<string | undefined>(currentOwnerName);
 
   const formattedContacts: WhatsAppContact[] = contacts
@@ -103,21 +105,29 @@ export function CustomerHeaderActions({
           </span>
         </button>
 
-        {/* Row 2: Visit Planning Actions & SPH Generator */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Row 2: Visit Planning Actions, SPH Generator, & Delete Customer */}
+        <div className="grid grid-cols-12 gap-2">
           <Link
             href={`/visits/new?customerId=${customerId}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-600 active:scale-95 transition"
+            className="col-span-5 flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-3 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-600 active:scale-95 transition"
           >
             <Plus className="h-4 w-4" />
             <span>Rencanakan Visit</span>
           </Link>
           <Link
             href={`/calculator?customerId=${customerId}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2.5 text-xs font-bold text-amber-400 shadow-xs hover:bg-neutral-800 active:scale-95 transition border border-neutral-800"
+            className="col-span-5 flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-xs font-bold text-amber-400 shadow-xs hover:bg-neutral-800 active:scale-95 transition border border-neutral-800"
           >
             <span>📄 Buat SPH &amp; Fee</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            title="Hapus Akun Customer Ini"
+            className="col-span-2 flex items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 active:scale-95 transition cursor-pointer"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -153,6 +163,13 @@ export function CustomerHeaderActions({
         currentOwnerId={currentOwnerId}
         currentOwnerName={assignedOwnerName}
         onSuccess={(newOwner) => setAssignedOwnerName(newOwner)}
+      />
+
+      <DeleteCustomerModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        customerId={customerId}
+        customerName={customerName}
       />
     </>
   );
