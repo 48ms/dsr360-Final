@@ -11,13 +11,14 @@
             "id": "336a2b45fc52082d",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "Untitled.base",
-                "viewName": "Table"
+                "file": "03 - Formula Pricing & Skema Insentif PT HUM.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-table",
-              "title": "Untitled"
+              "icon": "lucide-file",
+              "title": "03 - Formula Pricing & Skema Insentif PT HUM"
             }
           }
         ]
@@ -186,8 +187,15 @@
   },
   "active": "336a2b45fc52082d",
   "lastOpenFiles": [
-    "Welcome.md",
+    "06 - Riwayat Perubahan & Changelog.md",
+    "05 - Shell EPC & Technical Lubricant Knowledge.md",
+    "04 - Hermes AI Agent & Operational Workflow.md",
+    "02 - Database Schema & Supabase RLS.md",
+    "01 - Arsitektur & 5 Pilar Otomasi.md",
+    "03 - Formula Pricing & Skema Insentif PT HUM.md",
+    "00 - Project Overview & Memory Index.md",
     "Untitled.base",
+    "Welcome.md",
     "Untitled.canvas"
   ]
 }
