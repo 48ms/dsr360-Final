@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { ToastProvider } from "@/components/ui/toast-context";
 import "./globals.css";
@@ -49,6 +51,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastProvider>
           <OfflineIndicator />
           {children}
+          <SpeedInsights />
+          <Analytics />
         </ToastProvider>
       </body>
     </html>
