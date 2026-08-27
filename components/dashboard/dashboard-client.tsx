@@ -16,7 +16,6 @@ import {
   Flame,
   LogOut,
   Target,
-  Zap,
   Sparkles,
   Bot,
   BookOpen,

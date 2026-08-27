@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Search, X, Check, Package, Sparkles, ChevronDown, Tag } from "lucide-react";
+import { Search, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export type MasterProductOption = {

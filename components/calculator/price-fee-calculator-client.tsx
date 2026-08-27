@@ -12,16 +12,7 @@ import {
   CheckCircle2,
   DollarSign,
   Building2,
-  User,
-  Phone,
-  Printer,
-  Share2,
-  ArrowRight,
-  ShieldCheck,
-  RefreshCw,
-  Search,
   Check,
-  Edit2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast-context";
 import {
@@ -35,10 +26,9 @@ import { ProductSearchCombobox } from "@/components/calculator/product-search-co
 import { SphDocumentPreviewModal } from "@/components/calculator/sph-document-preview-modal";
 import {
   saveSphQuotationAction,
-  type SphItemInput,
   type SphPayloadInput,
 } from "@/actions/sph-calculator";
-import { formatCurrency, getTodayWIB } from "@/lib/utils/format";
+import { formatCurrency } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 
 type LineItem = {
@@ -208,22 +198,10 @@ export function PriceFeeCalculatorClient({
 
   // Global Calculations
   const calcSummary = useMemo(() => {
-    let totalMsp = 0;
-    let totalHargaJual = 0;
-    let totalFee = 0;
-    let totalQty = 0;
-
     const lineCalculations = items.map((item) => {
       const minPrice = pricingMode === "FEE" ? calculateFloorPrice(item.msp, item.feePerUnit) : item.msp;
       const subtotal = item.qty * item.offeredPrice;
       const subtotalMsp = item.qty * item.msp;
-      const lineFee = pricingMode === "FEE" ? item.qty * item.feePerUnit : 0;
-
-      totalMsp += subtotalMsp;
-      totalHargaJual += subtotal;
-      totalFee += lineFee;
-      totalQty += item.qty;
-
       return {
         ...item,
         minPrice,
@@ -231,6 +209,13 @@ export function PriceFeeCalculatorClient({
         subtotalMsp,
       };
     });
+
+    const totalMsp = lineCalculations.reduce((acc, l) => acc + l.subtotalMsp, 0);
+    const totalHargaJual = lineCalculations.reduce((acc, l) => acc + l.subtotal, 0);
+    const totalFee = pricingMode === "FEE"
+      ? lineCalculations.reduce((acc, l) => acc + (l.qty * l.feePerUnit), 0)
+      : 0;
+    const totalQty = lineCalculations.reduce((acc, l) => acc + l.qty, 0);
 
     const pphSelisih = calculatePphSelisih(totalHargaJual, totalMsp);
     const terIncentive = calculateTERIncentive(totalHargaJual, totalMsp);
@@ -499,7 +484,18 @@ export function PriceFeeCalculatorClient({
             />
           </div>
 
-          <div className="sm:col-span-6 space-y-1">
+          <div className="sm:col-span-4 space-y-1">
+            <label className="text-[11px] font-bold text-neutral-700">Nomor SPH Resmi:</label>
+            <input
+              type="text"
+              value={sphNumber}
+              onChange={(e) => setSphNumber(e.target.value)}
+              placeholder={defaultSphNumber}
+              className="w-full min-h-[42px] rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-mono font-bold text-neutral-900 outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <div className="sm:col-span-4 space-y-1">
             <label className="text-[11px] font-bold text-neutral-700">Franco (Tempat Penyerahan):</label>
             <input
               type="text"
@@ -510,7 +506,7 @@ export function PriceFeeCalculatorClient({
             />
           </div>
 
-          <div className="sm:col-span-6 space-y-1">
+          <div className="sm:col-span-4 space-y-1">
             <label className="text-[11px] font-bold text-neutral-700">Termin Pembayaran (TOP):</label>
             <select
               value={paymentTerm}

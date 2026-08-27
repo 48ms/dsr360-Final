@@ -81,7 +81,8 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
         latitude,
         longitude,
         potential_monthly_volume,
-        status
+        status,
+        notes
       `
       )
       .neq("status", "INACTIVE")
@@ -127,17 +128,17 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
 
   const candidates: RouteCandidateCustomer[] = [];
 
-  for (const c of customers as any[]) {
-    const custVisits = rawVisits.filter((v: any) => v.customer_id === c.id);
+  for (const c of customers) {
+    const custVisits = rawVisits.filter((v) => v.customer_id === c.id);
     const lastVisit = custVisits[0];
     const days = lastVisit ? daysSince(lastVisit.visit_date) : 999;
 
-    const custOpps = rawOpps.filter((o: any) => o.customer_id === c.id);
-    custOpps.sort((a: any, b: any) => (b.potential_value || 0) - (a.potential_value || 0));
+    const custOpps = rawOpps.filter((o) => o.customer_id === c.id);
+    custOpps.sort((a, b) => (Number(b.potential_value) || 0) - (Number(a.potential_value) || 0));
     const topOpp = custOpps[0];
 
-    const custFollowUps = rawFollowUps.filter((f: any) => f.customer_id === c.id);
-    const overdueFollowUps = custFollowUps.filter((f: any) => f.due_date < todayStr);
+    const custFollowUps = rawFollowUps.filter((f) => f.customer_id === c.id);
+    const overdueFollowUps = custFollowUps.filter((f) => f.due_date < todayStr);
     const hasOverdueFollowUp = overdueFollowUps.length > 0;
     const urgentFollowUp = overdueFollowUps[0] || custFollowUps[0];
 
@@ -302,8 +303,8 @@ export async function bulkScheduleOptimizedVisitsAction(input: {
       scheduledCount: records.length,
       message: `Berhasil menjadwalkan ${records.length} kunjungan rute ke CRM!`,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("bulkScheduleOptimizedVisitsAction exception:", err);
-    return { success: false, scheduledCount: 0, message: err?.message || "Terjadi kesalahan internal." };
+    return { success: false, scheduledCount: 0, message: err instanceof Error ? err.message : "Terjadi kesalahan internal." };
   }
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
+import { getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
 import { getRepQuotaTarget } from "@/lib/constants/quotas";
 import { getPendingSphApprovals, type SphApprovalItem } from "@/actions/sph-approval";
 
@@ -23,6 +23,7 @@ export type RepPerformance = {
 
 export type ManagerTeamDeal = {
   id: string;
+  customerId: string;
   opportunityName: string;
   stage: string;
   potentialValue: number;
@@ -142,7 +143,7 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
 
   const profilesList = allProfiles ?? [];
   const customersList = allCustomers ?? [];
-  const opportunitiesList = (allOpportunities as any[]) ?? [];
+  const opportunitiesList = allOpportunities ?? [];
   const visitsList = allVisits ?? [];
   const followUpsList = allFollowUps ?? [];
 
@@ -205,6 +206,7 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
     const owner = profilesList.find((p) => p.id === opp.created_by);
     return {
       id: opp.id,
+      customerId: opp.customer?.id || "",
       opportunityName: opp.opportunity_name,
       stage: opp.stage,
       potentialValue: Number(opp.potential_value) || 0,

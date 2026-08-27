@@ -195,13 +195,13 @@ npm run build
 
 ---
 
-## 👥 Akun DSR & Konfigurasi Kuota Default
+## 👥 Profil Wilayah & Konfigurasi Kuota DSR
 
-| Nama Sales Rep | Email Akun | Wilayah / Area | Target Kuota Tahunan | Target Kuota Bulanan |
+| Peran & Teritori | Identitas Demo / Alias | Wilayah / Area | Target Kuota Tahunan | Target Kuota Bulanan |
 |---|---|:---:|:---:|:---:|
-| **Angga Permadi** | `angga.permadi59@gmail.com` | **Sukabumi** | **78.000 Liter** | **6.500 Liter** *(Rp 325 Jt)* |
-| **Bima Maulana** | `bimasaputra.hum@gmail.com` | **Bandung** | **50.000 Liter** | **4.521 Liter** *(Rp 226 Jt)* |
-| **Sales Manager** | `manager@nyales247.com` | **All West Java** | *Macro Supervision* | *Macro Leaderboard* |
+| **DSR Sukabumi** | `dsr.sukabumi@pt-hum.co.id` | **Sukabumi & Sekitarnya** | **78.000 Liter** | **6.500 Liter** *(Rp 325 Jt)* |
+| **DSR Bandung** | `dsr.bandung@pt-hum.co.id` | **Bandung Raya** | **50.000 Liter** | **4.521 Liter** *(Rp 226 Jt)* |
+| **Sales Manager** | `manager@pt-hum.co.id` | **All West Java** | *Macro Supervision* | *Macro Leaderboard* |
 
 ---
 

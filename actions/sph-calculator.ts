@@ -189,12 +189,12 @@ export async function saveSphQuotationAction(input: SphPayloadInput): Promise<{
         ? `⚠️ SPH ${input.sphNumber} disimpan dengan status PENDING APPROVAL (Harga di bawah Floor Price). Menunggu persetujuan Manager.`
         : `SPH ${input.sphNumber} berhasil disimpan ke Pipeline (QUOTATION) & Tugas Follow-Up H+3 otomatis dijadwalkan!`,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("saveSphQuotationAction error:", err);
     return {
       success: false,
       sphId: "",
-      message: err?.message || "Gagal menyimpan SPH.",
+      message: err instanceof Error ? err.message : "Gagal menyimpan SPH.",
     };
   }
 }

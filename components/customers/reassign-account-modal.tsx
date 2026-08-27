@@ -10,13 +10,11 @@ import {
   Users,
   UserCheck,
   ArrowRight,
-  ShieldCheck,
   AlertCircle,
   CheckCircle2,
   X,
   Briefcase,
   Clock,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -32,7 +30,7 @@ export function ReassignAccountModal({
   isOpen: boolean;
   onClose: () => void;
   customerId: string;
-  customerName: string;
+  customerName?: string;
   currentOwnerName?: string;
   currentOwnerId?: string;
   onSuccess?: (newOwnerName: string) => void;
@@ -47,18 +45,24 @@ export function ReassignAccountModal({
   const [resultMsg, setResultMsg] = useState<{ success: boolean; text: string } | null>(null);
 
   useEffect(() => {
+    let active = true;
     if (isOpen) {
-      setIsLoadingReps(true);
-      setResultMsg(null);
       getAvailableRepsForReassignment()
         .then((data) => {
+          if (!active) return;
           setReps(data);
           // Auto select first rep that is not the current owner
           const otherRep = data.find((r) => r.id !== currentOwnerId) || data[0];
           if (otherRep) setSelectedRepId(otherRep.id);
+          setIsLoadingReps(false);
         })
-        .finally(() => setIsLoadingReps(false));
+        .catch(() => {
+          if (active) setIsLoadingReps(false);
+        });
     }
+    return () => {
+      active = false;
+    };
   }, [isOpen, currentOwnerId]);
 
   if (!isOpen) return null;

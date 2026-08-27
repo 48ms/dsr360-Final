@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
-import type { ManagerCommandCenterData, RepPerformance } from "@/actions/manager";
+import type { ManagerCommandCenterData } from "@/actions/manager";
 import { ReassignAccountModal } from "@/components/customers/reassign-account-modal";
 import {
   approveSphDiscountAction,
@@ -11,23 +11,18 @@ import {
   type SphApprovalItem,
 } from "@/actions/sph-approval";
 import {
-  Users,
   Trophy,
   TrendingUp,
   AlertTriangle,
-  MapPin,
   Briefcase,
   ChevronRight,
   ShieldCheck,
   Award,
   Filter,
-  BarChart3,
-  Calendar,
   CheckCircle2,
   UserCheck,
   FileCheck,
   FileX,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -150,7 +145,7 @@ export function ManagerCommandCenter({
               <span className="text-xs text-neutral-400 font-sans">L</span>
             </div>
             <div className="text-[11px] text-neutral-400 font-mono">
-              ≈ {totalWonDrums} Drum ({teamWonPacingPct}% kuota)
+              ≈ {totalWonDrums} / {totalTargetDrums} Drum ({teamWonPacingPct}% kuota)
             </div>
           </div>
 
@@ -499,7 +494,7 @@ export function ManagerCommandCenter({
                       type="button"
                       onClick={() =>
                         setReassignTarget({
-                          customerId: (deal as any).customer?.id || (deal as any).customerId || deal.id,
+                          customerId: deal.customerId || deal.id,
                           customerName: deal.customerName,
                           ownerName: deal.ownerName,
                         })

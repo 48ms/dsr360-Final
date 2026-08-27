@@ -190,9 +190,9 @@ export async function updateCustomerLocationAction(input: {
     revalidatePath("/dashboard");
 
     return { success: true, message: "Titik lokasi maps customer berhasil diperbarui!" };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("updateCustomerLocationAction exception:", err);
-    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+    return { success: false, message: err instanceof Error ? err.message : "Terjadi kesalahan internal." };
   }
 }
 
@@ -260,9 +260,9 @@ export async function saveCustomerBranchesAction(input: {
     revalidatePath("/dashboard");
 
     return { success: true, message: "Daftar cabang & pabrik berhasil diperbarui!" };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("saveCustomerBranchesAction exception:", err);
-    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+    return { success: false, message: err instanceof Error ? err.message : "Terjadi kesalahan internal." };
   }
 }
 
@@ -306,9 +306,9 @@ export async function deleteCustomer(id: string): Promise<{ success?: boolean; e
     revalidatePath("/follow-ups");
 
     return { success: true };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("deleteCustomer exception:", err);
-    return { error: err?.message || "Terjadi kesalahan internal saat menghapus customer." };
+    return { error: err instanceof Error ? err.message : "Terjadi kesalahan internal saat menghapus customer." };
   }
 }
 
@@ -361,9 +361,9 @@ export async function updateCustomerPotentialVolumeAction(input: {
     revalidatePath("/pipeline");
 
     return { success: true, message: "Potensi volume bulanan berhasil diperbarui!" };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("updateCustomerPotentialVolumeAction exception:", err);
-    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+    return { success: false, message: err instanceof Error ? err.message : "Terjadi kesalahan internal." };
   }
 }
 

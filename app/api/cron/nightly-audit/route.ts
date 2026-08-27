@@ -146,12 +146,12 @@ export async function GET(request: NextRequest) {
       },
       actionLog,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Cron Nightly Audit Error]:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Internal server error during nightly audit execution.",
+        error: error instanceof Error ? error.message : "Internal server error during nightly audit execution.",
         executionDurationMs: Date.now() - startMs,
       },
       { status: 500 }

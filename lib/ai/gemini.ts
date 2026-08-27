@@ -146,14 +146,23 @@ export async function fetchCustomerDossier(customerId: string): Promise<Customer
       status: p.status,
       viscosity: p.viscosity,
     })),
-    recentVisits: (recentVisits ?? []).map((v: any) => {
-      const popsaData = Array.isArray(v.popsa) ? v.popsa[0] : v.popsa;
+    recentVisits: (recentVisits ?? []).map((v) => {
+      const vWithPopsa = v as {
+        visit_date: string;
+        visit_type?: string;
+        customer_response?: string | null;
+        discussion?: string | null;
+        purpose?: string | null;
+        technical_issue?: string | null;
+        popsa?: Array<{ purpose?: string; objective?: string; premises?: string; strategy?: string; anticipate?: string }> | { purpose?: string; objective?: string; premises?: string; strategy?: string; anticipate?: string };
+      };
+      const popsaData = Array.isArray(vWithPopsa.popsa) ? vWithPopsa.popsa[0] : vWithPopsa.popsa;
       return {
-        visit_date: v.visit_date,
-        visit_type: v.visit_type,
-        customer_response: v.customer_response,
-        discussion: v.discussion || v.purpose,
-        technical_issue: v.technical_issue || null,
+        visit_date: vWithPopsa.visit_date,
+        visit_type: vWithPopsa.visit_type || "REGULAR",
+        customer_response: vWithPopsa.customer_response || null,
+        discussion: vWithPopsa.discussion || vWithPopsa.purpose || null,
+        technical_issue: vWithPopsa.technical_issue || null,
         popsa: popsaData
           ? {
               purpose: popsaData.purpose || null,
@@ -234,7 +243,7 @@ export async function callGemini(
       if (text) {
         return text;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
@@ -807,7 +816,10 @@ export async function getCollectiveFieldMemory(): Promise<string> {
       .join("\n");
 
     const recentVisits = (visitsRes.data || [])
-      .map((v) => `• VISIT [${(v.customer as any)?.customer_name || "Cust"} - ${(v.customer as any)?.segment || "General"}]: Respon: ${v.customer_response || "-"} | Isu: ${v.technical_issue || "-"} | Catatan: ${v.notes || v.discussion || "-"}`)
+      .map((v) => {
+        const cust = v.customer as { customer_name?: string; segment?: string } | null;
+        return `• VISIT [${cust?.customer_name || "Cust"} - ${cust?.segment || "General"}]: Respon: ${v.customer_response || "-"} | Isu: ${v.technical_issue || "-"} | Catatan: ${v.notes || v.discussion || "-"}`;
+      })
       .join("\n");
 
     return `

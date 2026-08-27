@@ -15,7 +15,6 @@ import { PriorityBadge } from "@/components/customers/status-badge";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";
 import { CompetitorBattlecardModal } from "@/components/pipeline/competitor-battlecard-modal";
 import {
-  ProductCombobox,
   cleanProductName,
   parseProductDetails,
 } from "@/components/pipeline/product-combobox";
@@ -42,8 +41,6 @@ import {
   X,
   Save,
   Sparkles,
-  Target,
-  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 

@@ -52,7 +52,7 @@ export async function getPendingSphApprovals(): Promise<SphApprovalItem[]> {
     supabase.from("profiles").select("id, full_name, sales_area"),
   ]);
 
-  const oppList = (opportunities as any[]) ?? [];
+  const oppList = opportunities ?? [];
   const profList = profiles ?? [];
 
   return oppList.map((opp) => {

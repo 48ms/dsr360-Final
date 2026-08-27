@@ -263,6 +263,7 @@ export default async function VisitDetailPage({
                 className="rounded-2xl border border-neutral-200 bg-neutral-50 overflow-hidden shadow-2xs group"
               >
                 <div className="relative aspect-video w-full bg-neutral-900 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={ph.photo_url}
                     alt={ph.caption || ph.photo_type}

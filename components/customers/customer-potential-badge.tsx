@@ -4,7 +4,7 @@ import { useState } from "react";
 import { formatVolume, formatCurrency } from "@/lib/utils/format";
 import { updateCustomerPotentialVolumeAction } from "@/actions/customers";
 import { useToast } from "@/components/ui/toast-context";
-import { Edit2, Fuel, Loader2, Sparkles, X, Check, ArrowRight } from "lucide-react";
+import { Edit2, Fuel, Loader2, Sparkles, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export function CustomerPotentialBadge({
@@ -20,11 +20,9 @@ export function CustomerPotentialBadge({
 }) {
   const { success, error } = useToast();
   const [volume, setVolume] = useState<number | null | undefined>(initialVolume);
-  const [priority, setPriority] = useState<string>(initialPriority);
   const [showModal, setShowModal] = useState(false);
 
   // Modal Form State
-  const [mode, setMode] = useState<"DRUM" | "LITER">("DRUM");
   const [drumInput, setDrumInput] = useState<string>(
     initialVolume ? String(Math.round((initialVolume / 209) * 10) / 10) : "5"
   );
@@ -58,16 +56,17 @@ export function CustomerPotentialBadge({
       const calculatedDrums = Math.round((num / 209) * 10) / 10;
       setDrumInput(String(calculatedDrums));
 
-      if (num >= 2090) setSelectedPriority("A");
-      else if (num >= 600) setSelectedPriority("B");
+      // Auto suggest priority based on volume
+      if (calculatedDrums >= 10) setSelectedPriority("A");
+      else if (calculatedDrums >= 3) setSelectedPriority("B");
       else setSelectedPriority("C");
     }
   }
 
   async function handleSave() {
-    const finalLiters = parseFloat(literInput);
-    if (isNaN(finalLiters) || finalLiters < 0) {
-      error("Masukkan angka volume yang valid.");
+    const val = parseFloat(literInput);
+    if (isNaN(val) || val < 0) {
+      error("Mohon masukkan angka volume yang valid.");
       return;
     }
 
@@ -75,13 +74,12 @@ export function CustomerPotentialBadge({
     try {
       const res = await updateCustomerPotentialVolumeAction({
         customerId,
-        potentialMonthlyVolume: finalLiters,
+        potentialMonthlyVolume: val,
         priority: selectedPriority,
       });
 
       if (res.success) {
-        setVolume(finalLiters);
-        setPriority(selectedPriority);
+        setVolume(val);
         success(res.message);
         setShowModal(false);
       } else {
@@ -113,7 +111,7 @@ export function CustomerPotentialBadge({
                 <>
                   <span className="text-amber-900">{formatVolume(volume)} / bulan</span>
                   <span className="text-neutral-500 font-semibold font-mono text-[11px]">
-                    (~{estimatedDrums} Drum)
+                    (~{estimatedDrums} Drum • {formatCurrency(estimatedRevenue)}/bln)
                   </span>
                 </>
               ) : (

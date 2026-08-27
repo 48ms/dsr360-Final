@@ -56,7 +56,7 @@ export function OpportunityForm({
   const [stage, setStage] = useState<OpportunityStage>("PROSPECT");
   const [productItems, setProductItems] = useState<OpportunityProductItem[]>([
     {
-      id: `item-${Date.now()}`,
+      id: "item-1",
       productId: "",
       qty: "1",
       unit: "DRUM",

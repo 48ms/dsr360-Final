@@ -6,17 +6,12 @@ import {
   Navigation,
   Sparkles,
   Calendar,
-  Clock,
   Compass,
   ExternalLink,
   ChevronRight,
   TrendingUp,
-  AlertCircle,
   CheckCircle2,
   Loader2,
-  Fuel,
-  RefreshCw,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast-context";
@@ -24,7 +19,6 @@ import {
   INDONESIA_INDUSTRIAL_HUBS,
   optimizeTerritoryRoute,
   type Coordinates,
-  type RouteCandidateCustomer,
   type TerritoryRouteResult,
 } from "@/lib/utils/geo-route";
 import { formatCurrency, getTodayWIB } from "@/lib/utils/format";
@@ -111,9 +105,31 @@ export function SmartRoutePlannerClient({
     }
   }
 
-  // Auto-detect GPS on first load if possible
+  // Auto-detect GPS on mount
   useEffect(() => {
-    handleDetectGPS(true);
+    let active = true;
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (!active) return;
+          const coords: Coordinates = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          };
+          setCurrentCoords(coords);
+          setSelectedHubId("current_gps");
+          setOriginLabel(`Lokasi GPS Saya Saat Ini (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+          setGpsDetected(true);
+        },
+        () => {
+          // Silent fallback on initial load
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    }
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Real-Time Route Optimization by Hermes
@@ -445,7 +461,7 @@ export function SmartRoutePlannerClient({
             </div>
 
             {/* Steps */}
-            {optimizedResult.steps.map((step, idx) => {
+            {optimizedResult.steps.map((step) => {
               const c = step.customer;
               return (
                 <div

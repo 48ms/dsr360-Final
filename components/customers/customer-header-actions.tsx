@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Zap, Plus, MessageSquare, Bot, Users, Trash2 } from "lucide-react";
+import { Sparkles, Plus, MessageSquare, Bot, Users, Trash2 } from "lucide-react";
 import { PreVisitBriefModal } from "@/components/ai/pre-visit-brief-modal";
 import { CustomerAISparringDrawer } from "@/components/ai/customer-ai-sparring-drawer";
 import { WhatsAppActionModal } from "@/components/whatsapp/whatsapp-action-modal";

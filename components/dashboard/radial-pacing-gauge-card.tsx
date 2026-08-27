@@ -5,13 +5,9 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/format";
 import {
   Compass,
-  Flame,
-  CheckCircle2,
-  TrendingUp,
-  AlertCircle,
   Calendar,
-  Sparkles,
   ChevronRight,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -359,7 +355,7 @@ export function RadialPacingGaugeCard({
       {/* Footer 1-Tap Acceleration to Hermes Rute */}
       <div className="pt-2 border-t border-neutral-800/80 flex items-center justify-between flex-wrap gap-2 relative z-10 text-xs">
         <div className="flex items-center gap-2 text-[11px] text-neutral-400">
-          <span>Nilai Closing: <strong className="text-white">{formatCurrency(wonValueIdr)}</strong></span>
+          <span>Nilai Closing: <strong className="text-white">{formatCurrency(wonValueIdr)}</strong> / {formatCurrency(targetValueIdr)}</span>
           <span>&bull;</span>
           <span>In-Flight: <strong className="text-amber-300">{pipelineDrums} Drum</strong></span>
         </div>

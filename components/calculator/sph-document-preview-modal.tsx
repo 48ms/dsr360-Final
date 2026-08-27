@@ -9,9 +9,6 @@ import {
   X,
   CheckCircle2,
   FileText,
-  Building2,
-  Calendar,
-  Sparkles,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import type { SphPayloadInput } from "@/actions/sph-calculator";

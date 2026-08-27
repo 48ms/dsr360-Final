@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Plus, Trash2, Package, Tag, Calculator } from "lucide-react";
+import { Plus, Trash2, Calculator } from "lucide-react";
 import { formatCurrency, formatVolume } from "@/lib/utils/format";
 import {
   ProductCombobox,
@@ -9,7 +9,6 @@ import {
   parseProductDetails,
 } from "@/components/pipeline/product-combobox";
 import { type OpportunityProductItem } from "@/lib/utils/opportunity-items";
-import { cn } from "@/lib/utils/cn";
 
 function extractUnitPrice(prodName: string): number {
   const match = prodName.match(/Rp\s*([\d\.]+)/i);
@@ -77,7 +76,7 @@ export function OpportunityProductItemsEditor({
 
   function handleAddItem() {
     const newItem: OpportunityProductItem = {
-      id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `item-${items.length + 1}`,
       productId: "",
       qty: "1",
       unit: "DRUM",
@@ -92,7 +91,7 @@ export function OpportunityProductItemsEditor({
       // Clear instead of removing last item
       onChange([
         {
-          id: `item-${Date.now()}`,
+          id: "item-1",
           productId: "",
           qty: "1",
           unit: "DRUM",
@@ -137,8 +136,6 @@ export function OpportunityProductItemsEditor({
       {/* Product Items List */}
       <div className="space-y-3">
         {items.map((item, index) => {
-          const selectedProd = masterProducts.find((p) => p.id === item.productId);
-
           return (
             <div
               key={item.id}

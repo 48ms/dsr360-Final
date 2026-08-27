@@ -1,7 +1,11 @@
 /**
  * Shell Industrial & Commercial Lubricants Technical Knowledge Base (TDS & MSDS)
- * Grounded in authentic Shell Global Product TDS, OEM Specifications, and Material Safety Standards.
- * Source: Shell Electronic Product Catalogue (Shell EPC - https://www.epc.shell.com) & PT Harapan Utama Motor Catalog.
+ * Reference draft based on Shell Global Product TDS & Shell Electronic Product Catalogue.
+ * 
+ * ⚠️ DISCLAIMER PENTING:
+ * Dokumen dalam modul ini adalah ringkasan cepat ("Draft AI / Field Quick Guide") untuk referensi diskusi sales di lapangan.
+ * Sumber kebenaran hukum, spesifikasi garansi OEM resmi, dan penanganan keselamatan kerja/MSDS mutlak mengacu pada dokumen
+ * PDF resmi yang diunduh langsung dari Shell Electronic Product Catalogue (Shell EPC - https://www.epc.shell.com).
  */
 
 export type PhysicalSpec = {
@@ -55,8 +59,8 @@ export const SHELL_PRODUCT_FAMILIES: Record<string, ShellFamilyTDS> = {
         desc: "Daya tahan terhadap degradasi termal 2x lebih lama dari standar industri, mencegah terbentuknya lumpur varnish pada servo valves.",
       },
       {
-        title: "Perlindungan Anti-Wear Zinc-Based & Ashless",
-        desc: "Lolos uji beban pompa hidrolik ekstrem Denison T6H20C dan Eaton 35VQ25 tanpa keausan kritis pada vane/piston.",
+        title: "Perlindungan Anti-Wear Teruji Pompa Ekstrem",
+        desc: "Memenuhi spesifikasi uji pompa Denison T6H20C (hybrid pump test) / Denison T6C vane pump dan Vickers 35VQ25 (Eaton Brochure 694) tanpa keausan kritis pada vane/piston.",
       },
       {
         title: "Filterability & Air Release Cepat",

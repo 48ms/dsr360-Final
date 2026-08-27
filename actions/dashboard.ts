@@ -266,7 +266,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     }));
 
   const firstName = profile?.full_name?.split(" ")[0] || "Sales Rep";
-  let greeting = `Semangat pagi, ${firstName}!`;
+  const greeting = `Semangat pagi, ${firstName}!`;
   let focusText = "";
   let tacticalTip = "";
 

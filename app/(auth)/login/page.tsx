@@ -9,10 +9,13 @@ export default function LoginPage() {
         <div className="mb-6 text-center space-y-3">
           {/* Official Concept 4 Logo Mark */}
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#09090B] border-2 border-amber-500/80 shadow-md shadow-amber-950/20 relative overflow-hidden group">
-            <img
+            <Image
               src="/icons/nyales247-mark.svg"
               alt="Nyales24/7 Official Logo"
+              width={56}
+              height={56}
               className="h-14 w-14 object-contain drop-shadow-sm group-hover:scale-105 transition duration-300"
+              priority
             />
           </div>
 

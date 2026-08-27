@@ -7,7 +7,6 @@ import { StatusBadge, PriorityBadge } from "@/components/customers/status-badge"
 import { CustomerDetailTabs } from "@/components/customers/customer-detail-tabs";
 import { CustomerHeaderActions } from "@/components/customers/customer-header-actions";
 import { CustomerPrintButton } from "@/components/customers/customer-print-button";
-import { formatVolume } from "@/lib/utils/format";
 import { CustomerLocationCard } from "@/components/customers/customer-location-card";
 import { parseCustomerBranches } from "@/lib/utils/branches";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Search, X, Check, Package, Sparkles } from "lucide-react";
+import { Search, X, Package, Sparkles } from "lucide-react";
 import {
   SHELL_PRICING_DATABASE,
   type ShellPricingItem,
@@ -20,13 +20,15 @@ export function ProductSearchCombobox({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync internal query if external value changes
-  useEffect(() => {
+  // Sync internal query if external value changes (React official state-from-prop pattern)
+  if (value !== prevValue) {
+    setPrevValue(value);
     setQuery(value);
-  }, [value]);
+  }
 
   // Close dropdown on outside click
   useEffect(() => {

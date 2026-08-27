@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Send,
   Loader2,
-  HelpCircle,
   Flame,
   Info,
   CheckCircle2,
@@ -23,7 +22,7 @@ import {
   Filter,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast-context";
-import { cleanProductName, parseProductDetails } from "@/components/pipeline/product-combobox";
+import { parseProductDetails } from "@/components/pipeline/product-combobox";
 import { cn } from "@/lib/utils/cn";
 import { lookupProductTDS, type ShellFamilyTDS } from "@/lib/constants/shell-technical-knowledge";
 import { getDeepProductTDSAnalysisAction, type ProductTDSAnalysisResult } from "@/actions/ai";
@@ -400,6 +399,27 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._
                     </p>
                     <p className="text-[11px] font-medium text-neutral-600">
                       Base Oil: <strong className="text-neutral-900">{tdsData.baseOilTech.split("(")[0]}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* ⚠️ Technical & Safety Legal Disclaimer Banner */}
+                <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-300 text-[11px] text-amber-950">
+                  <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-amber-900">
+                      ⚠️ Draft Panduan Lapangan (Bukan Sumber Kebenaran Hukum Mutlak)
+                    </p>
+                    <p className="text-neutral-700 leading-relaxed text-[11px]">
+                      Data ini adalah ringkasan cepat untuk panduan diskusi. Untuk komitmen garansi OEM dan prosedur K3/MSDS resmi, sales wajib merujuk ke dokumen PDF resmi dari{" "}
+                      <a
+                        href="https://www.epc.shell.com/Home/CountryList?countryId=ID"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-amber-800 underline hover:text-amber-950"
+                      >
+                        Shell Electronic Product Catalogue (epc.shell.com)
+                      </a>.
                     </p>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCollectiveFieldMemory, callGemini } from "@/lib/ai/gemini";
 import { SYSTEM_PERSONA_PROMPT } from "@/lib/ai/prompts";
-import { daysSince, getTodayWIB } from "@/lib/utils/format";
+import { daysSince } from "@/lib/utils/format";
 
 export type HermesAgentConfig = {
   endpoint?: string;
@@ -33,9 +33,7 @@ export type NightlyDispatcherResult = {
  * Scans active customer accounts, checks stock burn rates, identifies deal bottlenecks,
  * and formulates next-morning tactical directives grounded on the 13 Masterpiece Sales Frameworks.
  */
-export async function runAutonomousNightlyDispatcher(
-  config?: HermesAgentConfig
-): Promise<NightlyDispatcherResult> {
+export async function runAutonomousNightlyDispatcher(): Promise<NightlyDispatcherResult> {
   const supabase = await createClient();
 
   // 1. Fetch live snapshot of customers, visits, follow-ups, and opportunities
@@ -172,7 +170,7 @@ Keluarkan output HANYA dalam format JSON valid tanpa markdown tambahan:
       executedAt: new Date().toISOString(),
       engineUsed: "Hermes 3 / Gemini Dynamic Hybrid Engine",
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Hermes Dispatcher Error]:", err);
 
     // Fallback heuristic if API parsing fails

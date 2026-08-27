@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -43,9 +45,9 @@ export function LoginForm() {
         return;
       }
 
-      // Hard redirect to ensure all cookies and session state are fresh on mobile PWA
-      window.location.href = "/dashboard";
-    } catch (err: any) {
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: unknown) {
       console.error("Login exception:", err);
       setServerError("Terjadi kendala jaringan saat menghubungi server autentikasi.");
       setIsLoading(false);

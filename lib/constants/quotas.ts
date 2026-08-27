@@ -1,6 +1,7 @@
 /**
  * DSR Annual & Monthly Quota Calibration Engine
- * Configures exact volume targets, nominal revenue targets, and drum estimations for each sales representative.
+ * Configures exact volume targets, nominal revenue targets, and drum estimations for each territory/representative.
+ * Data is abstracted to territory/role identifiers to protect PII in open environments.
  */
 
 export type RepQuotaTarget = {
@@ -14,36 +15,52 @@ export type RepQuotaTarget = {
 // Standard 209 Liter drum conversion
 export const LITERS_PER_DRUM = 209;
 
-export const REPS_QUOTA_CONFIG: Record<
+// Territory Quota Mapping by User ID / Territory Identifier
+export const TERRITORY_QUOTA_CONFIG: Record<
   string,
   { annualLiter: number; monthlyLiter: number; monthlyValue: number }
 > = {
-  // Angga Permadi (Sukabumi) - Target: 78.000 Liter / Tahun (~373.2 Drum) -> 6.500 L / Bulan (~31.1 Drum)
+  // Sukabumi Territory — Target: 78.000 L/Tahun (~373.2 Drum) -> 6.500 L/Bulan
+  "sukabumi": {
+    annualLiter: 78000,
+    monthlyLiter: 6500,
+    monthlyValue: 325000000,
+  },
   "47561f60-b5ed-4881-bdc4-550c3f14ec19": {
     annualLiter: 78000,
-    monthlyLiter: 6500, // 78,000 / 12 = 6,500 L
-    monthlyValue: 325000000, // ~Rp 325 Juta/bln (asumsi Rp 50.000/L)
+    monthlyLiter: 6500,
+    monthlyValue: 325000000,
   },
-  "angga.permadi59@gmail.com": {
+  "dsr.sukabumi@pt-hum.co.id": {
     annualLiter: 78000,
     monthlyLiter: 6500,
     monthlyValue: 325000000,
   },
 
-  // Bima Maulana Saputra (Bandung) - Target: 50.000 Liter / Tahun (~239.2 Drum) -> 4.521 L / Bulan Agustus
+  // Bandung Raya Territory — Target: 50.000 L/Tahun (~239.2 Drum) -> 4.521 L/Bulan
+  "bandung": {
+    annualLiter: 50000,
+    monthlyLiter: 4521,
+    monthlyValue: 226050000,
+  },
   "59eecb3a-d3c3-4dab-a804-32e82ae994f8": {
     annualLiter: 50000,
     monthlyLiter: 4521,
     monthlyValue: 226050000,
   },
-  "bimasaputra.hum@gmail.com": {
+  "dsr.bandung@pt-hum.co.id": {
     annualLiter: 50000,
     monthlyLiter: 4521,
     monthlyValue: 226050000,
   },
 
-  // Fendi (Subang) - Target: 50.000 Liter / Tahun
-  "fendi@gmail.com": {
+  // Subang / Purwakarta Territory — Target: 50.000 L/Tahun
+  "subang": {
+    annualLiter: 50000,
+    monthlyLiter: 4521,
+    monthlyValue: 226050000,
+  },
+  "dsr.subang@pt-hum.co.id": {
     annualLiter: 50000,
     monthlyLiter: 4521,
     monthlyValue: 226050000,
@@ -51,46 +68,47 @@ export const REPS_QUOTA_CONFIG: Record<
 };
 
 /**
- * Resolves individual DSR target based on User ID, Email, or Full Name.
+ * Resolves individual DSR target based on User ID, Territory, or Email.
  * Default fallback is 50,000 L / Year (4,521 L / Month).
  */
 export function getRepQuotaTarget(
   userIdOrEmail?: string | null,
-  fullName?: string | null
+  territoryOrName?: string | null
 ): RepQuotaTarget {
-  if (userIdOrEmail && REPS_QUOTA_CONFIG[userIdOrEmail]) {
-    const cfg = REPS_QUOTA_CONFIG[userIdOrEmail];
-    return {
-      annualVolumeLiter: cfg.annualLiter,
-      monthlyVolumeLiter: cfg.monthlyLiter,
-      monthlyValueIdr: cfg.monthlyValue,
-      annualDrums: Math.round((cfg.annualLiter / LITERS_PER_DRUM) * 10) / 10,
-      monthlyDrums: Math.round((cfg.monthlyLiter / LITERS_PER_DRUM) * 10) / 10,
-    };
+  const normalizedKey = (userIdOrEmail || "").toLowerCase().trim();
+  const normalizedTerritory = (territoryOrName || "").toLowerCase().trim();
+
+  // 1. Direct key match (UUID, alias email, territory key)
+  if (normalizedKey && TERRITORY_QUOTA_CONFIG[normalizedKey]) {
+    const cfg = TERRITORY_QUOTA_CONFIG[normalizedKey];
+    return buildQuotaTarget(cfg.annualLiter, cfg.monthlyLiter, cfg.monthlyValue);
   }
 
-  const lowerName = (fullName || "").toLowerCase();
-  if (lowerName.includes("angga")) {
-    const cfg = REPS_QUOTA_CONFIG["47561f60-b5ed-4881-bdc4-550c3f14ec19"];
-    return {
-      annualVolumeLiter: cfg.annualLiter,
-      monthlyVolumeLiter: cfg.monthlyLiter,
-      monthlyValueIdr: cfg.monthlyValue,
-      annualDrums: Math.round((cfg.annualLiter / LITERS_PER_DRUM) * 10) / 10,
-      monthlyDrums: Math.round((cfg.monthlyLiter / LITERS_PER_DRUM) * 10) / 10,
-    };
+  // 2. Check by territory name or role context
+  if (normalizedTerritory.includes("sukabumi") || normalizedKey.includes("sukabumi") || normalizedKey.includes("angga")) {
+    const cfg = TERRITORY_QUOTA_CONFIG["sukabumi"];
+    return buildQuotaTarget(cfg.annualLiter, cfg.monthlyLiter, cfg.monthlyValue);
   }
 
-  // Default standard DSR target: 50,000 L / Year -> 4,521 L / Month
+  if (normalizedTerritory.includes("subang") || normalizedKey.includes("subang")) {
+    const cfg = TERRITORY_QUOTA_CONFIG["subang"];
+    return buildQuotaTarget(cfg.annualLiter, cfg.monthlyLiter, cfg.monthlyValue);
+  }
+
+  // 3. Default standard DSR target: 50,000 L / Year -> 4,521 L / Month (Rp 226.05 Jt)
   const defaultAnnual = 50000;
   const defaultMonthly = 4521;
   const defaultValue = 226050000;
 
+  return buildQuotaTarget(defaultAnnual, defaultMonthly, defaultValue);
+}
+
+function buildQuotaTarget(annualLiter: number, monthlyLiter: number, monthlyValue: number): RepQuotaTarget {
   return {
-    annualVolumeLiter: defaultAnnual,
-    monthlyVolumeLiter: defaultMonthly,
-    monthlyValueIdr: defaultValue,
-    annualDrums: Math.round((defaultAnnual / LITERS_PER_DRUM) * 10) / 10,
-    monthlyDrums: Math.round((defaultMonthly / LITERS_PER_DRUM) * 10) / 10,
+    annualVolumeLiter: annualLiter,
+    monthlyVolumeLiter: monthlyLiter,
+    monthlyValueIdr: monthlyValue,
+    annualDrums: Math.round((annualLiter / LITERS_PER_DRUM) * 10) / 10,
+    monthlyDrums: Math.round((monthlyLiter / LITERS_PER_DRUM) * 10) / 10,
   };
 }

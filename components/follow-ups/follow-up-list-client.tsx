@@ -27,7 +27,6 @@ import {
   X,
   Bot,
   MessageSquareQuote,
-  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getTodayWIB } from "@/lib/utils/format";

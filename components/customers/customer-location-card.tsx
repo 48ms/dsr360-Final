@@ -7,17 +7,13 @@ import {
   Compass,
   Edit2,
   Check,
-  X,
   Loader2,
   ExternalLink,
   Sparkles,
-  AlertTriangle,
-  Building2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast-context";
 import { updateCustomerLocationAction } from "@/actions/customers";
 import { INDONESIA_INDUSTRIAL_HUBS } from "@/lib/utils/geo-route";
-import { cn } from "@/lib/utils/cn";
 
 export type CustomerLocationProps = {
   customerId: string;

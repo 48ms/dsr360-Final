@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, Image as ImageIcon, Trash2, Plus, UploadCloud, CheckCircle2, Sparkles } from "lucide-react";
+import { Camera, Image as ImageIcon, Trash2, UploadCloud } from "lucide-react";
 import { PHOTO_TYPES, type PhotoType } from "@/constants/enums";
-import { cn } from "@/lib/utils/cn";
 
 export type CapturedPhoto = {
   photo_url: string;
@@ -238,6 +237,7 @@ export function VisitPhotoUploader({
                 className="rounded-2xl border border-neutral-200 bg-white p-3 shadow-xs space-y-2.5"
               >
                 <div className="relative aspect-video w-full rounded-xl bg-neutral-950 overflow-hidden border border-neutral-200">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.photo_url}
                     alt={p.caption || `Foto #${idx + 1}`}

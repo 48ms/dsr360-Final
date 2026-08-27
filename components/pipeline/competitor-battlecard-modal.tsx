@@ -6,7 +6,6 @@ import {
   type CompetitorBattlecardResult,
 } from "@/actions/ai";
 import {
-  ShieldAlert,
   Swords,
   Sparkles,
   Loader2,
@@ -41,16 +40,16 @@ export function CompetitorBattlecardModal({
     if (!isOpen || !competitorBrand) return;
 
     let mounted = true;
-    setIsLoading(true);
 
     getCompetitorBattlecardAction(competitorBrand, competitorProduct, shellProduct)
       .then((data) => {
-        if (mounted) setBattlecard(data);
+        if (mounted) {
+          setBattlecard(data);
+          setIsLoading(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to load battlecard:", err);
-      })
-      .finally(() => {
         if (mounted) setIsLoading(false);
       });
 

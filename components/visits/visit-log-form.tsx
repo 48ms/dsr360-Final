@@ -7,12 +7,10 @@ import {
   OPPORTUNITY_STAGES,
   FOLLOW_UP_ACTIVITY_TYPES,
   FOLLOW_UP_PRIORITIES,
-  PHOTO_TYPES,
   type CustomerResponse,
   type OpportunityStage,
   type FollowUpActivityType,
   type FollowUpPriority,
-  type PhotoType,
 } from "@/constants/enums";
 import { VisitPhotoUploader, type CapturedPhoto } from "@/components/visits/visit-photo-uploader";
 import {
@@ -21,7 +19,6 @@ import {
   Flame,
   Loader2,
   ShieldAlert,
-  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getTodayWIB } from "@/lib/utils/format";

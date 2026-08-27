@@ -12,18 +12,15 @@ import {
   Check,
   Star,
   ExternalLink,
-  Phone,
   MessageSquare,
   Loader2,
   Sparkles,
-  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast-context";
 import { saveCustomerBranchesAction } from "@/actions/customers";
 import { INDONESIA_INDUSTRIAL_HUBS } from "@/lib/utils/geo-route";
 import type { CustomerBranch } from "@/lib/utils/branches";
 import { cn } from "@/lib/utils/cn";
-import { randomUUID } from "crypto";
 
 export function CustomerBranchesTab({
   customerId,
@@ -197,7 +194,7 @@ export function CustomerBranchesTab({
     const target = branches.find((b) => b.id === branchId);
     if (!confirm(`Hapus lokasi cabang "${target?.branchName}"?`)) return;
 
-    let updatedList = branches.filter((b) => b.id !== branchId);
+    const updatedList = branches.filter((b) => b.id !== branchId);
     if (target?.isPrimary && updatedList.length > 0) {
       updatedList[0].isPrimary = true;
     }

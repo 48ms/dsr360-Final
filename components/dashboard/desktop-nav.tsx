@@ -1,14 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Home,
-  Building2,
-  MapPin,
-  Calculator,
-  Target,
-  CheckCircle2,
   LogOut,
   Compass,
   Zap,
@@ -16,15 +11,6 @@ import {
 import { BOTTOM_NAV } from "@/constants/nav";
 import { cn } from "@/lib/utils/cn";
 import { logout } from "@/actions/auth";
-
-const ICONS = {
-  home: Home,
-  building: Building2,
-  "map-pin": MapPin,
-  calculator: Calculator,
-  target: Target,
-  "check-circle": CheckCircle2,
-} as const;
 
 export function DesktopNav({
   profile,
@@ -44,7 +30,7 @@ export function DesktopNav({
         <div className="flex items-center gap-4 xl:gap-6 shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#09090B] border border-amber-500/60 shadow-xs group-hover:scale-105 transition overflow-hidden">
-              <img src="/icons/nyales247-mark.svg" alt="Nyales24/7" className="h-7 w-7 object-contain" />
+              <Image src="/icons/nyales247-mark.svg" alt="Nyales24/7" width={28} height={28} className="h-7 w-7 object-contain" priority />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">

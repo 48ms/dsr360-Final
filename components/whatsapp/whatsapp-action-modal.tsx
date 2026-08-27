@@ -22,7 +22,6 @@ import {
   ExternalLink,
   X,
   User,
-  Phone,
   Check,
   Sparkles,
   Loader2,
@@ -35,10 +34,8 @@ import {
   Target,
   Bot,
   MessageCircle,
-  HelpCircle,
   ShieldCheck,
   Handshake,
-  CornerDownRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -108,15 +105,13 @@ export function WhatsAppActionModal({
   const [customPhone, setCustomPhone] = useState<string>("");
 
   // Selected Template & Message Content
-  const [selectedTemplateId, setSelectedTemplateId] =
-    useState<WhatsAppTemplateType>(defaultTemplate);
+  const selectedTemplateId = defaultTemplate;
   const [customEditedText, setCustomEditedText] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   // AI Personalization State
   const [isAIPowered, setIsAIPowered] = useState(false);
   const [selectedTone, setSelectedTone] = useState<AITone>("casual_friendly");
-  const [customNote, setCustomNote] = useState("");
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [recommendedTime, setRecommendedTime] = useState<string | null>(null);
 
@@ -161,7 +156,6 @@ export function WhatsAppActionModal({
         customerId: customerId || "",
         contactName: selectedContactName || context.picName || undefined,
         tone,
-        customNote: customNote || undefined,
         baseTemplate: messageText || undefined,
         opportunityContext,
       });

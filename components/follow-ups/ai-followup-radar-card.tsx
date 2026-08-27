@@ -12,12 +12,8 @@ import { useToast } from "@/components/ui/toast-context";
 import {
   Sparkles,
   Loader2,
-  AlertTriangle,
-  Flame,
   MessageCircle,
   Calendar,
-  ChevronRight,
-  TrendingUp,
   RefreshCw,
   Clock,
   Target,
@@ -66,7 +62,22 @@ export function AIFollowUpRadarCard() {
   }
 
   useEffect(() => {
-    loadRadar();
+    let active = true;
+    getDailyFollowUpRadarAction()
+      .then((items) => {
+        if (active) {
+          setRadarItems(items);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load AI daily radar:", err);
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (

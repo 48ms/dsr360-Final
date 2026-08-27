@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Plus, Building2 } from "lucide-react";
+import { Phone, Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatVolume, formatDate } from "@/lib/utils/format";
 import { AddContactForm } from "@/components/customers/add-contact-form";
