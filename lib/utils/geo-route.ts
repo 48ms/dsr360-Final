@@ -22,8 +22,20 @@ export type IndustrialHub = {
  */
 export const INDONESIA_INDUSTRIAL_HUBS: IndustrialHub[] = [
   {
+    id: "bandung",
+    name: "Bandung Raya (Cimahi / Padalarang / Batujajar / Dayeuhkolot)",
+    region: "Jawa Barat",
+    coordinates: { latitude: -6.9175, longitude: 107.6191 },
+  },
+  {
+    id: "sukabumi",
+    name: "Sukabumi (Cicurug / Cibadak / Cikembar / Sukalarang)",
+    region: "Jawa Barat",
+    coordinates: { latitude: -6.9277, longitude: 106.9300 },
+  },
+  {
     id: "cikarang",
-    name: "Cikarang (GIIC / Delta Silicon / Jababeka)",
+    name: "Cikarang (GIIC / Delta Silicon / Jababeka / MM2100)",
     region: "Jawa Barat",
     coordinates: { latitude: -6.3242, longitude: 107.1524 },
   },
@@ -32,6 +44,18 @@ export const INDONESIA_INDUSTRIAL_HUBS: IndustrialHub[] = [
     name: "Karawang (KIIC / Suryacipta / KIM)",
     region: "Jawa Barat",
     coordinates: { latitude: -6.3688, longitude: 107.2892 },
+  },
+  {
+    id: "bogor",
+    name: "Bogor (Citeureup / Gunung Putri / Cileungsi)",
+    region: "Jawa Barat",
+    coordinates: { latitude: -6.5971, longitude: 106.8060 },
+  },
+  {
+    id: "purwakarta",
+    name: "Purwakarta & Subang (Kota Bukit Indah / BIC)",
+    region: "Jawa Barat",
+    coordinates: { latitude: -6.5569, longitude: 107.4433 },
   },
   {
     id: "bekasi",
@@ -44,6 +68,12 @@ export const INDONESIA_INDUSTRIAL_HUBS: IndustrialHub[] = [
     name: "Tangerang & Cikande Modern Industrial",
     region: "Banten",
     coordinates: { latitude: -6.1783, longitude: 106.6319 },
+  },
+  {
+    id: "cirebon",
+    name: "Cirebon & Majalengka (Kertajati AeroCity)",
+    region: "Jawa Barat",
+    coordinates: { latitude: -6.7320, longitude: 108.5523 },
   },
   {
     id: "surabaya",

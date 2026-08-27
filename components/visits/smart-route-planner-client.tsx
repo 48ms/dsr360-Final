@@ -42,7 +42,7 @@ export function SmartRoutePlannerClient({
   const { success, error } = useToast();
 
   // Origin Location State
-  const [selectedHubId, setSelectedHubId] = useState<string>("cikarang");
+  const [selectedHubId, setSelectedHubId] = useState<string>(INDONESIA_INDUSTRIAL_HUBS[0].id);
   const [currentCoords, setCurrentCoords] = useState<Coordinates>(
     INDONESIA_INDUSTRIAL_HUBS[0].coordinates
   );
