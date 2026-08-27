@@ -42,15 +42,14 @@ export function SmartRoutePlannerClient({
   const { success, error } = useToast();
 
   // Origin Location State
-  const [selectedHubId, setSelectedHubId] = useState<string>(INDONESIA_INDUSTRIAL_HUBS[0].id);
+  const [selectedHubId, setSelectedHubId] = useState<string>("current_gps");
   const [currentCoords, setCurrentCoords] = useState<Coordinates>(
     INDONESIA_INDUSTRIAL_HUBS[0].coordinates
   );
-  const [originLabel, setOriginLabel] = useState<string>(
-    INDONESIA_INDUSTRIAL_HUBS[0].name
-  );
+  const [originLabel, setOriginLabel] = useState<string>("Lokasi GPS Saya Saat Ini (Live)");
   const [isLocatingGPS, setIsLocatingGPS] = useState(false);
   const [gpsDetected, setGpsDetected] = useState(false);
+  const [gpsErrorMsg, setGpsErrorMsg] = useState<string | null>(null);
 
   // Planner Settings State
   const [targetStopsCount, setTargetStopsCount] = useState<number>(3);
@@ -59,13 +58,15 @@ export function SmartRoutePlannerClient({
   const [isScheduledDone, setIsScheduledDone] = useState(false);
 
   // 1-Tap GPS Geolocation
-  function handleDetectGPS() {
-    if (!navigator.geolocation) {
-      error("Browser Anda tidak mendukung deteksi GPS Geolocation.");
+  function handleDetectGPS(silent: boolean = false) {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      if (!silent) error("Browser Anda tidak mendukung deteksi GPS Geolocation.");
       return;
     }
 
     setIsLocatingGPS(true);
+    setGpsErrorMsg(null);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords: Coordinates = {
@@ -73,30 +74,47 @@ export function SmartRoutePlannerClient({
           longitude: pos.coords.longitude,
         };
         setCurrentCoords(coords);
-        setOriginLabel("Posisi GPS Saya Saat Ini (Live)");
+        setSelectedHubId("current_gps");
+        setOriginLabel(`Lokasi GPS Saya Saat Ini (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
         setGpsDetected(true);
         setIsLocatingGPS(false);
-        success("Lokasi GPS Anda berhasil terdeteksi!");
+        if (!silent) success("Lokasi GPS Anda berhasil terdeteksi!");
       },
       (err) => {
         console.warn("GPS Geolocation Error:", err);
         setIsLocatingGPS(false);
-        error("Tidak dapat mengambil izin GPS. Menggunakan titik kawasan default.");
+        setGpsErrorMsg("Izin GPS belum diberikan atau sinyal lemah. Menggunakan titik default.");
+        if (!silent) error("Tidak dapat mendeteksi GPS. Silakan aktifkan izin lokasi di browser Anda.");
+        // Fallback to Bandung Hub if GPS fails
+        setSelectedHubId(INDONESIA_INDUSTRIAL_HUBS[0].id);
+        setCurrentCoords(INDONESIA_INDUSTRIAL_HUBS[0].coordinates);
+        setOriginLabel(INDONESIA_INDUSTRIAL_HUBS[0].name);
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }
 
-  // Handle Industrial Hub Preset change
-  function handleHubChange(hubId: string) {
-    setSelectedHubId(hubId);
-    setGpsDetected(false);
-    const hub = INDONESIA_INDUSTRIAL_HUBS.find((h) => h.id === hubId);
-    if (hub) {
-      setCurrentCoords(hub.coordinates);
-      setOriginLabel(hub.name);
+  // Handle Origin Dropdown change
+  function handleOriginChange(val: string) {
+    if (val === "current_gps") {
+      setSelectedHubId("current_gps");
+      handleDetectGPS(false);
+    } else {
+      setSelectedHubId(val);
+      setGpsDetected(false);
+      setGpsErrorMsg(null);
+      const hub = INDONESIA_INDUSTRIAL_HUBS.find((h) => h.id === val);
+      if (hub) {
+        setCurrentCoords(hub.coordinates);
+        setOriginLabel(hub.name);
+      }
     }
   }
+
+  // Auto-detect GPS on first load if possible
+  useEffect(() => {
+    handleDetectGPS(true);
+  }, []);
 
   // Real-Time Route Optimization by Hermes
   const optimizedResult: TerritoryRouteResult = useMemo(() => {
@@ -178,36 +196,54 @@ export function SmartRoutePlannerClient({
         {/* Origin Selector & GPS 1-Tap */}
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-3 border-t border-neutral-800">
           <div className="sm:col-span-8 space-y-1.5">
-            <label className="text-xs font-bold text-neutral-300 flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-amber-400" />
-              <span>Titik Keberangkatan (Origin):</span>
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-neutral-300 flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-amber-400" />
+                <span>Titik Keberangkatan (Origin):</span>
+              </label>
+              {gpsDetected && (
+                <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  GPS Live Terkunci
+                </span>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <select
-                value={gpsDetected ? "gps" : selectedHubId}
-                onChange={(e) => {
-                  if (e.target.value !== "gps") {
-                    handleHubChange(e.target.value);
-                  }
-                }}
+                value={selectedHubId}
+                onChange={(e) => handleOriginChange(e.target.value)}
                 className="flex-1 min-h-[44px] rounded-xl border border-neutral-700 bg-neutral-900 px-3 py-2 text-xs font-bold text-white outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30"
               >
-                {gpsDetected && <option value="gps">Posisi GPS Saya Saat Ini (Live)</option>}
-                {INDONESIA_INDUSTRIAL_HUBS.map((hub) => (
-                  <option key={hub.id} value={hub.id}>
-                    {hub.name} ({hub.region})
+                <optgroup label="📍 Lokasi Real-Time">
+                  <option value="current_gps">
+                    📍 Posisi GPS Saya Saat Ini (Live Geolocation)
                   </option>
-                ))}
+                </optgroup>
+                <optgroup label="🏭 Kawasan Industri Jawa Barat">
+                  {INDONESIA_INDUSTRIAL_HUBS.filter(h => h.region === "Jawa Barat").map((hub) => (
+                    <option key={hub.id} value={hub.id}>
+                      {hub.name}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="🏭 Kawasan Industri Lainnya">
+                  {INDONESIA_INDUSTRIAL_HUBS.filter(h => h.region !== "Jawa Barat").map((hub) => (
+                    <option key={hub.id} value={hub.id}>
+                      {hub.name} ({hub.region})
+                    </option>
+                  ))}
+                </optgroup>
               </select>
 
               <button
                 type="button"
-                onClick={handleDetectGPS}
+                onClick={() => handleDetectGPS(false)}
                 disabled={isLocatingGPS}
-                title="Ambil titik GPS Anda saat ini"
+                title="Deteksi ulang titik GPS Anda saat ini"
                 className={cn(
                   "min-h-[44px] px-4 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0 shadow-xs",
-                  gpsDetected
+                  gpsDetected && selectedHubId === "current_gps"
                     ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                     : "bg-amber-500 hover:bg-amber-600 text-white"
                 )}
@@ -218,9 +254,21 @@ export function SmartRoutePlannerClient({
                   <Compass className="h-4 w-4" />
                 )}
                 <span className="hidden sm:inline">
-                  {gpsDetected ? "GPS Terkunci ✓" : "1-Tap GPS"}
+                  {isLocatingGPS ? "Mencari GPS..." : gpsDetected && selectedHubId === "current_gps" ? "Perbarui GPS" : "Kunci GPS Saya"}
                 </span>
               </button>
+            </div>
+
+            {/* Coordinates / Status Subtext */}
+            <div className="flex items-center justify-between text-[11px] text-neutral-400">
+              <span className="truncate">
+                {selectedHubId === "current_gps" && gpsDetected
+                  ? `Titik Koordinat: ${currentCoords.latitude.toFixed(5)}, ${currentCoords.longitude.toFixed(5)}`
+                  : `Titik Acuan: ${originLabel}`}
+              </span>
+              {gpsErrorMsg && (
+                <span className="text-amber-400 text-[10px] font-medium">{gpsErrorMsg}</span>
+              )}
             </div>
           </div>
 
