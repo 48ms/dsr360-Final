@@ -11,10 +11,13 @@
             "id": "336a2b45fc52082d",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "bases",
+              "state": {
+                "file": "Untitled.base",
+                "viewName": "Table"
+              },
+              "icon": "lucide-table",
+              "title": "Untitled"
             }
           }
         ]
@@ -183,6 +186,8 @@
   },
   "active": "336a2b45fc52082d",
   "lastOpenFiles": [
-    "Welcome.md"
+    "Welcome.md",
+    "Untitled.base",
+    "Untitled.canvas"
   ]
 }

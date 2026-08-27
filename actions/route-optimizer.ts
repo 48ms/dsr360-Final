@@ -10,6 +10,7 @@ import {
 import { daysSince, getTodayWIB } from "@/lib/utils/format";
 import { randomUUID } from "crypto";
 import type { VisitStatus, VisitType } from "@/constants/enums";
+import { getRepQuotaTarget } from "@/lib/constants/quotas";
 
 /**
  * Resolves or estimates coordinates for a customer based on city or industrial estate
@@ -61,11 +62,13 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
   const supabase = await createClient();
 
   const [
+    { data: authData },
     { data: customers },
     { data: visits },
     { data: opportunities },
     { data: followUps },
   ] = await Promise.all([
+    supabase.auth.getUser(),
     supabase
       .from("customers")
       .select(
@@ -102,8 +105,9 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
       .eq("status", "PENDING"),
   ]);
 
-  const defaultVolumeTarget = 40; // 40 Drum
-  const defaultValueTarget = 350_000_000; // Rp 350 Jt
+  const repQuota = getRepQuotaTarget(authData?.user?.email || "");
+  const defaultVolumeTarget = repQuota.monthlyVolumeLiter;
+  const defaultValueTarget = repQuota.monthlyValueIdr;
 
   if (!customers || customers.length === 0) {
     return {
