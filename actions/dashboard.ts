@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
+import { getRepQuotaTarget } from "@/lib/constants/quotas";
 
 export type PriorityAlert = {
   id: string;
@@ -280,33 +281,35 @@ export async function getDashboardData(): Promise<DashboardData> {
     tacticalTip = "Kunci komitmen mikro bertahap (sample test / penawaran resmi) untuk mempercepat pergerakan deal ke tahap Won.";
   }
 
-  return {
-    profile: profile
-      ? {
-          full_name: profile.full_name,
-          role: profile.role,
-          sales_area: profile.sales_area,
-        }
-      : null,
-    todayVisitsCount,
-    todayFollowUpsCount,
-    overdueCount,
-    priorityAlerts,
-    pipelineTotalValue,
-    pipelineVolumeLiter,
-    pipelineStageBreakdown,
-    monthlyVisitsCompleted: monthlyVisits?.length ?? 0,
-    monthlyDealsWon,
-    monthlyWonVolume,
-    monthlyWonValue,
-    monthlyVolumeTarget: 4521, // Target Bulan Agustus Bima: 4.521 Liter (~21.6 Drum)
-    monthlyValueTarget: 226050000, // Target Nominal Bulan Ini: ~Rp 226 Juta
-    annualWonVolume,
-    annualVolumeTarget: 50000, // Target 1 Tahun Bima: 50.000 Liter (~239.2 Drum)
-    morningBriefing: {
-      greeting,
-      focusText,
-      tacticalTip,
-    },
-  };
-}
+    const repTarget = getRepQuotaTarget(user.id, profile?.full_name);
+
+    return {
+      profile: profile
+        ? {
+            full_name: profile.full_name,
+            role: profile.role,
+            sales_area: profile.sales_area,
+          }
+        : null,
+      todayVisitsCount,
+      todayFollowUpsCount,
+      overdueCount,
+      priorityAlerts,
+      pipelineTotalValue,
+      pipelineVolumeLiter,
+      pipelineStageBreakdown,
+      monthlyVisitsCompleted: monthlyVisits?.length ?? 0,
+      monthlyDealsWon,
+      monthlyWonVolume,
+      monthlyWonValue,
+      monthlyVolumeTarget: repTarget.monthlyVolumeLiter,
+      monthlyValueTarget: repTarget.monthlyValueIdr,
+      annualWonVolume,
+      annualVolumeTarget: repTarget.annualVolumeLiter,
+      morningBriefing: {
+        greeting,
+        focusText,
+        tacticalTip,
+      },
+    };
+  }

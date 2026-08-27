@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
-
+import { getRepQuotaTarget } from "@/lib/constants/quotas";
 import { getPendingSphApprovals, type SphApprovalItem } from "@/actions/sph-approval";
 
 export type RepPerformance = {
@@ -173,8 +173,9 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
 
     const overdueTasks = repFollowUps.filter((f) => f.due_date < todayStr).length;
 
-    // Monthly Target (Default: 4.521 L per DSR)
-    const targetLiter = 4521;
+    // Individual Monthly Target Calibration (e.g. Angga: 6,500 L/mo, Bima: 4,521 L/mo)
+    const repTarget = getRepQuotaTarget(rep.id, rep.full_name);
+    const targetLiter = repTarget.monthlyVolumeLiter;
 
     teamTotalWonVol += wonLiter;
     teamTotalWonVal += wonValue;
