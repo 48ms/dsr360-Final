@@ -11,6 +11,8 @@ import { formatVolume } from "@/lib/utils/format";
 import { CustomerLocationCard } from "@/components/customers/customer-location-card";
 import { parseCustomerBranches } from "@/lib/utils/branches";
 
+import { CustomerPotentialBadge } from "@/components/customers/customer-potential-badge";
+
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const result = await getCustomerDetail(id);
@@ -92,14 +94,13 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           {customer.city ? ` · ${customer.city}` : ""}
         </p>
 
-        <p className="mt-1.5 text-xs text-neutral-700">
-          Potensi:{" "}
-          <strong className="text-neutral-900">
-            {customer.potential_monthly_volume
-              ? `${formatVolume(customer.potential_monthly_volume)}/bulan`
-              : "belum diisi"}
-          </strong>
-        </p>
+        {/* 🛢️ Interactive Customer Potential Volume Card */}
+        <CustomerPotentialBadge
+          customerId={customer.id}
+          customerName={customer.customer_name}
+          initialVolume={customer.potential_monthly_volume}
+          initialPriority={customer.priority}
+        />
 
         {/* 📍 Interactive Customer Location & Maps Pin Card */}
         <CustomerLocationCard

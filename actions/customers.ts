@@ -312,5 +312,61 @@ export async function deleteCustomer(id: string): Promise<{ success?: boolean; e
   }
 }
 
+/**
+ * Server action to quickly update customer potential monthly volume & priority
+ */
+export async function updateCustomerPotentialVolumeAction(input: {
+  customerId: string;
+  potentialMonthlyVolume: number;
+  priority?: "A" | "B" | "C";
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, message: "Sesi login berakhir." };
+    }
+
+    const updatePayload: {
+      potential_monthly_volume: number;
+      priority?: "A" | "B" | "C";
+      updated_at: string;
+    } = {
+      potential_monthly_volume: input.potentialMonthlyVolume,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (input.priority) {
+      updatePayload.priority = input.priority;
+    }
+
+    const { error } = await supabase
+      .from("customers")
+      .update(updatePayload)
+      .eq("id", input.customerId);
+
+    if (error) {
+      console.error("updateCustomerPotentialVolumeAction error:", error.message);
+      return { success: false, message: `Gagal menyimpan potensi: ${error.message}` };
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/customers/${input.customerId}`);
+    revalidatePath("/customers");
+    revalidatePath("/dashboard");
+    revalidatePath("/visits/plan");
+    revalidatePath("/pipeline");
+
+    return { success: true, message: "Potensi volume bulanan berhasil diperbarui!" };
+  } catch (err: any) {
+    console.error("updateCustomerPotentialVolumeAction exception:", err);
+    return { success: false, message: err?.message || "Terjadi kesalahan internal." };
+  }
+}
+
+
 
 
