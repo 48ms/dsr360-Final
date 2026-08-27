@@ -18,6 +18,9 @@ import {
   Info,
   CheckCircle2,
   FileSpreadsheet,
+  ExternalLink,
+  Globe,
+  Filter,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast-context";
 import { cleanProductName, parseProductDetails } from "@/components/pipeline/product-combobox";
@@ -37,6 +40,47 @@ export type MasterProductItem = {
 
 type ActiveSubTab = "tds" | "approvals" | "msds" | "ai_expert";
 
+type CategoryFilter =
+  | "ALL"
+  | "TELLUS"
+  | "OMALA"
+  | "RIMULA"
+  | "GADUS"
+  | "SPIRAX"
+  | "CORENA"
+  | "TURBO"
+  | "ARGINA_MYSELLA"
+  | "MORLINA"
+  | "DIALA"
+  | "TONNA"
+  | "REFRIGERATION"
+  | "HEAT_TRANSFER"
+  | "CASSIDA"
+  | "AEROSHELL"
+  | "COOLANT"
+  | "HELIX_ADVANCE";
+
+const CATEGORY_FILTERS: Array<{ id: CategoryFilter; label: string; keyword: string }> = [
+  { id: "ALL", label: "Semua (443)", keyword: "" },
+  { id: "TELLUS", label: "Hydraulic (Tellus)", keyword: "TELLUS" },
+  { id: "OMALA", label: "Gear (Omala)", keyword: "OMALA" },
+  { id: "RIMULA", label: "Diesel (Rimula)", keyword: "RIMULA" },
+  { id: "GADUS", label: "Grease (Gadus)", keyword: "GADUS" },
+  { id: "SPIRAX", label: "Transmisi (Spirax)", keyword: "SPIRAX" },
+  { id: "CORENA", label: "Kompresor (Corena)", keyword: "CORENA" },
+  { id: "TURBO", label: "Turbin (Turbo)", keyword: "TURBO" },
+  { id: "ARGINA_MYSELLA", label: "PLTD/Gas (Argina/Mysella)", keyword: "ARGINA,MYSELLA,GADINIA" },
+  { id: "MORLINA", label: "Sirkulasi (Morlina)", keyword: "MORLINA" },
+  { id: "DIALA", label: "Trafo (Diala/Midel)", keyword: "DIALA,MIDEL" },
+  { id: "TONNA", label: "Slideway (Tonna)", keyword: "TONNA" },
+  { id: "REFRIGERATION", label: "Pendingin (Refrig)", keyword: "REFRIGERATION" },
+  { id: "HEAT_TRANSFER", label: "Thermal (Hot Oil)", keyword: "HEAT" },
+  { id: "CASSIDA", label: "Food Grade (Cassida)", keyword: "CASSIDA" },
+  { id: "AEROSHELL", label: "Aviation (AeroShell)", keyword: "AEROSHELL" },
+  { id: "COOLANT", label: "Coolant & Brake", keyword: "COOLANT,RECO,BRAKE" },
+  { id: "HELIX_ADVANCE", label: "Mobil/Motor (Helix/Advance)", keyword: "HELIX,ADVANCE" },
+];
+
 export function ProductTechnicalSheetModal({
   isOpen,
   onClose,
@@ -48,6 +92,7 @@ export function ProductTechnicalSheetModal({
 }) {
   const { success, error } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<CategoryFilter>("ALL");
   const [selectedProductId, setSelectedProductId] = useState<string>(products[0]?.id || "");
   const [activeTab, setActiveTab] = useState<ActiveSubTab>("tds");
   const [copied, setCopied] = useState(false);
@@ -58,20 +103,44 @@ export function ProductTechnicalSheetModal({
   const [aiAnalysisResult, setAiAnalysisResult] = useState<ProductTDSAnalysisResult | null>(null);
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products.slice(0, 60);
-    const q = searchQuery.toLowerCase();
-    return products.filter((p) => {
-      return (
-        p.product_name.toLowerCase().includes(q) ||
-        p.category?.toLowerCase().includes(q) ||
-        p.viscosity?.toLowerCase().includes(q)
-      );
-    });
-  }, [products, searchQuery]);
+    let list = products;
+
+    // Filter by category pill if not ALL
+    if (activeCategoryFilter !== "ALL") {
+      const activePill = CATEGORY_FILTERS.find((c) => c.id === activeCategoryFilter);
+      if (activePill && activePill.keyword) {
+        const keywords = activePill.keyword.split(",").map((k) => k.trim().toUpperCase());
+        list = list.filter((p) => {
+          const pName = p.product_name.toUpperCase();
+          const pCat = (p.category || "").toUpperCase();
+          return keywords.some((kw) => pName.includes(kw) || pCat.includes(kw));
+        });
+      }
+    }
+
+    // Filter by text search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((p) => {
+        return (
+          p.product_name.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q) ||
+          p.viscosity?.toLowerCase().includes(q)
+        );
+      });
+    }
+
+    return list;
+  }, [products, activeCategoryFilter, searchQuery]);
 
   const selectedProduct = useMemo(() => {
-    return products.find((p) => p.id === selectedProductId) || products[0];
-  }, [products, selectedProductId]);
+    return (
+      filteredProducts.find((p) => p.id === selectedProductId) ||
+      products.find((p) => p.id === selectedProductId) ||
+      filteredProducts[0] ||
+      products[0]
+    );
+  }, [filteredProducts, products, selectedProductId]);
 
   const parsed = selectedProduct
     ? parseProductDetails(selectedProduct.brand, selectedProduct.product_name)
@@ -110,7 +179,8 @@ ${tdsData.displacementGuidance}
 
 🏢 *Didistribusikan Resmi Oleh:*
 PT Harapan Utama Motor (Shell Commercial Lubricants Authorized Distributor)
-_Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
+_Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._
+🌐 *Shell Global EPC:* https://www.epc.shell.com/Home/CountryList?countryId=ID`
     : "";
 
   async function handleCopyTechnical() {
@@ -147,7 +217,7 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-xs animate-fade-in-up"
     >
-      <div className="relative w-full max-w-4xl rounded-3xl bg-white shadow-2xl border border-neutral-200 overflow-hidden flex flex-col max-h-[94vh]">
+      <div className="relative w-full max-w-5xl rounded-3xl bg-white shadow-2xl border border-neutral-200 overflow-hidden flex flex-col max-h-[94vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800 bg-neutral-950 text-white">
           <div className="flex items-center gap-3">
@@ -155,37 +225,78 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
               <BookOpen className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold tracking-tight flex items-center gap-2">
-                <span>Shell Technical &amp; MSDS Knowledge Hub</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm font-extrabold tracking-tight">
+                  Shell Technical &amp; MSDS Knowledge Hub
+                </h2>
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/40">
                   <Sparkles className="h-2.5 w-2.5" /> 443 SKUs Organic TDS
                 </span>
-              </h2>
+              </div>
               <p className="text-[11px] text-neutral-400 font-medium">
                 Pusat data teknis asli, viskositas, approval OEM, &amp; MSDS resmi PT Harapan Utama Motor
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Tutup modal contekan spek Shell"
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 active:scale-95 transition cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            <a
+              href="https://www.epc.shell.com/Home/CountryList?countryId=ID"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-3 py-1.5 text-xs font-bold transition"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span>Shell EPC Resmi</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+
+            <button
+              onClick={onClose}
+              aria-label="Tutup modal contekan spek Shell"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 active:scale-95 transition cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="p-3.5 border-b border-neutral-200 bg-neutral-50/70">
+        {/* Category Filter Pills & Search Bar */}
+        <div className="p-3.5 border-b border-neutral-200 bg-neutral-50/90 space-y-2.5">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari produk (Tellus S2 MX, Rimula R4 X, Omala S2 GX, Gadus, Corena, Cassida, AeroShell, 46, 220, 15W-40)..."
+              placeholder="Cari produk (Tellus S2 MX, Rimula R4 X, Omala S2 GX, Gadus, Corena, Argina, 46, 220, 15W-40, SKU 5500...)..."
               className="w-full rounded-2xl border border-neutral-300 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-neutral-900 shadow-2xs outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
             />
+          </div>
+
+          {/* Category Quick Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+            <span className="text-[10px] font-bold uppercase text-neutral-500 flex items-center gap-1 shrink-0 pr-1">
+              <Filter className="h-3 w-3" /> Kategori:
+            </span>
+            {CATEGORY_FILTERS.map((cat) => {
+              const isActive = activeCategoryFilter === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategoryFilter(cat.id)}
+                  className={cn(
+                    "shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-bold transition active:scale-95 cursor-pointer",
+                    isActive
+                      ? "bg-neutral-900 text-white shadow-xs"
+                      : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-100"
+                  )}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -193,40 +304,50 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
         <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-neutral-200">
           {/* Left Column: Product List */}
           <div className="md:col-span-4 p-3 space-y-1.5 max-h-[300px] md:max-h-[520px] overflow-y-auto bg-neutral-50/40">
-            {filteredProducts.map((p) => {
-              const isSelected = selectedProduct?.id === p.id;
-              const pDetails = parseProductDetails(p.brand, p.product_name);
+            <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-1 pb-1 flex justify-between">
+              <span>Hasil Pencarian ({filteredProducts.length} SKU)</span>
+            </div>
 
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedProductId(p.id);
-                    setAiAnalysisResult(null);
-                  }}
-                  className={cn(
-                    "w-full text-left p-3 min-h-[50px] rounded-2xl border text-xs transition active:scale-[0.99] cursor-pointer space-y-1",
-                    isSelected
-                      ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/40 shadow-xs"
-                      : "border-neutral-200 bg-white hover:bg-neutral-100/70"
-                  )}
-                >
-                  <p className="font-bold text-neutral-900 truncate">
-                    {pDetails.cleanName}
-                  </p>
-                  <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 flex-wrap">
-                    {pDetails.sku && (
-                      <span className="font-mono bg-neutral-200 text-neutral-800 px-1.5 py-0.2 rounded font-semibold">
-                        {pDetails.sku}
-                      </span>
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => {
+                const isSelected = selectedProduct?.id === p.id;
+                const pDetails = parseProductDetails(p.brand, p.product_name);
+
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedProductId(p.id);
+                      setAiAnalysisResult(null);
+                    }}
+                    className={cn(
+                      "w-full text-left p-3 min-h-[50px] rounded-2xl border text-xs transition active:scale-[0.99] cursor-pointer space-y-1",
+                      isSelected
+                        ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/40 shadow-xs"
+                        : "border-neutral-200 bg-white hover:bg-neutral-100/70"
                     )}
-                    <span className="font-medium text-neutral-600">{p.category || "Lubricant"}</span>
-                    {p.viscosity && <span className="font-bold text-neutral-700">&bull; {p.viscosity}</span>}
-                  </div>
-                </button>
-              );
-            })}
+                  >
+                    <p className="font-bold text-neutral-900 truncate">
+                      {pDetails.cleanName}
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 flex-wrap">
+                      {pDetails.sku && (
+                        <span className="font-mono bg-neutral-200 text-neutral-800 px-1.5 py-0.2 rounded font-semibold">
+                          {pDetails.sku}
+                        </span>
+                      )}
+                      <span className="font-medium text-neutral-600">{p.category || "Lubricant"}</span>
+                      {p.viscosity && <span className="font-bold text-neutral-700">&bull; {p.viscosity}</span>}
+                    </div>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="py-8 text-center text-xs text-neutral-400">
+                Tidak ada SKU yang cocok dengan filter.
+              </div>
+            )}
           </div>
 
           {/* Right Column: Selected Product Detail */}
@@ -235,20 +356,33 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
               <div className="space-y-4">
                 {/* Header Card */}
                 <div className="rounded-3xl bg-gradient-to-br from-amber-500/15 via-amber-50/40 to-white border border-amber-300/80 p-4 sm:p-5 space-y-2 shadow-2xs">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-950 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
-                      {tdsData.category}
-                    </span>
-                    {parsed.sku && (
-                      <span className="text-[10px] font-mono font-bold bg-neutral-900 text-white px-2.5 py-0.5 rounded-lg">
-                        SKU: {parsed.sku}
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-950 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
+                        {tdsData.category}
                       </span>
-                    )}
-                    {selectedProduct.viscosity && (
-                      <span className="text-[10px] font-bold bg-white text-neutral-800 px-2.5 py-0.5 rounded-lg border border-neutral-200">
-                        ISO / SAE: {selectedProduct.viscosity}
-                      </span>
-                    )}
+                      {parsed.sku && (
+                        <span className="text-[10px] font-mono font-bold bg-neutral-900 text-white px-2.5 py-0.5 rounded-lg">
+                          SKU: {parsed.sku}
+                        </span>
+                      )}
+                      {selectedProduct.viscosity && (
+                        <span className="text-[10px] font-bold bg-white text-neutral-800 px-2.5 py-0.5 rounded-lg border border-neutral-200">
+                          ISO / SAE: {selectedProduct.viscosity}
+                        </span>
+                      )}
+                    </div>
+
+                    <a
+                      href={`https://www.epc.shell.com/Home/CountryList?countryId=ID`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 hover:text-amber-950 underline"
+                    >
+                      <Globe className="h-3 w-3" />
+                      <span>Cek Shell EPC PDF</span>
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
                   </div>
 
                   <div>
@@ -634,8 +768,18 @@ _Layanan Uji Lab Shell LubeAnalyst Resmi Tersedia._`
 
         {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t border-neutral-200 bg-neutral-50/90 flex-wrap gap-2">
-          <div className="text-[11px] text-neutral-600 font-medium flex items-center gap-1">
+          <div className="text-[11px] text-neutral-600 font-medium flex items-center gap-2">
             <span>🛡️ Data Teknis Grounded Resmi Shell Global &amp; PT Harapan Utama Motor</span>
+            <span className="text-neutral-300">•</span>
+            <a
+              href="https://www.epc.shell.com/Home/CountryList?countryId=ID"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-700 hover:text-amber-900 font-bold underline inline-flex items-center gap-1"
+            >
+              <span>epc.shell.com (Indonesia)</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
           <button
             type="button"
