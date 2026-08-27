@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
-import { getRepQuotaTarget } from "@/lib/constants/quotas";
 import { getPendingSphApprovals, type SphApprovalItem } from "@/actions/sph-approval";
 
 export type RepPerformance = {
@@ -108,7 +107,7 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
   ] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, role, sales_area, is_active")
+      .select("id, full_name, role, sales_area, is_active, annual_quota_liter, monthly_quota_liter")
       .order("full_name"),
     supabase
       .from("customers")
@@ -174,9 +173,13 @@ export async function getManagerCommandCenterData(): Promise<ManagerCommandCente
 
     const overdueTasks = repFollowUps.filter((f) => f.due_date < todayStr).length;
 
-    // Individual Monthly Target Calibration (e.g. Angga: 6,500 L/mo, Bima: 4,521 L/mo)
-    const repTarget = getRepQuotaTarget(rep.id, rep.full_name);
-    const targetLiter = repTarget.monthlyVolumeLiter;
+    // Individual Monthly Target from database profiles
+    const repWithQuota = rep as {
+      annual_quota_liter?: number | null;
+      monthly_quota_liter?: number | null;
+    };
+    const annualTarget = Number(repWithQuota.annual_quota_liter) || 50000;
+    const targetLiter = Number(repWithQuota.monthly_quota_liter) || Math.round(annualTarget / 12);
 
     teamTotalWonVol += wonLiter;
     teamTotalWonVal += wonValue;

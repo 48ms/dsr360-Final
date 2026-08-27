@@ -10,7 +10,6 @@ import {
 import { daysSince, getTodayWIB } from "@/lib/utils/format";
 import { randomUUID } from "crypto";
 import type { VisitStatus, VisitType } from "@/constants/enums";
-import { getRepQuotaTarget } from "@/lib/constants/quotas";
 
 /**
  * Resolves or estimates coordinates for a customer based on city or industrial estate
@@ -61,14 +60,23 @@ export type TerritoryPlannerData = {
 export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPlannerData> {
   const supabase = await createClient();
 
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id;
+
   const [
-    { data: authData },
+    { data: profileData },
     { data: customers },
     { data: visits },
     { data: opportunities },
     { data: followUps },
   ] = await Promise.all([
-    supabase.auth.getUser(),
+    userId
+      ? supabase
+          .from("profiles")
+          .select("annual_quota_liter, monthly_quota_liter")
+          .eq("id", userId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
     supabase
       .from("customers")
       .select(
@@ -106,9 +114,14 @@ export async function getTerritoryOptimizationDataAction(): Promise<TerritoryPla
       .eq("status", "PENDING"),
   ]);
 
-  const repQuota = getRepQuotaTarget(authData?.user?.email || "");
-  const defaultVolumeTarget = repQuota.monthlyVolumeLiter;
-  const defaultValueTarget = repQuota.monthlyValueIdr;
+  const profile = profileData as {
+    annual_quota_liter?: number | null;
+    monthly_quota_liter?: number | null;
+  } | null;
+
+  const annualTarget = Number(profile?.annual_quota_liter) || 50000;
+  const defaultVolumeTarget = Number(profile?.monthly_quota_liter) || Math.round(annualTarget / 12);
+  const defaultValueTarget = defaultVolumeTarget * 50000;
 
   if (!customers || customers.length === 0) {
     return {

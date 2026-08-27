@@ -532,30 +532,36 @@ export type Database = {
       }
       profiles: {
         Row: {
+          annual_quota_liter: number | null
           created_at: string
           full_name: string
           id: string
           is_active: boolean
+          monthly_quota_liter: number | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           sales_area: string | null
           updated_at: string
         }
         Insert: {
+          annual_quota_liter?: number | null
           created_at?: string
           full_name: string
           id: string
           is_active?: boolean
+          monthly_quota_liter?: number | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           sales_area?: string | null
           updated_at?: string
         }
         Update: {
+          annual_quota_liter?: number | null
           created_at?: string
           full_name?: string
           id?: string
           is_active?: boolean
+          monthly_quota_liter?: number | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           sales_area?: string | null

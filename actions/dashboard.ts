@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { daysSince, getTodayWIB, getStartOfMonthWIB } from "@/lib/utils/format";
-import { getRepQuotaTarget } from "@/lib/constants/quotas";
 
 export type PriorityAlert = {
   id: string;
@@ -87,7 +86,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     { data: customers },
     { data: monthlyVisits },
   ] = await Promise.all([
-    supabase.from("profiles").select("full_name, role, sales_area").eq("id", user.id).single(),
+    supabase
+      .from("profiles")
+      .select("full_name, role, sales_area, annual_quota_liter, monthly_quota_liter")
+      .eq("id", user.id)
+      .single(),
     supabase
       .from("visits")
       .select("id, visit_status")
@@ -281,7 +284,17 @@ export async function getDashboardData(): Promise<DashboardData> {
     tacticalTip = "Kunci komitmen mikro bertahap (sample test / penawaran resmi) untuk mempercepat pergerakan deal ke tahap Won.";
   }
 
-    const repTarget = getRepQuotaTarget(user.id, profile?.full_name);
+    const profileWithQuota = profile as {
+      full_name?: string | null;
+      role?: string;
+      sales_area?: string | null;
+      annual_quota_liter?: number | null;
+      monthly_quota_liter?: number | null;
+    } | null;
+
+    const annualVolumeTarget = Number(profileWithQuota?.annual_quota_liter) || 50000;
+    const monthlyVolumeTarget = Number(profileWithQuota?.monthly_quota_liter) || Math.round(annualVolumeTarget / 12);
+    const monthlyValueTarget = monthlyVolumeTarget * 50000;
 
     return {
       profile: profile
@@ -302,10 +315,10 @@ export async function getDashboardData(): Promise<DashboardData> {
       monthlyDealsWon,
       monthlyWonVolume,
       monthlyWonValue,
-      monthlyVolumeTarget: repTarget.monthlyVolumeLiter,
-      monthlyValueTarget: repTarget.monthlyValueIdr,
+      monthlyVolumeTarget,
+      monthlyValueTarget,
       annualWonVolume,
-      annualVolumeTarget: repTarget.annualVolumeLiter,
+      annualVolumeTarget,
       morningBriefing: {
         greeting,
         focusText,

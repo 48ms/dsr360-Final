@@ -119,7 +119,7 @@ dsr360/
 │   └── ai.ts                      # Gemini AI Sparring & LubeExpert Actions
 ├── lib/
 │   ├── supabase/                  # Server, Client & Proxy Middleware Config
-│   ├── constants/                 # Quotas, Shell TDS Knowledge Base, Enums
+│   ├── constants/                 # Shell Technical Data, Shell Pricing DB, Enums
 │   ├── utils/                     # Geo-route Haversine, Formatters, WhatsApp
 │   └── ai/                        # Gemini SDK Client & Hermes Nightly Agent
 └── proxy.ts                       # Next.js 16 Session Proxy Matcher
